@@ -31,6 +31,10 @@
     --work-color: #6366f1;
     --break-color: #10b981;
     --longbreak-color: #0891b2;
+    --format-ebook: #3b82f6;
+    --format-audiobook: #eab308;
+    --format-audiobook-text: #422006;
+    --format-physical: #64748b;
   }
 
   html[data-theme="dark"] {
@@ -50,6 +54,10 @@
     --work-color: #818cf8;
     --break-color: #34d399;
     --longbreak-color: #22d3ee;
+    --format-ebook: #2563eb;
+    --format-audiobook: #f59e0b;
+    --format-audiobook-text: #1c1917;
+    --format-physical: #94a3b8;
     color-scheme: dark;
   }
 
@@ -397,6 +405,35 @@
   }
   html[data-theme="dark"] .card-time { background: rgba(0, 0, 0, 0.55); }
 
+  /* ---------- Format badge (ebook=blue, audiobook=gold) ---------- */
+  .card-format {
+    position: absolute;
+    bottom: 6px; left: 6px;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.22);
+    z-index: 3;
+    display: flex; align-items: center; gap: 2px;
+    white-space: nowrap;
+    letter-spacing: 0.2px;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+  .card-format.ebook {
+    background: var(--format-ebook);
+    color: #fff;
+  }
+  .card-format.audiobook {
+    background: var(--format-audiobook);
+    color: var(--format-audiobook-text);
+  }
+  .card-format.physical {
+    background: var(--format-physical);
+    color: #fff;
+  }
+
   .book-card.empty {
     background: var(--surface-2); border: 2px dashed var(--border-strong);
     display: flex; flex-direction: column;
@@ -508,12 +545,24 @@
     gap: 10px 20px; font-size: 13px;
   }
   @media (max-width: 420px) { .view-meta { grid-template-columns: 1fr; } }
-  .view-meta-row { display: flex; gap: 6px; min-width: 0; }
+  .view-meta-row { display: flex; gap: 6px; min-width: 0; align-items: center; }
   .view-meta-label { color: var(--text-sub); font-weight: 700; flex-shrink: 0; }
   .view-meta-row span:not(.view-meta-label) {
     color: var(--text); overflow: hidden;
     text-overflow: ellipsis; white-space: nowrap;
   }
+
+  /* Format pill in view modal */
+  .format-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+  .format-pill.ebook { background: var(--format-ebook); color: #fff; }
+  .format-pill.audiobook { background: var(--format-audiobook); color: var(--format-audiobook-text); }
+  .format-pill.physical { background: var(--format-physical); color: #fff; }
 
   .view-stats {
     margin-top: 20px;
@@ -676,6 +725,25 @@
   }
   html[data-theme="dark"] .bulk-hint code { color: var(--primary-light); }
 
+  .bulk-format-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+  .bulk-format-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 9px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .bulk-format-chip.ebook { background: var(--format-ebook); color: #fff; }
+  .bulk-format-chip.audiobook { background: var(--format-audiobook); color: var(--format-audiobook-text); }
+  .bulk-format-chip.physical { background: var(--format-physical); color: #fff; }
+
   .ie-section { margin-bottom: 4px; }
   .ie-section h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
   .ie-section p { font-size: 13px; color: var(--text-sub); margin-bottom: 12px; line-height: 1.55; }
@@ -694,6 +762,99 @@
     border: 1px solid var(--border); flex-shrink: 0;
   }
   .cover-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* ---------- Cover search (edit modal) ---------- */
+  .cover-input-fields {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .cover-input-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .cover-input-actions .btn { padding: 7px 12px; font-size: 12px; }
+
+  /* ---------- Cover search modal ---------- */
+  .cover-search-tools {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .cover-search-tools .btn { padding: 7px 12px; font-size: 12px; }
+  .cover-search-status {
+    font-size: 13px;
+    color: var(--text-sub);
+    margin-bottom: 12px;
+    min-height: 18px;
+    font-weight: 600;
+  }
+  .cover-results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 12px;
+    max-height: 420px;
+    overflow-y: auto;
+    padding: 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    min-height: 180px;
+  }
+  .cover-result {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid var(--border);
+    cursor: pointer;
+    background: var(--surface-3);
+    aspect-ratio: 2 / 3;
+    transition: transform 0.15s ease, border-color 0.15s, box-shadow 0.15s;
+  }
+  .cover-result:hover {
+    transform: translateY(-3px);
+    border-color: var(--primary);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+  }
+  html[data-theme="dark"] .cover-result:hover {
+    box-shadow: 0 8px 18px rgba(0,0,0,0.55);
+  }
+  .cover-result img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .cover-result-label {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.88));
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 18px 6px 5px;
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .cover-result.selected {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.35);
+  }
+  .cover-empty,
+  .cover-loading {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--text-mute);
+    padding: 40px 12px;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .cover-loading { color: var(--text-sub); }
 
   /* ---------- Settings ---------- */
   .settings-section-title {
@@ -1672,6 +1833,7 @@
       <div class="cover-placeholder">📕</div>
       <img class="cover-img" alt="" decoding="async" draggable="false">
       <span class="card-deadline" style="display:none"></span>
+      <span class="card-format" style="display:none"></span>
       <span class="card-time" style="display:none"></span>
       <span class="status-badge">
         <span class="pulse"></span>
@@ -1770,10 +1932,16 @@
     <div class="modal-body">
       <div class="form-grid">
         <div class="form-group form-full">
-          <label>Cover Image URL</label>
+          <label>Cover Image</label>
           <div class="cover-input-row">
             <div class="cover-preview" id="f-cover-preview">📕</div>
-            <input type="url" id="f-coverUrl" placeholder="https://... image URL" style="flex:1">
+            <div class="cover-input-fields">
+              <input type="url" id="f-coverUrl" placeholder="https://... image URL">
+              <div class="cover-input-actions">
+                <button type="button" class="btn" id="f-cover-search">🔍 Search Cover</button>
+                <button type="button" class="btn" id="f-cover-auto">⚡ By ISBN</button>
+              </div>
+            </div>
           </div>
         </div>
         <div class="form-group form-full">
@@ -1796,9 +1964,9 @@
           <label>Format</label>
           <select id="f-format">
             <option value="">—</option>
-            <option value="physical">Physical</option>
-            <option value="ebook">eBook</option>
-            <option value="audiobook">Audiobook</option>
+            <option value="physical">📖 Physical</option>
+            <option value="ebook">📱 eBook</option>
+            <option value="audiobook">🎧 Audiobook</option>
           </select>
         </div>
         <div class="form-group form-full">
@@ -1855,6 +2023,40 @@
       <div class="modal-footer-right">
         <button class="btn" data-close>Cancel</button>
         <button class="btn btn-primary" id="btn-save">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
+     COVER SEARCH MODAL
+     ================================================== -->
+<div class="modal-backdrop" id="modal-cover" style="z-index:1100">
+  <div class="modal" style="max-width:780px">
+    <div class="modal-header">
+      <h2>🔍 Find Cover Image</h2>
+      <button class="modal-close" id="cover-modal-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:14px">
+        <label>Search Query</label>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="cover-search-input" placeholder="Title, author, or ISBN..." style="flex:1">
+          <button class="btn btn-primary" id="cover-search-go">Search</button>
+        </div>
+      </div>
+      <div class="cover-search-tools">
+        <button class="btn" id="cover-search-by-title">📖 By Title &amp; Author</button>
+        <button class="btn" id="cover-search-by-isbn">🔢 By ISBN</button>
+        <a class="btn" id="cover-google-images" target="_blank" rel="noopener">🌐 Google Images</a>
+      </div>
+      <div id="cover-search-status" class="cover-search-status">Enter a query and press Search.</div>
+      <div class="cover-results-grid" id="cover-results"></div>
+    </div>
+    <div class="modal-footer">
+      <div style="font-size:11px;color:var(--text-mute)">Sources: Google Books · Open Library</div>
+      <div class="modal-footer-right">
+        <button class="btn" id="cover-modal-close-btn">Close</button>
       </div>
     </div>
   </div>
@@ -2040,17 +2242,27 @@
     <div class="modal-body">
       <p class="bulk-hint">
         Paste one book per line, fields separated by <code>|</code> (pipe).<br>
-        Format: <code>Title | Author | ISBN (optional) | Cover URL (optional)</code>
+        <strong>Required:</strong> <code>Title | Author</code><br>
+        <strong>Optional (any order):</strong> ISBN, Cover URL, Format
       </p>
+      <div class="bulk-format-chips">
+        <span class="bulk-format-chip physical">📖 physical</span>
+        <span class="bulk-format-chip ebook">📱 ebook</span>
+        <span class="bulk-format-chip audiobook">🎧 audiobook</span>
+      </div>
+      <div style="font-size:11px;color:var(--text-mute);margin:10px 0 14px">
+        Also accepts: kindle, epub, audio, audible, paperback, hardcover, print
+      </div>
       <div class="form-group" style="margin-bottom:14px">
         <label>Target Phase</label>
         <select id="bulk-phase"></select>
       </div>
       <div class="form-group">
         <label>Books</label>
-        <textarea class="bulk-textarea" id="bulk-input" placeholder="The Hobbit | J.R.R. Tolkien | 9780547928227
-1984 | George Orwell | 9780451524935
-Dune | Frank Herbert"></textarea>
+        <textarea class="bulk-textarea" id="bulk-input" placeholder="The Hobbit | J.R.R. Tolkien | 9780547928227 | physical
+1984 | George Orwell | audiobook
+Dune | Frank Herbert | ebook | 9780441013593
+Project Hail Mary | Andy Weir | audiobook | https://covers.openlibrary.org/b/isbn/9780593135204-L.jpg"></textarea>
       </div>
     </div>
     <div class="modal-footer">
@@ -2327,6 +2539,29 @@ const MODE_LABELS = {
 
 const MONTH_NAMES_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MONTH_NAMES_LONG  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+// Format metadata
+const FORMAT_ICONS = { ebook: '📱', audiobook: '🎧', physical: '📖' };
+const FORMAT_LABELS = { ebook: 'eBook', audiobook: 'Audio', physical: 'Print' };
+
+// Aliases recognized when parsing bulk upload / detecting format strings
+const FORMAT_ALIASES = {
+  'ebook': 'ebook', 'e-book': 'ebook', 'e_book': 'ebook',
+  'digital': 'ebook', 'kindle': 'ebook', 'epub': 'ebook', 'pdf': 'ebook',
+  'mobi': 'ebook', 'kobo': 'ebook', 'nook': 'ebook',
+  'audiobook': 'audiobook', 'audio-book': 'audiobook', 'audio_book': 'audiobook',
+  'audio': 'audiobook', 'audible': 'audiobook', 'mp3': 'audiobook',
+  'cd': 'audiobook', 'aac': 'audiobook',
+  'physical': 'physical', 'paperback': 'physical', 'hardcover': 'physical',
+  'hardback': 'physical', 'print': 'physical', 'printed': 'physical',
+  'book': 'physical', 'paper': 'physical'
+};
+
+function detectFormat(str) {
+  if (!str) return null;
+  const s = String(str).trim().toLowerCase();
+  return FORMAT_ALIASES[s] || null;
+}
 
 /* ==================================================
    State
@@ -2880,6 +3115,7 @@ function createBookCard(book) {
 
   applyCardStatus(card, book);
   applyCardDeadline(card, book);
+  applyCardFormat(card, book);
   applyCardTime(card, book);
   applyCardTimerActive(card, book);
 
@@ -2914,6 +3150,20 @@ function applyCardDeadline(card, book) {
   el.textContent = (st === 'overdue' ? '⚠ ' : '📅 ') + formatShortDate(book.deadline);
 }
 
+function applyCardFormat(card, book) {
+  const el = card.querySelector('.card-format');
+  if (!el) return;
+  const fmt = book.format;
+  if (!fmt || (fmt !== 'ebook' && fmt !== 'audiobook' && fmt !== 'physical')) {
+    el.style.display = 'none';
+    el.textContent = '';
+    return;
+  }
+  el.style.display = '';
+  el.className = 'card-format ' + fmt;
+  el.textContent = (FORMAT_ICONS[fmt] || '') + ' ' + (FORMAT_LABELS[fmt] || fmt);
+}
+
 function applyCardTime(card, book) {
   const el = card.querySelector('.card-time');
   if (!el) return;
@@ -2934,6 +3184,7 @@ function refreshCard(bookId) {
   if (!book || !card) return;
   applyCardStatus(card, book);
   applyCardDeadline(card, book);
+  applyCardFormat(card, book);
   applyCardTime(card, book);
   applyCardTimerActive(card, book);
 }
@@ -3097,11 +3348,24 @@ function closeAllModals() {
 }
 
 document.addEventListener('click', (e) => {
-  if (e.target.classList.contains('modal-backdrop')) closeAllModals();
+  if (e.target.classList.contains('modal-backdrop')) {
+    // Cover search modal handles its own backdrop so the edit modal stays open
+    if (e.target.id === 'modal-cover') {
+      e.target.classList.remove('show');
+      return;
+    }
+    closeAllModals();
+  }
   if (e.target.matches('[data-close]')) closeAllModals();
 });
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
+    // Cover search modal closes independently so the edit modal stays open
+    const coverModal = document.getElementById('modal-cover');
+    if (coverModal && coverModal.classList.contains('show')) {
+      coverModal.classList.remove('show');
+      return;
+    }
     closeAllModals();
     document.getElementById('pomodoro-widget').classList.remove('open');
   }
@@ -3169,7 +3433,18 @@ function openViewModal(bookId) {
   const phase = getPhases().find(p => p.id === book.phase);
   const phaseIdx = book.phase - 1;
   viewEls.phase.textContent = phase ? 'Phase ' + phase.id + ' — ' + phase.name : '—';
-  viewEls.format.textContent = book.format ? capitalize(book.format) : '—';
+
+  // Format — show as colored pill
+  viewEls.format.innerHTML = '';
+  if (book.format && FORMAT_LABELS[book.format]) {
+    const span = document.createElement('span');
+    span.className = 'format-pill ' + book.format;
+    span.textContent = (FORMAT_ICONS[book.format] || '') + ' ' + FORMAT_LABELS[book.format];
+    viewEls.format.appendChild(span);
+  } else {
+    viewEls.format.textContent = '—';
+  }
+
   viewEls.pages.textContent = book.pages ? book.pages : '—';
   viewEls.isbn.textContent = book.isbn || '—';
   viewEls.started.textContent = formatDate(book.dateStarted);
@@ -3472,6 +3747,224 @@ function saveBookFromModal() {
   closeAllModals();
 }
 document.getElementById('btn-save').addEventListener('click', saveBookFromModal);
+
+/* ==================================================
+   Cover search
+   ================================================== */
+const coverEls = {
+  input:    document.getElementById('cover-search-input'),
+  go:       document.getElementById('cover-search-go'),
+  byTitle:  document.getElementById('cover-search-by-title'),
+  byIsbn:   document.getElementById('cover-search-by-isbn'),
+  google:   document.getElementById('cover-google-images'),
+  status:   document.getElementById('cover-search-status'),
+  results:  document.getElementById('cover-results'),
+  modal:    document.getElementById('modal-cover'),
+  closeBtn: document.getElementById('cover-modal-close'),
+  closeBtn2: document.getElementById('cover-modal-close-btn')
+};
+
+function closeCoverModal() {
+  coverEls.modal.classList.remove('show');
+}
+
+coverEls.closeBtn.addEventListener('click', closeCoverModal);
+coverEls.closeBtn2.addEventListener('click', closeCoverModal);
+
+function updateGoogleImagesLink(query) {
+  coverEls.google.href = 'https://www.google.com/search?tbm=isch&q=' +
+    encodeURIComponent(query || 'book cover');
+}
+
+function openCoverSearch() {
+  const title = f.title.value.trim();
+  const author = f.author.value.trim();
+  const isbn = f.isbn.value.trim();
+  let q = title;
+  if (author) q += (q ? ' ' : '') + author;
+  if (!q && isbn) q = isbn;
+
+  coverEls.input.value = q;
+  coverEls.results.innerHTML = '';
+  coverEls.status.textContent = q ? 'Press Search to find covers.' : 'Enter a title, author, or ISBN.';
+  updateGoogleImagesLink(q);
+  coverEls.modal.classList.add('show');
+
+  if (q) runCoverSearch();
+  else requestAnimationFrame(() => coverEls.input.focus());
+}
+
+coverEls.go.addEventListener('click', runCoverSearch);
+coverEls.input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); runCoverSearch(); }
+});
+coverEls.byTitle.addEventListener('click', () => {
+  const t = f.title.value.trim();
+  const a = f.author.value.trim();
+  let q = t;
+  if (a) q += (q ? ' ' : '') + a;
+  if (!q) { showToast('Add a title first', 'error'); return; }
+  coverEls.input.value = q;
+  runCoverSearch();
+});
+coverEls.byIsbn.addEventListener('click', () => {
+  const isbn = f.isbn.value.trim();
+  if (!isbn) { showToast('Add an ISBN first', 'error'); return; }
+  coverEls.input.value = isbn;
+  runCoverSearch();
+});
+
+async function runCoverSearch() {
+  const q = coverEls.input.value.trim();
+  if (!q) { showToast('Enter a search query', 'error'); coverEls.input.focus(); return; }
+
+  updateGoogleImagesLink(q + ' book cover');
+  coverEls.status.textContent = 'Searching…';
+  coverEls.results.innerHTML = '<div class="cover-loading">Searching Google Books &amp; Open Library…</div>';
+
+  const results = [];
+  const seen = new Set();
+
+  const settled = await Promise.allSettled([
+    searchGoogleBooks(q),
+    searchOpenLibrary(q)
+  ]);
+  for (const s of settled) {
+    if (s.status !== 'fulfilled' || !s.value) continue;
+    for (const r of s.value) {
+      if (!r || !r.url || seen.has(r.url)) continue;
+      seen.add(r.url);
+      results.push(r);
+    }
+  }
+
+  if (results.length === 0) {
+    coverEls.status.textContent = 'No covers found.';
+    coverEls.results.innerHTML =
+      '<div class="cover-empty">No cover images found.<br>' +
+      'Try a different query, or use the <strong>🌐 Google Images</strong> button above.</div>';
+    return;
+  }
+
+  coverEls.status.textContent = 'Found ' + results.length + ' cover' +
+    (results.length !== 1 ? 's' : '') + ' — click one to use it.';
+  renderCoverResults(results);
+}
+
+async function searchGoogleBooks(q) {
+  const url = 'https://www.googleapis.com/books/v1/volumes?q=' +
+    encodeURIComponent(q) + '&maxResults=20&printType=books';
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Google Books ' + res.status);
+  const data = await res.json();
+  if (!data.items) return [];
+  const out = [];
+  for (const item of data.items) {
+    const vi = item.volumeInfo || {};
+    const links = vi.imageLinks || {};
+    let img = links.extraLarge || links.large || links.medium ||
+              links.thumbnail || links.smallThumbnail;
+    if (!img) continue;
+    img = img.replace(/^http:/, 'https:');
+    out.push({
+      url: img,
+      title: vi.title || '',
+      author: (vi.authors && vi.authors[0]) || '',
+      source: 'Google Books'
+    });
+  }
+  return out;
+}
+
+async function searchOpenLibrary(q) {
+  // Direct ISBN cover shortcut
+  const digits = q.replace(/[^0-9Xx]/g, '');
+  if (/^\d{9}[\dXx]$/.test(digits) || /^\d{13}$/.test(digits)) {
+    return [{
+      url: 'https://covers.openlibrary.org/b/isbn/' + digits + '-L.jpg',
+      title: q,
+      author: '',
+      source: 'Open Library (ISBN)'
+    }];
+  }
+
+  const url = 'https://openlibrary.org/search.json?q=' + encodeURIComponent(q) +
+    '&limit=20&fields=title,author_name,cover_i,isbn';
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Open Library ' + res.status);
+  const data = await res.json();
+  if (!data.docs) return [];
+  const out = [];
+  for (const doc of data.docs) {
+    if (doc.cover_i) {
+      out.push({
+        url: 'https://covers.openlibrary.org/b/id/' + doc.cover_i + '-L.jpg',
+        title: doc.title || '',
+        author: (doc.author_name && doc.author_name[0]) || '',
+        source: 'Open Library'
+      });
+    } else if (Array.isArray(doc.isbn) && doc.isbn.length) {
+      out.push({
+        url: 'https://covers.openlibrary.org/b/isbn/' + doc.isbn[0] + '-L.jpg',
+        title: doc.title || '',
+        author: (doc.author_name && doc.author_name[0]) || '',
+        source: 'Open Library (ISBN)'
+      });
+    }
+  }
+  return out;
+}
+
+function renderCoverResults(results) {
+  coverEls.results.innerHTML = '';
+  const frag = document.createDocumentFragment();
+  const currentUrl = f.coverUrl.value.trim();
+
+  for (const r of results) {
+    const el = document.createElement('div');
+    el.className = 'cover-result';
+    if (r.url === currentUrl) el.classList.add('selected');
+    el.title = (r.title || 'Untitled') +
+      (r.author ? ' — ' + r.author : '') +
+      '\n' + r.source;
+
+    const img = document.createElement('img');
+    img.loading = 'lazy';
+    img.alt = r.title || 'Cover';
+    img.onerror = function () { this.style.opacity = '0.25'; };
+    img.src = r.url;
+    el.appendChild(img);
+
+    const label = document.createElement('div');
+    label.className = 'cover-result-label';
+    label.textContent = r.title || 'Untitled';
+    el.appendChild(label);
+
+    el.addEventListener('click', () => {
+      f.coverUrl.value = r.url;
+      setCoverPreview(r.url);
+      coverEls.results.querySelectorAll('.cover-result.selected')
+        .forEach(x => x.classList.remove('selected'));
+      el.classList.add('selected');
+      showToast('Cover selected ✓', 'success');
+      setTimeout(closeCoverModal, 350);
+    });
+
+    frag.appendChild(el);
+  }
+  coverEls.results.appendChild(frag);
+}
+
+// Wire up edit-modal cover action buttons
+document.getElementById('f-cover-search').addEventListener('click', openCoverSearch);
+document.getElementById('f-cover-auto').addEventListener('click', () => {
+  const isbn = f.isbn.value.trim();
+  if (!isbn) { showToast('Enter an ISBN first', 'error'); return; }
+  const url = 'https://covers.openlibrary.org/b/isbn/' + isbn + '-L.jpg';
+  f.coverUrl.value = url;
+  setCoverPreview(url);
+  showToast('Cover URL set from ISBN ✓', 'success');
+});
 
 /* ==================================================
    Settings modal
@@ -4375,8 +4868,9 @@ document.getElementById('bulk-submit').addEventListener('click', () => {
 
   const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
   let added = 0;
+  let formatCount = 0;
 
-   for (const line of lines) {
+  for (const line of lines) {
     const parts = line.split('|').map(s => s.trim());
     const title = parts[0];
     if (!title) continue;
@@ -4384,16 +4878,23 @@ document.getElementById('bulk-submit').addEventListener('click', () => {
     const author = parts[1] || '';
     let isbn = '';
     let coverUrl = '';
+    let format = '';
 
-    // Smart-detect fields 3+: URLs → coverUrl, anything else → ISBN
+    // Smart-detect fields 3+: URLs → coverUrl, format keywords → format,
+    // anything else (first non-format) → ISBN
     for (let i = 2; i < parts.length; i++) {
       const val = parts[i];
       if (!val) continue;
       if (/^https?:\/\//i.test(val)) {
         if (!coverUrl) coverUrl = val;
-      } else if (!isbn) {
-        isbn = val;
+        continue;
       }
+      const fmt = detectFormat(val);
+      if (fmt && !format) {
+        format = fmt;
+        continue;
+      }
+      if (!isbn) isbn = val;
     }
 
     insertBook({
@@ -4406,11 +4907,12 @@ document.getElementById('bulk-submit').addEventListener('click', () => {
       status: 'unread',
       rating: 0, notes: '',
       dateStarted: '', dateFinished: '', deadline: '',
-      format: '', pages: 0,
+      format, pages: 0,
       goodreads: '', wiki: '', summary: '',
       timeSpent: 0, sessionsCompleted: 0
     });
     added++;
+    if (format) formatCount++;
   }
 
   saveState();
@@ -4419,7 +4921,10 @@ document.getElementById('bulk-submit').addEventListener('click', () => {
   updateEmptyBanner();
   closeAllModals();
   document.getElementById('bulk-input').value = '';
-  showToast('Added ' + added + ' book' + (added !== 1 ? 's' : '') + ' ✓', 'success');
+
+  let msg = 'Added ' + added + ' book' + (added !== 1 ? 's' : '') + ' ✓';
+  if (formatCount > 0) msg += ' (' + formatCount + ' with format)';
+  showToast(msg, 'success');
 });
 
 /* ==================================================
@@ -4457,6 +4962,11 @@ document.getElementById('ie-import-file').addEventListener('change', (e) => {
         if (typeof b.timeSpent !== 'number') b.timeSpent = 0;
         if (typeof b.sessionsCompleted !== 'number') b.sessionsCompleted = 0;
         if (typeof b.deadline !== 'string') b.deadline = '';
+        // Normalize format
+        if (b.format && !FORMAT_LABELS[b.format]) {
+          const detected = detectFormat(b.format);
+          b.format = detected || '';
+        }
       }
 
       if (!confirm('Import ' + cleaned.length + ' book' + (cleaned.length !== 1 ? 's' : '') + '?\nThis will replace your current data and settings.')) return;
@@ -4534,26 +5044,26 @@ document.getElementById('ie-clear').addEventListener('click', () => {
    ================================================== */
 function loadSampleData() {
   const samples = [
-    { t: 'The Hobbit', a: 'J.R.R. Tolkien', isbn: '9780547928227' },
-    { t: 'The Fellowship of the Ring', a: 'J.R.R. Tolkien', isbn: '9780547928210' },
-    { t: 'The Two Towers', a: 'J.R.R. Tolkien', isbn: '9780547928203' },
-    { t: 'The Return of the King', a: 'J.R.R. Tolkien', isbn: '9780547928197' },
-    { t: 'The Lion, the Witch and the Wardrobe', a: 'C.S. Lewis', isbn: '9780064471046' },
-    { t: 'Prince Caspian', a: 'C.S. Lewis', isbn: '9780064471053' },
-    { t: 'The Voyage of the Dawn Treader', a: 'C.S. Lewis', isbn: '9780064471077' },
-    { t: 'The Silver Chair', a: 'C.S. Lewis', isbn: '9780064471091' },
-    { t: '1984', a: 'George Orwell', isbn: '9780451524935' },
-    { t: 'Animal Farm', a: 'George Orwell', isbn: '9780451526342' },
-    { t: 'Dune', a: 'Frank Herbert', isbn: '9780441013593' },
-    { t: 'Dune Messiah', a: 'Frank Herbert', isbn: '9780593098233' },
-    { t: "Harry Potter and the Philosopher's Stone", a: 'J.K. Rowling', isbn: '9780747532699' },
-    { t: 'Harry Potter and the Chamber of Secrets', a: 'J.K. Rowling', isbn: '9780747538493' },
-    { t: 'Fahrenheit 451', a: 'Ray Bradbury', isbn: '9781451673319' },
-    { t: 'Good Omens', a: 'Terry Pratchett & Neil Gaiman', isbn: '9780060853983' },
-    { t: "The Hitchhiker's Guide to the Galaxy", a: 'Douglas Adams', isbn: '9780345391803' },
-    { t: 'The Silmarillion', a: 'J.R.R. Tolkien', isbn: '9780345325815' },
-    { t: "The Magician's Nephew", a: 'C.S. Lewis', isbn: '9780064471107' },
-    { t: 'The Last Battle', a: 'C.S. Lewis', isbn: '9780064471084' }
+    { t: 'The Hobbit', a: 'J.R.R. Tolkien', isbn: '9780547928227', f: 'physical' },
+    { t: 'The Fellowship of the Ring', a: 'J.R.R. Tolkien', isbn: '9780547928210', f: 'physical' },
+    { t: 'The Two Towers', a: 'J.R.R. Tolkien', isbn: '9780547928203', f: 'physical' },
+    { t: 'The Return of the King', a: 'J.R.R. Tolkien', isbn: '9780547928197', f: 'physical' },
+    { t: 'The Lion, the Witch and the Wardrobe', a: 'C.S. Lewis', isbn: '9780064471046', f: 'ebook' },
+    { t: 'Prince Caspian', a: 'C.S. Lewis', isbn: '9780064471053', f: 'ebook' },
+    { t: 'The Voyage of the Dawn Treader', a: 'C.S. Lewis', isbn: '9780064471077', f: 'ebook' },
+    { t: 'The Silver Chair', a: 'C.S. Lewis', isbn: '9780064471091', f: 'ebook' },
+    { t: '1984', a: 'George Orwell', isbn: '9780451524935', f: 'audiobook' },
+    { t: 'Animal Farm', a: 'George Orwell', isbn: '9780451526342', f: 'audiobook' },
+    { t: 'Dune', a: 'Frank Herbert', isbn: '9780441013593', f: 'physical' },
+    { t: 'Dune Messiah', a: 'Frank Herbert', isbn: '9780593098233', f: 'physical' },
+    { t: "Harry Potter and the Philosopher's Stone", a: 'J.K. Rowling', isbn: '9780747532699', f: 'audiobook' },
+    { t: 'Harry Potter and the Chamber of Secrets', a: 'J.K. Rowling', isbn: '9780747538493', f: 'audiobook' },
+    { t: 'Fahrenheit 451', a: 'Ray Bradbury', isbn: '9781451673319', f: 'ebook' },
+    { t: 'Good Omens', a: 'Terry Pratchett & Neil Gaiman', isbn: '9780060853983', f: 'audiobook' },
+    { t: "The Hitchhiker's Guide to the Galaxy", a: 'Douglas Adams', isbn: '9780345391803', f: 'audiobook' },
+    { t: 'The Silmarillion', a: 'J.R.R. Tolkien', isbn: '9780345325815', f: 'ebook' },
+    { t: "The Magician's Nephew", a: 'C.S. Lewis', isbn: '9780064471107', f: 'ebook' },
+    { t: 'The Last Battle', a: 'C.S. Lewis', isbn: '9780064471084', f: 'ebook' }
   ];
 
   state.books = [];
@@ -4602,7 +5112,8 @@ function loadSampleData() {
       rating: status === 'finished' ? (4 + (i % 2)) : 0,
       notes: '', dateStarted, dateFinished,
       deadline: deadline || '',
-      format: '', pages: 0, goodreads: '', wiki: '', summary: '',
+      format: sample.f || '',
+      pages: 0, goodreads: '', wiki: '', summary: '',
       timeSpent: status === 'finished' ? (60 * 60 * (3 + (i % 5))) : status === 'reading' ? (60 * 30 * (1 + (i % 3))) : 0,
       sessionsCompleted: status === 'finished' ? (5 + (i % 4)) : status === 'reading' ? (2 + (i % 2)) : 0
     });
