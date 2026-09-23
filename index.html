@@ -4290,18 +4290,33 @@ document.getElementById('bulk-submit').addEventListener('click', () => {
   const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
   let added = 0;
 
-  for (const line of lines) {
+   for (const line of lines) {
     const parts = line.split('|').map(s => s.trim());
     const title = parts[0];
     if (!title) continue;
+
+    const author = parts[1] || '';
+    let isbn = '';
+    let coverUrl = '';
+
+    // Smart-detect fields 3+: URLs → coverUrl, anything else → ISBN
+    for (let i = 2; i < parts.length; i++) {
+      const val = parts[i];
+      if (!val) continue;
+      if (/^https?:\/\//i.test(val)) {
+        if (!coverUrl) coverUrl = val;
+      } else if (!isbn) {
+        isbn = val;
+      }
+    }
 
     insertBook({
       id: uid(),
       phase,
       title,
-      author: parts[1] || '',
-      isbn: parts[2] || '',
-      coverUrl: parts[3] || '',
+      author,
+      isbn,
+      coverUrl,
       status: 'unread',
       rating: 0, notes: '',
       dateStarted: '', dateFinished: '', deadline: '',
