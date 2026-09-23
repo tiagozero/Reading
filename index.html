@@ -2061,12 +2061,6 @@ Dune | Frank Herbert"></textarea>
       </div>
       <hr class="ie-divider">
       <div class="ie-section">
-        <h3>📚 Sample Data</h3>
-        <p>Load 20 sample books across all phases.</p>
-        <button class="btn" id="ie-sample">Load Sample Books</button>
-      </div>
-      <hr class="ie-divider">
-      <div class="ie-section">
         <h3 style="color:var(--status-dnf)">⚠️ Danger Zone</h3>
         <p>Clear all books. Cannot be undone.</p>
         <button class="btn btn-danger" id="ie-clear">Clear All Data</button>
@@ -3038,10 +3032,8 @@ function updateEmptyBanner() {
     emptyBannerEl.innerHTML =
       '<div><strong>Welcome to your book challenge! 🎉</strong>' +
       '<div style="font-size:13px;color:var(--text-sub);margin-top:4px">' +
-      'Get started by adding a book, bulk uploading, or ' +
-      '<span class="link" id="banner-sample">loading sample data</span>.</div></div>';
+      'Get started by adding a book or bulk uploading.</div></div>';
     refs.container.insertBefore(emptyBannerEl, refs.container.firstChild);
-    document.getElementById('banner-sample').addEventListener('click', loadSampleData);
   } else if (has && emptyBannerEl) {
     emptyBannerEl.remove();
     emptyBannerEl = null;
@@ -4442,115 +4434,6 @@ document.getElementById('ie-clear').addEventListener('click', () => {
   closeAllModals();
   showToast('All data cleared');
 });
-
-/* ==================================================
-   Sample data
-   ================================================== */
-function loadSampleData() {
-  const samples = [
-    { t: 'The Hobbit', a: 'J.R.R. Tolkien', isbn: '9780547928227' },
-    { t: 'The Fellowship of the Ring', a: 'J.R.R. Tolkien', isbn: '9780547928210' },
-    { t: 'The Two Towers', a: 'J.R.R. Tolkien', isbn: '9780547928203' },
-    { t: 'The Return of the King', a: 'J.R.R. Tolkien', isbn: '9780547928197' },
-    { t: 'The Lion, the Witch and the Wardrobe', a: 'C.S. Lewis', isbn: '9780064471046' },
-    { t: 'Prince Caspian', a: 'C.S. Lewis', isbn: '9780064471053' },
-    { t: 'The Voyage of the Dawn Treader', a: 'C.S. Lewis', isbn: '9780064471077' },
-    { t: 'The Silver Chair', a: 'C.S. Lewis', isbn: '9780064471091' },
-    { t: '1984', a: 'George Orwell', isbn: '9780451524935' },
-    { t: 'Animal Farm', a: 'George Orwell', isbn: '9780451526342' },
-    { t: 'Dune', a: 'Frank Herbert', isbn: '9780441013593' },
-    { t: 'Dune Messiah', a: 'Frank Herbert', isbn: '9780593098233' },
-    { t: "Harry Potter and the Philosopher's Stone", a: 'J.K. Rowling', isbn: '9780747532699' },
-    { t: 'Harry Potter and the Chamber of Secrets', a: 'J.K. Rowling', isbn: '9780747538493' },
-    { t: 'Fahrenheit 451', a: 'Ray Bradbury', isbn: '9781451673319' },
-    { t: 'Good Omens', a: 'Terry Pratchett & Neil Gaiman', isbn: '9780060853983' },
-    { t: "The Hitchhiker's Guide to the Galaxy", a: 'Douglas Adams', isbn: '9780345391803' },
-    { t: 'The Silmarillion', a: 'J.R.R. Tolkien', isbn: '9780345325815' },
-    { t: "The Magician's Nephew", a: 'C.S. Lewis', isbn: '9780064471107' },
-    { t: 'The Last Battle', a: 'C.S. Lewis', isbn: '9780064471084' }
-  ];
-
-  state.books = [];
-  const statuses = ['finished', 'reading', 'unread', 'unread'];
-  const phaseCount = state.settings.phaseCount;
-  const perPhase = state.settings.booksPerPhase;
-  const buckets = Array.from({ length: phaseCount }, () => 0);
-
-  const hasDates = state.settings.startDate && state.settings.endDate;
-  const today = new Date();
-
-  samples.forEach((sample, i) => {
-    let phase = (i % phaseCount) + 1;
-    if (buckets[phase - 1] >= perPhase) {
-      const free = buckets.findIndex(b => b < perPhase);
-      if (free === -1) return;
-      phase = free + 1;
-    }
-    buckets[phase - 1]++;
-
-    const status = statuses[i % 4];
-    const deadline = hasDates && status !== 'finished' ? getPhaseDeadline(phase - 1) : '';
-
-    // Spread start/finish dates across the last ~90 days
-    let dateStarted = '';
-    let dateFinished = '';
-    if (status === 'finished' || status === 'reading' || status === 'dnf') {
-      const sd = new Date(today);
-      sd.setDate(sd.getDate() - (85 - i * 4));
-      dateStarted = dateToISO(sd);
-    }
-    if (status === 'finished') {
-      const fd = new Date(today);
-      fd.setDate(fd.getDate() - (75 - i * 4));
-      dateFinished = dateToISO(fd);
-    }
-
-    state.books.push({
-      id: uid(),
-      phase,
-      title: sample.t,
-      author: sample.a,
-      isbn: sample.isbn,
-      coverUrl: 'https://covers.openlibrary.org/b/isbn/' + sample.isbn + '-M.jpg',
-      status,
-      rating: status === 'finished' ? (4 + (i % 2)) : 0,
-      notes: '', dateStarted, dateFinished,
-      deadline: deadline || '',
-      format: '', pages: 0, goodreads: '', wiki: '', summary: '',
-      timeSpent: status === 'finished' ? (60 * 60 * (3 + (i % 5))) : status === 'reading' ? (60 * 30 * (1 + (i % 3))) : 0,
-      sessionsCompleted: status === 'finished' ? (5 + (i % 4)) : status === 'reading' ? (2 + (i % 2)) : 0
-    });
-  });
-
-  state.books.sort((a, b) => a.phase - b.phase);
-
-  // Seed activity log with plausible data
-  state.activityLog = {};
-  for (let i = 0; i < 75; i++) {
-    if (Math.random() < 0.30) continue;
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const iso = dateToISO(d);
-    const minutes = Math.floor(Math.random() * 95 + 15);
-    const sessions = Math.max(1, Math.round(minutes / 25));
-    const pages = Math.floor(Math.random() * 45 + 5);
-    state.activityLog[iso] = {
-      seconds: minutes * 60,
-      sessions,
-      pages,
-      bookIds: []
-    };
-  }
-
-  saveState();
-  refs.bookElMap.clear();
-  rebuildAllPhases();
-  updateHeaderGoals();
-  updateEmptyBanner();
-  closeAllModals();
-  showToast('Sample data loaded ✓', 'success');
-}
-document.getElementById('ie-sample').addEventListener('click', loadSampleData);
 
 /* ==================================================
    CALENDAR VIEW
