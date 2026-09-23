@@ -1582,6 +1582,21 @@
   }
   .heatmap-legend .heatmap-cell { cursor: default; }
   .heatmap-legend .heatmap-cell:hover { outline: none; }
+
+  /* ---------- Reset Challenge (settings) ---------- */
+  .reset-challenge-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .reset-challenge-row .btn { flex: 1 1 160px; }
+  .reset-note {
+    font-size: 12px;
+    color: var(--text-sub);
+    line-height: 1.55;
+    margin-bottom: 12px;
+  }
+  .reset-note strong { color: var(--text); }
 </style>
 </head>
 <body>
@@ -1986,6 +2001,19 @@
             <label>Long Break Every</label>
             <input type="number" id="s-pomoLongEvery" min="2" max="10" value="4" step="1">
           </div>
+        </div>
+      </div>
+
+      <!-- Reset challenge -->
+      <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+        <div class="settings-section-title" style="color:var(--status-dnf)">🔄 Reset Challenge</div>
+        <p class="reset-note">
+          Clears <strong>all books</strong> and <strong>reading activity</strong>, and restarts the
+          challenge timeline from today (keeping the same duration). Phase names, colors,
+          goals, and timer settings are kept.
+        </p>
+        <div class="reset-challenge-row">
+          <button type="button" class="btn btn-danger" id="s-reset-challenge">Reset Challenge &amp; Books</button>
         </div>
       </div>
 
@@ -3746,6 +3774,64 @@ document.getElementById('s-reset').addEventListener('click', () => {
   s.pomoLongEvery.value = DEFAULT_SETTINGS.pomodoro.longBreakEvery;
   setActivePreset(null);
   updateSettingsPreview();
+});
+
+/* ==================================================
+   Reset Challenge & Books
+   ================================================== */
+document.getElementById('s-reset-challenge').addEventListener('click', () => {
+  const bookCount = state.books.length;
+  const activityDays = Object.keys(state.activityLog).length;
+
+  const msg1 =
+    'Reset the challenge and books?\n\n' +
+    '• ' + bookCount + ' book' + (bookCount !== 1 ? 's' : '') + ' will be permanently deleted\n' +
+    '• ' + activityDays + ' day' + (activityDays !== 1 ? 's' : '') + ' of reading activity will be cleared\n' +
+    '• The challenge timeline will restart from today (same duration)\n\n' +
+    'Phase names, colors, goals, and timer settings will be kept.\n\n' +
+    'This cannot be undone.';
+  if (!confirm(msg1)) return;
+  if (!confirm('Are you absolutely sure? Consider exporting your data first.')) return;
+
+  // Preserve the current challenge duration so we can restart the timeline.
+  const durationDays = (state.settings.startDate && state.settings.endDate)
+    ? daysBetweenISO(state.settings.startDate, state.settings.endDate)
+    : null;
+
+  // Stop any running timer and clear its state.
+  state.timer.running = false;
+  state.timer.bookId = null;
+  state.timer.endTimestamp = null;
+  state.timer.lastTickTs = null;
+  state.timer.mode = 'work';
+  state.timer.sessionsCompleted = 0;
+  state.timer.remainingSeconds = getModeDuration('work');
+
+  // Wipe books + activity.
+  state.books = [];
+  state.activityLog = {};
+  refs.bookElMap.clear();
+
+  // Restart the timeline from today (keep same duration if it was set).
+  if (durationDays && durationDays > 0) {
+    const today = todayISO();
+    state.settings.startDate = today;
+    state.settings.endDate = addDaysISO(today, durationDays);
+  }
+
+  saveState();
+
+  // Refresh UI.
+  rebuildAllPhases();
+  updateHeaderDates();
+  updateHeaderGoals();
+  updateEmptyBanner();
+  refreshCardTimerState();
+  updateTimerWidget();
+  rebuildPomoBookSelect();
+
+  closeAllModals();
+  showToast('Challenge reset — good luck! 🎉', 'success');
 });
 
 /* ==================================================
