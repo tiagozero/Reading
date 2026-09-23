@@ -1,0 +1,4462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>100 Book Reading Challenge</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f7fa;
+    --surface: #ffffff;
+    --surface-2: #f8fafc;
+    --surface-3: #f1f5f9;
+    --text: #1a202c;
+    --text-sub: #718096;
+    --text-mute: #a0aec0;
+    --border: #e2e8f0;
+    --border-strong: #cbd5e0;
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --primary-light: #a5b4fc;
+    --overlay: rgba(15, 23, 42, 0.6);
+    --status-unread: #94a3b8;
+    --status-reading: #f59e0b;
+    --status-finished: #10b981;
+    --status-dnf: #ef4444;
+    --deadline-ok: #64748b;
+    --deadline-soon: #d97706;
+    --deadline-overdue: #dc2626;
+    --work-color: #6366f1;
+    --break-color: #10b981;
+    --longbreak-color: #0891b2;
+  }
+
+  html[data-theme="dark"] {
+    --bg: #16181c;
+    --surface: #1f2227;
+    --surface-2: #282c33;
+    --surface-3: #32373f;
+    --text: #e6e8eb;
+    --text-sub: #9ca3af;
+    --text-mute: #6b7280;
+    --border: #33373e;
+    --border-strong: #454a52;
+    --primary: #818cf8;
+    --primary-dark: #6366f1;
+    --primary-light: #c7d2fe;
+    --overlay: rgba(0, 0, 0, 0.72);
+    --work-color: #818cf8;
+    --break-color: #34d399;
+    --longbreak-color: #22d3ee;
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    transition: background 0.25s ease, color 0.25s ease;
+  }
+
+  /* ---------- Header ---------- */
+  .app-header {
+    position: sticky; top: 0;
+    background: var(--surface); z-index: 100;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    transition: background 0.25s ease, border-color 0.25s ease;
+  }
+  .header-inner {
+    max-width: 1400px; margin: 0 auto;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .app-title { font-size: 17px; font-weight: 800; white-space: nowrap; letter-spacing: -0.3px; }
+  .app-title span { color: var(--primary); }
+
+  .header-progress { flex: 1; min-width: 220px; max-width: 420px; }
+  .progress-info {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--text-sub);
+    margin-bottom: 5px; font-weight: 700;
+  }
+  .progress-track { height: 8px; background: var(--surface-3); border-radius: 4px; overflow: hidden; }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+    border-radius: 4px; transition: width 0.4s ease; will-change: width;
+  }
+  .progress-dates {
+    font-size: 11px; color: var(--text-mute);
+    margin-top: 5px; font-weight: 500;
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .progress-dates .days-left { color: var(--primary); font-weight: 700; }
+  .progress-dates .ended { color: var(--status-dnf); font-weight: 700; }
+
+  .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .btn {
+    padding: 8px 14px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--text); font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--surface-2); border-color: var(--border-strong); }
+  .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+  .btn-danger { color: var(--status-dnf); border-color: #fecaca; background: #fef2f2; }
+  .btn-danger:hover { background: #fee2e2; border-color: #fca5a5; }
+  html[data-theme="dark"] .btn-danger {
+    color: #fca5a5;
+    border-color: rgba(220, 38, 38, 0.35);
+    background: rgba(220, 38, 38, 0.12);
+  }
+  html[data-theme="dark"] .btn-danger:hover {
+    background: rgba(220, 38, 38, 0.22);
+    border-color: rgba(220, 38, 38, 0.55);
+  }
+
+  /* ---------- Main ---------- */
+  .main-container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+
+  .empty-banner {
+    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+    border: 1px solid #c7d2fe; border-radius: 12px;
+    padding: 18px 22px; margin-bottom: 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+  }
+  .empty-banner strong { font-size: 15px; }
+  .empty-banner .link {
+    color: var(--primary-dark); font-weight: 700;
+    cursor: pointer; text-decoration: underline;
+  }
+  html[data-theme="dark"] .empty-banner {
+    background: linear-gradient(135deg, #1f2330, #1c2537);
+    border-color: #2c3a54;
+  }
+  html[data-theme="dark"] .empty-banner .link { color: var(--primary-light); }
+
+  /* ---------- Phase ---------- */
+  .phase {
+    background: var(--surface); border-radius: 14px;
+    padding: 18px 20px; margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.03);
+    content-visibility: auto;
+    contain-intrinsic-size: 0 500px;
+    transition: background 0.25s ease;
+  }
+  html[data-theme="dark"] .phase {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.35), 0 4px 12px rgba(0,0,0,0.25);
+  }
+  .phase-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px; flex-wrap: wrap; gap: 8px;
+  }
+  .phase-title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .phase-badge {
+    background: var(--phase-color, var(--primary)); color: #fff;
+    font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px;
+    letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .phase-title h2 { font-size: 16px; font-weight: 700; }
+  .phase-deadline-chip {
+    font-size: 11px; font-weight: 700;
+    padding: 3px 9px; border-radius: 12px;
+    background: var(--surface-3);
+    color: var(--deadline-ok);
+    border: 1px solid var(--border);
+    display: inline-flex; align-items: center; gap: 4px;
+    white-space: nowrap;
+  }
+  .phase-deadline-chip .chip-countdown { font-weight: 800; }
+  .phase-deadline-chip.soon { background: #fef3c7; color: var(--deadline-soon); border-color: #fcd34d; }
+  .phase-deadline-chip.overdue { background: #fee2e2; color: var(--deadline-overdue); border-color: #fca5a5; }
+  html[data-theme="dark"] .phase-deadline-chip.soon {
+    background: rgba(217, 119, 6, 0.2);
+    border-color: rgba(217, 119, 6, 0.4);
+    color: #fcd34d;
+  }
+  html[data-theme="dark"] .phase-deadline-chip.overdue {
+    background: rgba(220, 38, 38, 0.2);
+    border-color: rgba(220, 38, 38, 0.4);
+    color: #fca5a5;
+  }
+
+  .phase-stats {
+    display: flex; align-items: baseline; gap: 10px;
+    font-size: 13px; color: var(--text-sub); font-weight: 600;
+  }
+  .phase-stats .phase-pct {
+    font-size: 16px; font-weight: 800;
+    color: var(--phase-color, var(--primary));
+    letter-spacing: -0.3px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .phase-progress {
+    height: 5px;
+    background: var(--surface-3);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .phase-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--phase-color, var(--primary));
+    border-radius: 3px;
+    transition: width 0.4s ease;
+    will-change: width;
+  }
+
+  .books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 12px;
+  }
+
+  /* ---------- Book Card ---------- */
+  .book-card {
+    position: relative;
+    display: flex; flex-direction: column;
+    background: var(--surface); border-radius: 8px; overflow: hidden;
+    border: 1px solid var(--border); cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s, background 0.25s;
+    height: 200px;
+    contain: layout style paint;
+  }
+  .book-card:not(.empty) { cursor: grab; }
+  .book-card:not(.empty):active { cursor: grabbing; }
+  .book-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+    border-color: var(--border-strong);
+  }
+  html[data-theme="dark"] .book-card:hover {
+    box-shadow: 0 10px 22px rgba(0,0,0,0.5);
+  }
+  .book-card.timer-active {
+    box-shadow: 0 0 0 3px var(--work-color), 0 10px 22px rgba(99,102,241,0.25);
+  }
+  .book-card.dragging {
+    opacity: 0.35;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  .book-card.drag-over-left,
+  .book-card.drag-over-right {
+    border-color: var(--primary);
+  }
+  .book-card.drag-over-left::before,
+  .book-card.drag-over-right::after {
+    content: '';
+    position: absolute;
+    top: 4px; bottom: 4px;
+    width: 4px;
+    background: var(--primary);
+    border-radius: 2px;
+    z-index: 10;
+    pointer-events: none;
+    box-shadow: 0 0 8px 1px var(--primary);
+  }
+  .book-card.drag-over-left::before { left: 2px; }
+  .book-card.drag-over-right::after { right: 2px; }
+
+  .cover-wrapper {
+    flex: 1; position: relative; overflow: hidden;
+    background: linear-gradient(135deg, var(--surface-2), var(--surface-3));
+  }
+  .cover-placeholder {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; color: var(--text-mute);
+    pointer-events: none;
+  }
+  .cover-img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%; object-fit: cover;
+    opacity: 0; transition: opacity 0.2s ease;
+  }
+  .cover-img.loaded { opacity: 1; }
+
+  .book-card .info {
+    padding: 6px 8px; background: var(--surface);
+    border-top: 1px solid var(--border); min-height: 46px;
+  }
+  .book-card .title {
+    font-size: 11px; font-weight: 700; line-height: 1.25;
+    color: var(--text);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden; margin-bottom: 2px;
+  }
+  .book-card .author {
+    font-size: 10px; color: var(--text-sub);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .status-badge {
+    position: absolute; top: 6px; right: 6px;
+    width: 22px; height: 22px; border-radius: 50%;
+    display: none; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #fff;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    z-index: 3;
+  }
+  html[data-theme="dark"] .status-badge { border-color: var(--surface); }
+  .book-card.status-reading  .status-badge,
+  .book-card.status-finished .status-badge,
+  .book-card.status-dnf      .status-badge { display: flex; }
+  .book-card.status-reading  .status-badge { background: var(--status-reading); }
+  .book-card.status-finished .status-badge { background: var(--status-finished); }
+  .book-card.status-dnf      .status-badge { background: var(--status-dnf); }
+
+  .status-badge .pulse {
+    position: absolute; inset: 0; border-radius: 50%;
+    background: inherit; z-index: -1; opacity: 0;
+    will-change: transform, opacity; pointer-events: none;
+  }
+  .book-card.status-reading .status-badge .pulse {
+    opacity: 0.6; animation: pulse 2s ease-out infinite;
+  }
+  @keyframes pulse {
+    0%   { transform: scale(1);   opacity: 0.6; }
+    100% { transform: scale(2.2); opacity: 0; }
+  }
+
+  .book-card.status-reading  { border-color: var(--status-reading); }
+  .book-card.status-finished { border-color: var(--status-finished); }
+  .book-card.status-dnf      { border-color: var(--status-dnf); opacity: 0.7; }
+
+  .card-deadline {
+    position: absolute;
+    top: 6px; left: 6px;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.92);
+    color: var(--deadline-ok);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    z-index: 3;
+    display: flex; align-items: center; gap: 3px;
+    white-space: nowrap;
+  }
+  .card-deadline.soon { background: #fef3c7; color: var(--deadline-soon); }
+  .card-deadline.overdue { background: #fee2e2; color: var(--deadline-overdue); }
+  html[data-theme="dark"] .card-deadline {
+    background: rgba(31, 34, 39, 0.92);
+    color: var(--text-sub);
+  }
+  html[data-theme="dark"] .card-deadline.soon {
+    background: rgba(217, 119, 6, 0.92);
+    color: #fff;
+  }
+  html[data-theme="dark"] .card-deadline.overdue {
+    background: rgba(220, 38, 38, 0.92);
+    color: #fff;
+  }
+
+  .card-time {
+    position: absolute;
+    bottom: 6px; right: 6px;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.7);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    z-index: 3;
+    display: flex; align-items: center; gap: 3px;
+    white-space: nowrap;
+  }
+  html[data-theme="dark"] .card-time { background: rgba(0, 0, 0, 0.55); }
+
+  .book-card.empty {
+    background: var(--surface-2); border: 2px dashed var(--border-strong);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    color: var(--text-mute); gap: 2px;
+    transition: transform 0.15s, background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .book-card.empty:hover {
+    background: var(--surface-3); border-color: var(--primary);
+    color: var(--primary); transform: translateY(-3px);
+  }
+  .empty-plus { font-size: 26px; font-weight: 300; line-height: 1; }
+  .empty-label { font-size: 11px; font-weight: 600; }
+
+  /* ---------- Modal base ---------- */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: var(--overlay);
+    z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    opacity: 0; visibility: hidden;
+    transition: opacity 0.18s ease, visibility 0.18s;
+  }
+  .modal-backdrop.show { opacity: 1; visibility: visible; }
+
+  .modal {
+    background: var(--surface); border-radius: 14px;
+    width: 100%; max-width: 720px;
+    max-height: 92vh;
+    display: flex; flex-direction: column;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.35);
+    transform: translateY(16px) scale(0.98);
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), background 0.25s;
+    overflow: hidden;
+  }
+  .modal-backdrop.show .modal { transform: translateY(0) scale(1); }
+
+  .modal-header {
+    padding: 18px 24px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .modal-header h2 { font-size: 18px; font-weight: 700; }
+  .modal-close {
+    background: none; border: none; font-size: 24px;
+    color: var(--text-sub); cursor: pointer; line-height: 1;
+    padding: 4px 8px; border-radius: 6px;
+  }
+  .modal-close:hover { background: var(--surface-2); color: var(--text); }
+
+  .modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+
+  .modal-footer {
+    padding: 14px 24px; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 12px; background: var(--surface-2); flex-wrap: wrap;
+  }
+  .modal-footer-right { display: flex; gap: 8px; }
+
+  /* ---------- VIEW MODAL ---------- */
+  .view-layout { display: flex; gap: 22px; margin-bottom: 22px; }
+  @media (max-width: 520px) {
+    .view-layout { flex-direction: column; align-items: center; text-align: center; }
+  }
+  .view-cover-wrap { position: relative; flex-shrink: 0; }
+  .view-cover {
+    width: 140px; height: 210px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--surface-2), var(--surface-3));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 42px; color: var(--text-mute);
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+  }
+  .view-cover img { width: 100%; height: 100%; object-fit: cover; }
+
+  .view-status {
+    position: absolute;
+    bottom: -10px; left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 12px; border-radius: 12px;
+    font-size: 11px; font-weight: 700; color: #fff;
+    background: var(--status-unread);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    white-space: nowrap; z-index: 2;
+  }
+  .view-status.reading  { background: var(--status-reading); }
+  .view-status.finished { background: var(--status-finished); }
+  .view-status.dnf      { background: var(--status-dnf); }
+
+  .view-details { flex: 1; min-width: 0; padding-top: 2px; }
+  .view-book-title {
+    font-size: 21px; font-weight: 800;
+    color: var(--text); line-height: 1.25; margin-bottom: 4px;
+  }
+  .view-author {
+    font-size: 14px; color: var(--text-sub);
+    font-style: italic; margin-bottom: 12px;
+  }
+  .view-stars {
+    font-size: 22px; color: #d1d5db;
+    margin-bottom: 16px; letter-spacing: 2px;
+  }
+  html[data-theme="dark"] .view-stars { color: #4b5563; }
+  .view-stars .filled { color: #fbbf24; }
+
+  .view-meta {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px 20px; font-size: 13px;
+  }
+  @media (max-width: 420px) { .view-meta { grid-template-columns: 1fr; } }
+  .view-meta-row { display: flex; gap: 6px; min-width: 0; }
+  .view-meta-label { color: var(--text-sub); font-weight: 700; flex-shrink: 0; }
+  .view-meta-row span:not(.view-meta-label) {
+    color: var(--text); overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  .view-stats {
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+    border: 1px solid #c7d2fe;
+    border-radius: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    text-align: center;
+  }
+  html[data-theme="dark"] .view-stats {
+    background: linear-gradient(135deg, #1e2438, #1c2233);
+    border-color: #2c3a54;
+  }
+  .view-stats .stat-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--primary-dark);
+    line-height: 1.1;
+  }
+  html[data-theme="dark"] .view-stats .stat-value { color: var(--primary-light); }
+  .view-stats .stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-sub);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-top: 3px;
+  }
+
+  .view-pomodoro-btn {
+    margin-top: 16px;
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, var(--work-color), var(--primary-dark));
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 12px rgba(99,102,241,0.35);
+  }
+  .view-pomodoro-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(99,102,241,0.45);
+  }
+  .view-pomodoro-btn:disabled {
+    background: var(--surface-3);
+    color: var(--text-mute);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .view-notes-section {
+    border-top: 1px solid var(--border);
+    padding-top: 16px; margin-top: 4px;
+  }
+  .view-notes-section h4 {
+    font-size: 11px; font-weight: 700; color: var(--text-sub);
+    text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 8px;
+  }
+  .view-notes-section p {
+    font-size: 14px; line-height: 1.65;
+    color: var(--text); white-space: pre-wrap;
+  }
+
+  .view-links { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .view-links a {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: 8px;
+    background: var(--surface-3); color: var(--primary-dark);
+    font-size: 13px; font-weight: 600; text-decoration: none;
+    transition: background 0.15s;
+  }
+  .view-links a:hover { background: var(--surface-2); }
+  html[data-theme="dark"] .view-links a { color: var(--primary-light); }
+  html[data-theme="dark"] .view-links a:hover { background: var(--surface-2); }
+
+  /* ---------- Form ---------- */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } }
+  .form-full { grid-column: 1 / -1; }
+
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group label {
+    font-size: 11px; font-weight: 700; color: var(--text-sub);
+    text-transform: uppercase; letter-spacing: 0.4px;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 9px 12px; border: 1px solid var(--border);
+    border-radius: 8px; font-size: 14px;
+    font-family: inherit; color: var(--text); background: var(--surface-2);
+    transition: border-color 0.15s, box-shadow 0.15s, background 0.25s;
+    width: 100%;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none; border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  }
+  html[data-theme="dark"] .form-group input:focus,
+  html[data-theme="dark"] .form-group select:focus,
+  html[data-theme="dark"] .form-group textarea:focus {
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
+  }
+  .form-group textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+  .deadline-row { display: flex; gap: 8px; }
+  .deadline-row input { flex: 1; }
+
+  .status-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .status-pill {
+    padding: 6px 14px; border-radius: 20px;
+    border: 2px solid var(--border); background: var(--surface-2);
+    color: var(--text-sub); font-size: 12px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+    transition: all 0.12s;
+  }
+  .status-pill:hover { border-color: var(--border-strong); }
+  .status-pill.active[data-status="unread"]   { border-color: var(--status-unread);   background: var(--status-unread);   color: #fff; }
+  .status-pill.active[data-status="reading"]  { border-color: var(--status-reading);  background: var(--status-reading);  color: #fff; }
+  .status-pill.active[data-status="finished"] { border-color: var(--status-finished); background: var(--status-finished); color: #fff; }
+  .status-pill.active[data-status="dnf"]      { border-color: var(--status-dnf);      background: var(--status-dnf);      color: #fff; }
+
+  .star-rating { display: flex; gap: 2px; font-size: 26px; color: #d1d5db; user-select: none; }
+  html[data-theme="dark"] .star-rating { color: #4b5563; }
+  .star-rating .star { cursor: pointer; transition: color 0.12s; }
+  .star-rating .star.filled, .star-rating .star:hover { color: #fbbf24; }
+
+  .bulk-textarea {
+    width: 100%; min-height: 220px;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 13px; line-height: 1.55; padding: 12px;
+    border: 1px solid var(--border); border-radius: 8px;
+    resize: vertical;
+    background: var(--surface-2); color: var(--text);
+  }
+  .bulk-textarea:focus {
+    outline: none; border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  }
+
+  .bulk-hint { font-size: 12px; color: var(--text-sub); margin-bottom: 14px; line-height: 1.6; }
+  .bulk-hint code {
+    background: var(--surface-3); padding: 2px 6px; border-radius: 4px;
+    font-size: 11px; color: var(--primary-dark); font-family: ui-monospace, monospace;
+  }
+  html[data-theme="dark"] .bulk-hint code { color: var(--primary-light); }
+
+  .ie-section { margin-bottom: 4px; }
+  .ie-section h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .ie-section p { font-size: 13px; color: var(--text-sub); margin-bottom: 12px; line-height: 1.55; }
+  .ie-divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+  .file-input-wrapper { position: relative; display: inline-block; }
+  .file-input-wrapper input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer;
+  }
+
+  .cover-input-row { display: flex; gap: 12px; align-items: flex-start; }
+  .cover-preview {
+    width: 90px; height: 135px; border-radius: 6px;
+    background: var(--surface-3); display: flex; align-items: center; justify-content: center;
+    color: var(--text-mute); font-size: 26px; overflow: hidden;
+    border: 1px solid var(--border); flex-shrink: 0;
+  }
+  .cover-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* ---------- Settings ---------- */
+  .settings-section-title {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--text-sub);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 10px;
+  }
+  .settings-preview {
+    margin-top: 18px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+    border: 1px solid #c7d2fe;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-sub);
+    line-height: 1.5;
+  }
+  html[data-theme="dark"] .settings-preview {
+    background: linear-gradient(135deg, #1e2438, #1c2233);
+    border-color: #2c3a54;
+  }
+  .settings-preview strong {
+    display: block;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--primary-dark);
+    margin-bottom: 2px;
+    letter-spacing: -0.5px;
+  }
+  html[data-theme="dark"] .settings-preview strong { color: var(--primary-light); }
+  .settings-preview .sub { font-weight: 600; }
+
+  .settings-warning {
+    margin-top: 12px;
+    padding: 12px 16px;
+    background: #fef3c7;
+    border: 1px solid #fcd34d;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #92400e;
+    line-height: 1.5;
+  }
+  html[data-theme="dark"] .settings-warning {
+    background: rgba(217, 119, 6, 0.15);
+    border-color: rgba(217, 119, 6, 0.4);
+    color: #fcd34d;
+  }
+  .settings-warning strong { display: block; margin-bottom: 2px; }
+
+  /* Theme toggle */
+  .theme-toggle {
+    display: flex;
+    gap: 10px;
+    background: var(--surface-2);
+    padding: 6px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+  .theme-btn {
+    flex: 1;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background: transparent;
+    color: var(--text-sub);
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .theme-btn:hover { background: var(--surface-3); }
+  .theme-btn.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-color: var(--primary);
+  }
+  html[data-theme="dark"] .theme-btn.active {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  }
+  .theme-swatch {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--border-strong);
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .theme-swatch.light {
+    background: linear-gradient(135deg, #f5f7fa 50%, #ffffff 50%);
+  }
+  .theme-swatch.dark {
+    background: linear-gradient(135deg, #16181c 50%, #32373f 50%);
+  }
+
+  .preset-section {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+  }
+  .preset-section .preset-label {
+    font-size: 11px; font-weight: 700; color: var(--text-sub);
+    text-transform: uppercase; letter-spacing: 0.4px;
+    margin-bottom: 10px; display: block;
+  }
+  .preset-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .preset-btn {
+    flex: 1 1 100px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text);
+    font-size: 13px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+    transition: all 0.15s ease;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 3px; line-height: 1.2;
+  }
+  .preset-btn:hover { border-color: var(--primary); background: var(--surface-3); transform: translateY(-2px); }
+  .preset-btn.active {
+    border-color: var(--primary); background: var(--primary); color: #fff;
+    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
+  }
+  .preset-btn.active .preset-sub { color: rgba(255,255,255,0.8); }
+  .preset-btn .preset-days { font-size: 17px; font-weight: 800; letter-spacing: -0.3px; }
+  .preset-btn .preset-sub { font-size: 10px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.4px; }
+
+  .deadline-preview-list {
+    margin-top: 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .deadline-preview-row {
+    display: flex; justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .deadline-preview-row:last-child { border-bottom: none; }
+  .deadline-preview-row .phase-name {
+    font-weight: 700;
+    color: var(--text);
+  }
+  .deadline-preview-row .phase-deadline {
+    font-weight: 600;
+    color: var(--text-sub);
+  }
+  .deadline-preview-row .phase-deadline.soon { color: var(--deadline-soon); }
+  .deadline-preview-row .phase-deadline.overdue { color: var(--deadline-overdue); }
+
+  /* ---------- Pomodoro Widget ---------- */
+  .pomodoro-widget {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    z-index: 900;
+    font-family: inherit;
+  }
+
+  .pomo-fab {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--work-color), var(--primary-dark));
+    color: #fff;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    font-family: inherit;
+  }
+  .pomo-fab:hover {
+    transform: scale(1.08);
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5);
+  }
+  .pomo-fab.running { animation: pomo-glow 2s infinite; }
+  .pomo-fab.running.break {
+    background: linear-gradient(135deg, var(--break-color), #059669);
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+  }
+  .pomo-fab.running.longbreak {
+    background: linear-gradient(135deg, var(--longbreak-color), #0e7490);
+    box-shadow: 0 8px 24px rgba(8, 145, 178, 0.4);
+  }
+  @keyframes pomo-glow {
+    0%, 100% { box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4); }
+    50% { box-shadow: 0 8px 32px rgba(99, 102, 241, 0.75); }
+  }
+
+  .pomo-fab-time {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text);
+    background: var(--surface);
+    padding: 2px 8px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    white-space: nowrap;
+    display: none;
+  }
+  .pomo-fab.running .pomo-fab-time { display: block; }
+
+  .pomo-panel {
+    position: absolute;
+    bottom: 76px; right: 0;
+    width: 320px;
+    background: var(--surface);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    padding: 20px;
+    display: none;
+    transform: translateY(8px);
+    opacity: 0;
+    transition: transform 0.2s ease, opacity 0.2s ease, background 0.25s;
+  }
+  html[data-theme="dark"] .pomo-panel { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6); }
+  .pomodoro-widget.open .pomo-panel {
+    display: block;
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .pomo-panel h3 {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-sub);
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .pomo-panel h3 .pomo-close {
+    background: none; border: none;
+    font-size: 20px;
+    color: var(--text-mute);
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 4px;
+  }
+
+  .pomo-mode-tabs {
+    display: flex; gap: 4px; margin-bottom: 14px;
+    background: var(--surface-3);
+    padding: 3px;
+    border-radius: 10px;
+  }
+  .pomo-mode-tab {
+    flex: 1;
+    padding: 7px 8px;
+    border: none;
+    background: transparent;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-sub);
+    cursor: pointer;
+    border-radius: 7px;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .pomo-mode-tab:hover:not(:disabled) { color: var(--text); }
+  .pomo-mode-tab.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  .pomo-mode-tab:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .pomo-book-select { margin-bottom: 14px; }
+  .pomo-book-select label {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text-sub);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    display: block;
+    margin-bottom: 5px;
+  }
+  .pomo-book-select select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    background: var(--surface-2);
+    color: var(--text);
+  }
+  .pomo-book-select select:focus {
+    outline: none;
+    border-color: var(--work-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  }
+
+  .pomo-book-current {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .pomo-book-current .pomo-book-cover {
+    width: 32px; height: 44px;
+    border-radius: 4px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--surface-3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .pomo-book-current .pomo-book-cover img {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .pomo-book-current .pomo-book-info { flex: 1; min-width: 0; }
+  .pomo-book-current .pomo-book-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pomo-book-current .pomo-book-author {
+    font-size: 11px;
+    color: var(--text-sub);
+    overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .pomo-time-display {
+    font-size: 52px;
+    font-weight: 800;
+    color: var(--text);
+    text-align: center;
+    letter-spacing: -2px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    margin: 18px 0 8px;
+  }
+  .pomo-time-display.break { color: var(--break-color); }
+  .pomo-time-display.longbreak { color: var(--longbreak-color); }
+
+  .pomo-mode-label {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-sub);
+    margin-bottom: 18px;
+  }
+  .pomo-mode-label.work { color: var(--work-color); }
+  .pomo-mode-label.break { color: var(--break-color); }
+  .pomo-mode-label.longbreak { color: var(--longbreak-color); }
+
+  .pomo-progress {
+    height: 6px;
+    background: var(--surface-3);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .pomo-progress-fill {
+    height: 100%;
+    background: var(--work-color);
+    border-radius: 3px;
+    transition: width 0.5s linear;
+    will-change: width;
+  }
+  .pomo-progress-fill.break { background: var(--break-color); }
+  .pomo-progress-fill.longbreak { background: var(--longbreak-color); }
+
+  .pomo-controls { display: flex; gap: 8px; }
+  .pomo-btn {
+    flex: 1;
+    padding: 11px 14px;
+    border-radius: 10px;
+    border: none;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px;
+  }
+  .pomo-btn-primary {
+    background: var(--work-color);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+  }
+  .pomo-btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(99,102,241,0.4);
+  }
+  .pomo-btn-primary.break { background: var(--break-color); box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
+  .pomo-btn-primary.longbreak { background: var(--longbreak-color); box-shadow: 0 4px 12px rgba(8,145,178,0.3); }
+  .pomo-btn-secondary {
+    background: var(--surface-3);
+    color: var(--text);
+    flex: 0 0 auto;
+    padding: 11px 16px;
+  }
+  .pomo-btn-secondary:hover { background: var(--surface-2); }
+  .pomo-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .pomo-session-counter {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-sub);
+    font-weight: 700;
+    margin-top: 14px;
+    letter-spacing: 0.4px;
+  }
+  .pomo-session-counter .tomato { display: inline-block; margin: 0 1px; }
+
+  /* ---------- Toast ---------- */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translate(-50%, 100px);
+    background: #1a202c; color: #fff;
+    padding: 12px 22px; border-radius: 10px;
+    font-size: 14px; font-weight: 600;
+    z-index: 2000;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none; max-width: 90vw;
+    will-change: transform;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .toast.show { transform: translate(-50%, 0); }
+  .toast.success { background: var(--status-finished); }
+  .toast.error   { background: var(--status-dnf); }
+  .toast.pomo    { background: var(--work-color); }
+  html[data-theme="dark"] .toast { background: #e6e8eb; color: #16181c; }
+  html[data-theme="dark"] .toast.success { background: var(--status-finished); color: #fff; }
+  html[data-theme="dark"] .toast.error   { background: var(--status-dnf); color: #fff; }
+  html[data-theme="dark"] .toast.pomo    { background: var(--work-color); color: #fff; }
+
+  /* ==================================================
+     CALENDAR VIEW
+     ================================================== */
+  .cal-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px;
+  }
+  .cal-header h3 {
+    flex: 1; text-align: center;
+    font-size: 17px; font-weight: 800;
+    letter-spacing: -0.3px;
+  }
+  .cal-nav-btn {
+    padding: 7px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s;
+    line-height: 1;
+  }
+  .cal-nav-btn:hover { background: var(--surface-3); border-color: var(--border-strong); }
+
+  .cal-legend {
+    display: flex; gap: 14px; flex-wrap: wrap;
+    font-size: 11px; font-weight: 600; color: var(--text-sub);
+    margin-bottom: 12px;
+  }
+  .cal-legend-item { display: flex; align-items: center; gap: 5px; }
+  .cal-legend-dot {
+    width: 10px; height: 10px; border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .cal-legend-dot.deadline { background: #ef4444; }
+  .cal-legend-dot.start    { background: #3b82f6; }
+  .cal-legend-dot.finish   { background: #10b981; }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+  .cal-dow {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text-sub);
+    padding: 4px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .cal-cell {
+    position: relative;
+    min-height: 64px;
+    border-radius: 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 5px 6px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s, box-shadow 0.12s;
+    overflow: hidden;
+  }
+  .cal-cell:hover { background: var(--surface-3); border-color: var(--border-strong); }
+  .cal-cell.outside { opacity: 0.4; }
+  .cal-cell.today {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
+  }
+  .cal-cell.selected {
+    background: var(--surface-3);
+    border-color: var(--primary);
+  }
+  .cal-day-num {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+  .cal-cell.outside .cal-day-num { color: var(--text-mute); }
+  .cal-cell.today .cal-day-num { color: var(--primary); }
+
+  .cal-events {
+    display: flex; flex-direction: column; gap: 2px;
+    overflow: hidden; flex: 1;
+    min-height: 0;
+  }
+  .cal-event {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 4px;
+    border-radius: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+    display: block;
+  }
+  .cal-event.deadline { background: #fee2e2; color: #991b1b; }
+  .cal-event.start    { background: #dbeafe; color: #1e40af; }
+  .cal-event.finish   { background: #d1fae5; color: #065f46; }
+  html[data-theme="dark"] .cal-event.deadline { background: rgba(220,38,38,0.25); color: #fca5a5; }
+  html[data-theme="dark"] .cal-event.start    { background: rgba(59,130,246,0.25); color: #93c5fd; }
+  html[data-theme="dark"] .cal-event.finish   { background: rgba(16,185,129,0.25); color: #6ee7b7; }
+
+  .cal-day-detail {
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    min-height: 70px;
+    font-size: 13px;
+  }
+  .cal-day-detail h4 {
+    font-size: 12px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    color: var(--text-sub); margin-bottom: 8px;
+  }
+  .cal-detail-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 8px;
+    border-bottom: 1px dashed var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .cal-detail-row:hover { background: var(--surface-3); }
+  .cal-detail-row:last-child { border-bottom: none; }
+  .cal-detail-tag {
+    font-size: 10px; font-weight: 700;
+    padding: 2px 7px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    flex-shrink: 0;
+  }
+  .cal-detail-tag.deadline { background: #fee2e2; color: #991b1b; }
+  .cal-detail-tag.start    { background: #dbeafe; color: #1e40af; }
+  .cal-detail-tag.finish   { background: #d1fae5; color: #065f46; }
+  html[data-theme="dark"] .cal-detail-tag.deadline { background: rgba(220,38,38,0.25); color: #fca5a5; }
+  html[data-theme="dark"] .cal-detail-tag.start    { background: rgba(59,130,246,0.25); color: #93c5fd; }
+  html[data-theme="dark"] .cal-detail-tag.finish   { background: rgba(16,185,129,0.25); color: #6ee7b7; }
+
+  .cal-detail-title {
+    font-weight: 600; color: var(--text);
+    overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap; flex: 1; min-width: 0;
+  }
+
+  /* ==================================================
+     STREAK / HEATMAP
+     ================================================== */
+  .streak-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 22px;
+    padding: 16px;
+    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+    border: 1px solid #c7d2fe;
+    border-radius: 12px;
+    text-align: center;
+  }
+  @media (max-width: 520px) {
+    .streak-stats { grid-template-columns: repeat(2, 1fr); }
+  }
+  html[data-theme="dark"] .streak-stats {
+    background: linear-gradient(135deg, #1e2438, #1c2233);
+    border-color: #2c3a54;
+  }
+  .streak-stats .streak-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--primary-dark);
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.5px;
+  }
+  html[data-theme="dark"] .streak-stats .streak-value { color: var(--primary-light); }
+  .streak-stats .streak-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-sub);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-top: 4px;
+  }
+
+  .heatmap-wrap {
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+  .heatmap-inner {
+    display: inline-block;
+    min-width: 100%;
+  }
+  .heatmap-months {
+    display: grid;
+    grid-template-columns: repeat(53, 12px);
+    gap: 3px;
+    margin-left: 26px;
+    margin-bottom: 4px;
+    height: 14px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-sub);
+  }
+  .heatmap-body {
+    display: flex;
+    gap: 4px;
+  }
+  .heatmap-days {
+    display: grid;
+    grid-template-rows: repeat(7, 12px);
+    gap: 3px;
+    width: 22px;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--text-mute);
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .heatmap-days > span {
+    line-height: 12px;
+    height: 12px;
+  }
+  .heatmap-grid {
+    display: grid;
+    grid-template-rows: repeat(7, 12px);
+    grid-auto-flow: column;
+    grid-auto-columns: 12px;
+    gap: 3px;
+  }
+  .heatmap-cell {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    background: var(--surface-3);
+    transition: outline 0.1s;
+  }
+  .heatmap-cell:not(.future):hover {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+  }
+  .heatmap-cell.future { visibility: hidden; }
+
+  .heatmap-cell.lv1 { background: #c6e48b; }
+  .heatmap-cell.lv2 { background: #7bc96f; }
+  .heatmap-cell.lv3 { background: #239a3b; }
+  .heatmap-cell.lv4 { background: #196127; }
+
+  html[data-theme="dark"] .heatmap-cell.lv1 { background: #0e4429; }
+  html[data-theme="dark"] .heatmap-cell.lv2 { background: #006d32; }
+  html[data-theme="dark"] .heatmap-cell.lv3 { background: #26a641; }
+  html[data-theme="dark"] .heatmap-cell.lv4 { background: #39d353; }
+
+  .heatmap-legend {
+    display: flex; align-items: center; justify-content: flex-end;
+    gap: 5px;
+    margin-top: 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-sub);
+  }
+  .heatmap-legend .heatmap-cell {
+    cursor: default;
+  }
+  .heatmap-legend .heatmap-cell:hover { outline: none; }
+</style>
+</head>
+<body>
+
+<!-- Apply theme BEFORE first paint to avoid flash -->
+<script>
+(function() {
+  try {
+    var raw = localStorage.getItem('reading-challenge-v1');
+    if (raw) {
+      var p = JSON.parse(raw);
+      if (p && p.settings && p.settings.theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    }
+  } catch (e) { /* silent */ }
+})();
+</script>
+
+<header class="app-header">
+  <div class="header-inner">
+    <div class="app-title">📚 <span id="header-total">100</span> Book Challenge</div>
+    <div class="header-progress">
+      <div class="progress-info">
+        <span id="progress-text">0 / 100 finished</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+      <div class="progress-dates" id="progress-dates"></div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" id="btn-add">+ Add Book</button>
+      <button class="btn" id="btn-bulk">Bulk Upload</button>
+      <button class="btn" id="btn-ie">Import / Export</button>
+      <button class="btn" id="btn-calendar">📅 Calendar</button>
+      <button class="btn" id="btn-streak">🔥 Streak</button>
+      <button class="btn" id="btn-settings">⚙ Settings</button>
+    </div>
+  </div>
+</header>
+
+<main class="main-container" id="phases-container"></main>
+
+<!-- ==================================================
+     TEMPLATES
+     ================================================== -->
+<template id="tpl-phase">
+  <section class="phase">
+    <div class="phase-header">
+      <div class="phase-title">
+        <span class="phase-badge"></span>
+        <h2></h2>
+        <span class="phase-deadline-chip"></span>
+      </div>
+      <div class="phase-stats">
+        <span class="phase-pct">0%</span>
+        <span class="phase-count"></span>
+      </div>
+    </div>
+    <div class="phase-progress">
+      <div class="phase-progress-fill"></div>
+    </div>
+    <div class="books-grid"></div>
+  </section>
+</template>
+
+<template id="tpl-book">
+  <div class="book-card" draggable="true">
+    <div class="cover-wrapper">
+      <div class="cover-placeholder">📕</div>
+      <img class="cover-img" alt="" decoding="async" draggable="false">
+      <span class="card-deadline" style="display:none"></span>
+      <span class="card-time" style="display:none"></span>
+      <span class="status-badge">
+        <span class="pulse"></span>
+        <span class="icon"></span>
+      </span>
+    </div>
+    <div class="info">
+      <div class="title"></div>
+      <div class="author"></div>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-empty">
+  <div class="book-card empty">
+    <div class="empty-plus">+</div>
+    <div class="empty-label">Add book</div>
+  </div>
+</template>
+
+<!-- ==================================================
+     VIEW MODAL
+     ================================================== -->
+<div class="modal-backdrop" id="modal-view">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <h2>Book Details</h2>
+      <button class="modal-close" data-close>&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="view-layout">
+        <div class="view-cover-wrap">
+          <div class="view-cover" id="view-cover"></div>
+          <span class="view-status" id="view-status"></span>
+        </div>
+        <div class="view-details">
+          <h3 class="view-book-title" id="view-book-title"></h3>
+          <p class="view-author" id="view-author"></p>
+          <div class="view-stars" id="view-stars"></div>
+          <div class="view-meta">
+            <div class="view-meta-row"><span class="view-meta-label">Phase</span><span id="view-phase"></span></div>
+            <div class="view-meta-row"><span class="view-meta-label">Format</span><span id="view-format"></span></div>
+            <div class="view-meta-row"><span class="view-meta-label">Pages</span><span id="view-pages"></span></div>
+            <div class="view-meta-row"><span class="view-meta-label">ISBN</span><span id="view-isbn"></span></div>
+            <div class="view-meta-row"><span class="view-meta-label">Started</span><span id="view-started"></span></div>
+            <div class="view-meta-row"><span class="view-meta-label">Finished</span><span id="view-finished"></span></div>
+            <div class="view-meta-row"><span class="view-meta-label">Deadline</span><span id="view-deadline"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="view-stats">
+        <div>
+          <div class="stat-value" id="view-time-total">0m</div>
+          <div class="stat-label">Time Read</div>
+        </div>
+        <div>
+          <div class="stat-value" id="view-sessions">0</div>
+          <div class="stat-label">Sessions</div>
+        </div>
+        <div>
+          <div class="stat-value" id="view-progress">—</div>
+          <div class="stat-label">Deadline</div>
+        </div>
+      </div>
+
+      <button class="view-pomodoro-btn" id="view-start-pomodoro">
+        <span>🍅</span><span id="view-pomodoro-label">Start Pomodoro Session</span>
+      </button>
+
+      <div class="view-notes-section" id="view-notes-section" style="margin-top:20px">
+        <h4>Notes / Review</h4>
+        <p id="view-notes"></p>
+      </div>
+      <div class="view-links" id="view-links"></div>
+    </div>
+    <div class="modal-footer">
+      <div><button class="btn btn-danger" id="view-delete">Delete</button></div>
+      <div class="modal-footer-right">
+        <button class="btn" data-close>Close</button>
+        <button class="btn btn-primary" id="view-edit">✎ Edit Book</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
+     EDIT MODAL
+     ================================================== -->
+<div class="modal-backdrop" id="modal-book">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-book-title">Add Book</h2>
+      <button class="modal-close" data-close>&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group form-full">
+          <label>Cover Image URL</label>
+          <div class="cover-input-row">
+            <div class="cover-preview" id="f-cover-preview">📕</div>
+            <input type="url" id="f-coverUrl" placeholder="https://... image URL" style="flex:1">
+          </div>
+        </div>
+        <div class="form-group form-full">
+          <label>Title *</label>
+          <input type="text" id="f-title" placeholder="Book title">
+        </div>
+        <div class="form-group">
+          <label>Author</label>
+          <input type="text" id="f-author" placeholder="Author name">
+        </div>
+        <div class="form-group">
+          <label>ISBN</label>
+          <input type="text" id="f-isbn" placeholder="9780123456789">
+        </div>
+        <div class="form-group">
+          <label>Phase</label>
+          <select id="f-phase"></select>
+        </div>
+        <div class="form-group">
+          <label>Format</label>
+          <select id="f-format">
+            <option value="">—</option>
+            <option value="physical">Physical</option>
+            <option value="ebook">eBook</option>
+            <option value="audiobook">Audiobook</option>
+          </select>
+        </div>
+        <div class="form-group form-full">
+          <label>Status</label>
+          <div class="status-pills" id="status-pills">
+            <button type="button" class="status-pill" data-status="unread">Unread</button>
+            <button type="button" class="status-pill" data-status="reading">Reading</button>
+            <button type="button" class="status-pill" data-status="finished">Finished</button>
+            <button type="button" class="status-pill" data-status="dnf">Did Not Finish</button>
+          </div>
+        </div>
+        <div class="form-group form-full">
+          <label>Rating</label>
+          <div class="star-rating" id="star-rating">
+            <span class="star" data-value="1">★</span>
+            <span class="star" data-value="2">★</span>
+            <span class="star" data-value="3">★</span>
+            <span class="star" data-value="4">★</span>
+            <span class="star" data-value="5">★</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Date Started</label>
+          <input type="date" id="f-dateStarted">
+        </div>
+        <div class="form-group">
+          <label>Date Finished</label>
+          <input type="date" id="f-dateFinished">
+        </div>
+        <div class="form-group form-full">
+          <label>Deadline <span id="f-deadline-hint" style="text-transform:none;color:var(--text-mute);font-weight:600"></span></label>
+          <div class="deadline-row">
+            <input type="date" id="f-deadline">
+            <button type="button" class="btn" id="f-deadline-auto" style="white-space:nowrap" title="Use this phase's deadline">⚡ Phase</button>
+            <button type="button" class="btn" id="f-deadline-clear" style="white-space:nowrap" title="Clear deadline">Clear</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Pages</label>
+          <input type="number" id="f-pages" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+          <label>Goodreads URL</label>
+          <input type="url" id="f-goodreads" placeholder="https://goodreads.com/...">
+        </div>
+        <div class="form-group form-full">
+          <label>Notes / Review</label>
+          <textarea id="f-notes" placeholder="Your thoughts, favorite quotes, etc."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div></div>
+      <div class="modal-footer-right">
+        <button class="btn" data-close>Cancel</button>
+        <button class="btn btn-primary" id="btn-save">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
+     SETTINGS MODAL
+     ================================================== -->
+<div class="modal-backdrop" id="modal-settings">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <h2>Challenge Settings</h2>
+      <button class="modal-close" data-close>&times;</button>
+    </div>
+    <div class="modal-body">
+
+      <div style="margin-bottom:22px">
+        <div class="settings-section-title">🎨 Appearance</div>
+        <div class="theme-toggle" id="theme-toggle">
+          <button type="button" class="theme-btn" data-theme="light">
+            <span class="theme-swatch light"></span>
+            <span>Light</span>
+          </button>
+          <button type="button" class="theme-btn" data-theme="dark">
+            <span class="theme-swatch dark"></span>
+            <span>Grey Dark</span>
+          </button>
+        </div>
+        <div style="font-size:11px;color:var(--text-mute);margin-top:6px;text-align:center">
+          Applied immediately — no save needed
+        </div>
+      </div>
+
+      <div class="preset-section" style="margin-top:0;padding-top:0;border-top:none">
+        <span class="preset-label">Quick Duration</span>
+        <div class="preset-row" id="preset-row">
+          <button type="button" class="preset-btn" data-days="90">
+            <span class="preset-days">90 days</span>
+            <span class="preset-sub">3 months</span>
+          </button>
+          <button type="button" class="preset-btn" data-days="180">
+            <span class="preset-days">180 days</span>
+            <span class="preset-sub">6 months</span>
+          </button>
+          <button type="button" class="preset-btn" data-days="365">
+            <span class="preset-days">365 days</span>
+            <span class="preset-sub">1 year</span>
+          </button>
+        </div>
+        <div style="font-size:11px;color:var(--text-mute);margin-top:8px;text-align:center">
+          Sets start = today, finish = today + N days
+        </div>
+      </div>
+
+      <div class="form-grid" style="margin-top:20px">
+        <div class="form-group">
+          <label>Start Date</label>
+          <input type="date" id="s-startDate">
+        </div>
+        <div class="form-group">
+          <label>Finish Date</label>
+          <input type="date" id="s-endDate">
+        </div>
+        <div class="form-group">
+          <label>Number of Phases</label>
+          <input type="number" id="s-phaseCount" min="1" max="20" value="5" step="1">
+        </div>
+        <div class="form-group">
+          <label>Books per Phase</label>
+          <input type="number" id="s-booksPerPhase" min="1" max="50" value="20" step="1">
+        </div>
+      </div>
+
+      <div class="settings-preview" id="s-preview"></div>
+      <div class="settings-warning" id="s-warning" style="display:none"></div>
+
+      <div style="margin-top:20px">
+        <div class="settings-section-title">📅 Phase Deadlines</div>
+        <div class="deadline-preview-list" id="s-deadline-list"></div>
+      </div>
+
+      <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+        <div class="settings-section-title">🍅 Pomodoro Timer</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Work (min)</label>
+            <input type="number" id="s-pomoWork" min="1" max="120" value="25" step="1">
+          </div>
+          <div class="form-group">
+            <label>Short Break (min)</label>
+            <input type="number" id="s-pomoShortBreak" min="1" max="60" value="5" step="1">
+          </div>
+          <div class="form-group">
+            <label>Long Break (min)</label>
+            <input type="number" id="s-pomoLongBreak" min="1" max="120" value="15" step="1">
+          </div>
+          <div class="form-group">
+            <label>Long Break Every</label>
+            <input type="number" id="s-pomoLongEvery" min="2" max="10" value="4" step="1">
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <div><button class="btn" id="s-reset">Reset to Defaults</button></div>
+      <div class="modal-footer-right">
+        <button class="btn" data-close>Cancel</button>
+        <button class="btn btn-primary" id="s-save">Save Settings</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
+     BULK UPLOAD MODAL
+     ================================================== -->
+<div class="modal-backdrop" id="modal-bulk">
+  <div class="modal" style="max-width:660px">
+    <div class="modal-header">
+      <h2>Bulk Upload Books</h2>
+      <button class="modal-close" data-close>&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="bulk-hint">
+        Paste one book per line, fields separated by <code>|</code> (pipe).<br>
+        Format: <code>Title | Author | ISBN (optional) | Cover URL (optional)</code>
+      </p>
+      <div class="form-group" style="margin-bottom:14px">
+        <label>Target Phase</label>
+        <select id="bulk-phase"></select>
+      </div>
+      <div class="form-group">
+        <label>Books</label>
+        <textarea class="bulk-textarea" id="bulk-input" placeholder="The Hobbit | J.R.R. Tolkien | 9780547928227
+1984 | George Orwell | 9780451524935
+Dune | Frank Herbert"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div></div>
+      <div class="modal-footer-right">
+        <button class="btn" data-close>Cancel</button>
+        <button class="btn btn-primary" id="bulk-submit">Add Books</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
+     IMPORT / EXPORT MODAL
+     ================================================== -->
+<div class="modal-backdrop" id="modal-ie">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <h2>Import / Export</h2>
+      <button class="modal-close" data-close>&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="ie-section">
+        <h3>📤 Export</h3>
+        <p>Download all books as a JSON file for backup or transfer.</p>
+        <button class="btn btn-primary" id="ie-export">Download JSON</button>
+      </div>
+      <hr class="ie-divider">
+      <div class="ie-section">
+        <h3>📥 Import</h3>
+        <p>Select a previously exported JSON file. This will <strong>replace</strong> all current data.</p>
+        <div class="file-input-wrapper">
+          <button class="btn">Choose File</button>
+          <input type="file" accept=".json,application/json" id="ie-import-file">
+        </div>
+      </div>
+      <hr class="ie-divider">
+      <div class="ie-section">
+        <h3>📚 Sample Data</h3>
+        <p>Load 20 sample books across all phases.</p>
+        <button class="btn" id="ie-sample">Load Sample Books</button>
+      </div>
+      <hr class="ie-divider">
+      <div class="ie-section">
+        <h3 style="color:var(--status-dnf)">⚠️ Danger Zone</h3>
+        <p>Clear all books. Cannot be undone.</p>
+        <button class="btn btn-danger" id="ie-clear">Clear All Data</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div></div>
+      <div class="modal-footer-right">
+        <button class="btn" data-close>Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
+     CALENDAR MODAL
+     ================================================== -->
+<div class="modal-backdrop" id="modal-calendar">
+  <div class="modal" style="max-width:760px">
+    <div class="modal-header">
+      <h2>📅 Reading Calendar</h2>
+      <button class="modal-close" data-close>&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="cal-header">
+        <button class="cal-nav-btn" id="cal-prev" aria-label="Previous month">‹</button>
+        <h3 id="cal-title">—</h3>
+        <button class="cal-nav-btn" id="cal-next" aria-label="Next month">›</button>
+        <button class="cal-nav-btn" id="cal-today">Today</button>
+      </div>
+      <div class="cal-legend">
+        <div class="cal-legend-item"><span class="cal-legend-dot deadline"></span>Deadline</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot start"></span>Started</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot finish"></span>Finished</div>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="cal-day-detail" id="cal-day-detail"></div>
+    </div>
+    <div class="modal-footer">
+      <div></div>
+      <div class="modal-footer-right">
+        <button class="btn" data-close>Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
+     STREAK / HEATMAP MODAL
+     ================================================== -->
+<div class="modal-backdrop" id="modal-streak">
+  <div class="modal" style="max-width:920px">
+    <div class="modal-header">
+      <h2>🔥 Reading Streak</h2>
+      <button class="modal-close" data-close>&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="streak-stats">
+        <div>
+          <div class="streak-value" id="streak-current">0</div>
+          <div class="streak-label">Current Streak</div>
+        </div>
+        <div>
+          <div class="streak-value" id="streak-longest">0</div>
+          <div class="streak-label">Longest Streak</div>
+        </div>
+        <div>
+          <div class="streak-value" id="streak-total">0</div>
+          <div class="streak-label">Active Days</div>
+        </div>
+        <div>
+          <div class="streak-value" id="streak-today">0m</div>
+          <div class="streak-label">Today</div>
+        </div>
+      </div>
+
+      <div class="heatmap-wrap">
+        <div class="heatmap-inner">
+          <div class="heatmap-months" id="heatmap-months"></div>
+          <div class="heatmap-body">
+            <div class="heatmap-days">
+              <span></span>
+              <span>Mon</span>
+              <span></span>
+              <span>Wed</span>
+              <span></span>
+              <span>Fri</span>
+              <span></span>
+            </div>
+            <div class="heatmap-grid" id="heatmap-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="heatmap-legend">
+        <span>Less</span>
+        <span class="heatmap-cell"></span>
+        <span class="heatmap-cell lv1"></span>
+        <span class="heatmap-cell lv2"></span>
+        <span class="heatmap-cell lv3"></span>
+        <span class="heatmap-cell lv4"></span>
+        <span>More</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div></div>
+      <div class="modal-footer-right">
+        <button class="btn" data-close>Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
+     POMODORO WIDGET
+     ================================================== -->
+<div class="pomodoro-widget" id="pomodoro-widget">
+  <button class="pomo-fab" id="pomo-fab" aria-label="Pomodoro timer">
+    <span id="pomo-fab-icon">🍅</span>
+    <span class="pomo-fab-time" id="pomo-fab-time"></span>
+  </button>
+  <div class="pomo-panel" id="pomo-panel">
+    <h3>
+      <span>Pomodoro Timer</span>
+      <button class="pomo-close" id="pomo-close" aria-label="Close">&times;</button>
+    </h3>
+
+    <div id="pomo-idle">
+      <div class="pomo-book-select">
+        <label>Book</label>
+        <select id="pomo-book-select"></select>
+      </div>
+      <div class="pomo-mode-tabs">
+        <button class="pomo-mode-tab active" data-mode="work">Work</button>
+        <button class="pomo-mode-tab" data-mode="shortBreak">Short Break</button>
+        <button class="pomo-mode-tab" data-mode="longBreak">Long Break</button>
+      </div>
+      <div class="pomo-time-display" id="pomo-idle-time">25:00</div>
+      <div class="pomo-mode-label work" id="pomo-idle-label">FOCUS SESSION</div>
+      <div class="pomo-progress">
+        <div class="pomo-progress-fill" style="width:0%"></div>
+      </div>
+      <div class="pomo-controls">
+        <button class="pomo-btn pomo-btn-primary" id="pomo-start">▶ Start</button>
+      </div>
+    </div>
+
+    <div id="pomo-active" style="display:none">
+      <div class="pomo-book-current" id="pomo-book-current">
+        <div class="pomo-book-cover" id="pomo-book-cover"></div>
+        <div class="pomo-book-info">
+          <div class="pomo-book-title" id="pomo-book-title"></div>
+          <div class="pomo-book-author" id="pomo-book-author"></div>
+        </div>
+      </div>
+      <div class="pomo-time-display" id="pomo-time-display">25:00</div>
+      <div class="pomo-mode-label work" id="pomo-mode-label">FOCUS SESSION</div>
+      <div class="pomo-progress">
+        <div class="pomo-progress-fill" id="pomo-progress-fill" style="width:0%"></div>
+      </div>
+      <div class="pomo-controls">
+        <button class="pomo-btn pomo-btn-secondary" id="pomo-stop">■ Stop</button>
+        <button class="pomo-btn pomo-btn-primary" id="pomo-toggle">❚❚ Pause</button>
+      </div>
+      <div class="pomo-session-counter" id="pomo-session-counter"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+'use strict';
+
+/* ==================================================
+   Constants
+   ================================================== */
+const STORAGE_KEY = 'reading-challenge-v1';
+
+const PHASE_NAME_PRESETS = ['Initiate', 'Explore', 'Deepen', 'Master', 'Transcend'];
+const PHASE_COLOR_PRESETS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
+
+const DEFAULT_SETTINGS = {
+  theme: 'light',
+  startDate: '',
+  endDate: '',
+  phaseCount: 5,
+  booksPerPhase: 20,
+  pomodoro: {
+    workMinutes: 25,
+    shortBreakMinutes: 5,
+    longBreakMinutes: 15,
+    longBreakEvery: 4
+  }
+};
+
+const STATUS_ICONS = { reading: '📖', finished: '✓', dnf: '✕' };
+const STATUS_LABELS = {
+  unread: 'Unread',
+  reading: 'Reading',
+  finished: 'Finished',
+  dnf: 'Did Not Finish'
+};
+
+const MODE_LABELS = {
+  work: 'FOCUS SESSION',
+  shortBreak: 'SHORT BREAK',
+  longBreak: 'LONG BREAK'
+};
+
+const MONTH_NAMES_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTH_NAMES_LONG  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+/* ==================================================
+   State
+   ================================================== */
+const state = {
+  books: [],
+  settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),
+  activityLog: {},   // 'YYYY-MM-DD' -> { seconds, bookIds: [] }
+  timer: {
+    bookId: null,
+    mode: 'work',
+    running: false,
+    remainingSeconds: 0,
+    endTimestamp: null,
+    lastTickTs: null,
+    sessionsCompleted: 0
+  }
+};
+
+const refs = {
+  container: null,
+  progressText: null,
+  progressPct: null,
+  progressFill: null,
+  progressDates: null,
+  headerTotal: null,
+  phaseMap: new Map(),
+  bookElMap: new Map(),
+  imageObserver: null
+};
+
+let modalEditing = null;
+let modalIsNew = false;
+let viewBookId = null;
+let editReturnToView = false;
+
+let timerInterval = null;
+let tickSaveCounter = 0;
+
+// Drag state
+const dragState = { draggedId: null };
+let justDragged = false;
+
+// Calendar state
+const calState = {
+  year: new Date().getFullYear(),
+  month: new Date().getMonth(),
+  selectedDate: null
+};
+
+/* ==================================================
+   Utilities
+   ================================================== */
+function uid() {
+  return (crypto && crypto.randomUUID) ? crypto.randomUUID()
+       : 'id-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+
+function showToast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (type ? ' ' + type : '');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.className = 'toast' + (type ? ' ' + type : ''); }, 3000);
+}
+
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso + 'T00:00:00');
+  if (isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function formatShortDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso + 'T00:00:00');
+  if (isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+function formatDateShort(iso) {
+  if (!iso) return '';
+  const d = new Date(iso + 'T00:00:00');
+  if (isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function capitalize(s) {
+  if (!s) return '';
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function todayISO() {
+  const d = new Date();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return d.getFullYear() + '-' + m + '-' + day;
+}
+
+function dateToISO(d) {
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return d.getFullYear() + '-' + m + '-' + day;
+}
+
+function addDaysISO(iso, days) {
+  const d = new Date(iso + 'T00:00:00');
+  d.setDate(d.getDate() + days);
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return d.getFullYear() + '-' + m + '-' + day;
+}
+
+function daysBetweenISO(startIso, endIso) {
+  if (!startIso || !endIso) return null;
+  const s = new Date(startIso + 'T00:00:00');
+  const e = new Date(endIso + 'T00:00:00');
+  return Math.round((e - s) / 86400000);
+}
+
+function formatDuration(seconds) {
+  if (!seconds || seconds < 30) return '';
+  const s = Math.round(seconds);
+  if (s < 60) return s + 's';
+  const m = Math.floor(s / 60);
+  if (m < 60) return m + 'm';
+  const h = Math.floor(m / 60);
+  const rm = m % 60;
+  if (h < 24) return h + 'h' + (rm ? ' ' + rm + 'm' : '');
+  const d = Math.floor(h / 24);
+  const rh = h % 24;
+  return d + 'd' + (rh ? ' ' + rh + 'h' : '');
+}
+
+function formatDurationOrShort(seconds) {
+  if (seconds <= 0) return '0m';
+  return formatDuration(seconds) || '<1m';
+}
+
+function formatClock(seconds) {
+  if (seconds < 0) seconds = 0;
+  const s = Math.floor(seconds);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  const pad = (n) => String(n).padStart(2, '0');
+  if (h > 0) return h + ':' + pad(m) + ':' + pad(sec);
+  return pad(m) + ':' + pad(sec);
+}
+
+function beep() {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    const ctx = new AC();
+    const now = ctx.currentTime;
+    [800, 1000].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, now + i * 0.2);
+      gain.gain.linearRampToValueAtTime(0.3, now + i * 0.2 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.2 + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + i * 0.2);
+      osc.stop(now + i * 0.2 + 0.4);
+    });
+    setTimeout(() => { try { ctx.close(); } catch(e) {} }, 1500);
+  } catch (e) { /* silent */ }
+}
+
+/* ==================================================
+   Theme
+   ================================================== */
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+  }
+}
+
+function updateThemeButtons() {
+  const current = state.settings.theme || 'light';
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.theme === current);
+  });
+}
+
+document.querySelectorAll('.theme-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const theme = btn.dataset.theme;
+    state.settings.theme = theme;
+    applyTheme(theme);
+    updateThemeButtons();
+    saveState();
+  });
+});
+
+/* ==================================================
+   Deadlines
+   ================================================== */
+function getPhaseDeadline(phaseIndex) {
+  const s = state.settings;
+  if (!s.startDate || !s.endDate) return null;
+  const totalDays = daysBetweenISO(s.startDate, s.endDate);
+  if (totalDays === null || totalDays <= 0) return null;
+  const dayOffset = Math.round(totalDays * (phaseIndex + 1) / s.phaseCount);
+  return addDaysISO(s.startDate, dayOffset);
+}
+
+function daysUntilDeadline(deadlineIso) {
+  if (!deadlineIso) return null;
+  const d = new Date(deadlineIso + 'T00:00:00');
+  if (isNaN(d.getTime())) return null;
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  return Math.round((d - now) / 86400000);
+}
+
+function getDeadlineState(deadlineIso) {
+  if (!deadlineIso) return null;
+  const days = daysUntilDeadline(deadlineIso);
+  if (days === null) return null;
+  if (days < 0) return 'overdue';
+  if (days <= 3) return 'soon';
+  return 'ok';
+}
+
+function getDeadlineCountdown(deadlineIso) {
+  const days = daysUntilDeadline(deadlineIso);
+  if (days === null) return null;
+
+  if (days < 0) {
+    const n = Math.abs(days);
+    return { text: n === 1 ? '1 day overdue' : n + ' days overdue', state: 'overdue' };
+  }
+  if (days === 0) return { text: 'Due today', state: 'soon' };
+  if (days === 1) return { text: '1 day left', state: 'soon' };
+  return { text: days + ' days left', state: days <= 3 ? 'soon' : 'ok' };
+}
+
+/* ==================================================
+   Storage
+   ================================================== */
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (parsed && Array.isArray(parsed.books)) state.books = parsed.books;
+    if (parsed && parsed.settings && typeof parsed.settings === 'object') {
+      state.settings = Object.assign({}, DEFAULT_SETTINGS, parsed.settings);
+      state.settings.pomodoro = Object.assign({}, DEFAULT_SETTINGS.pomodoro, parsed.settings.pomodoro || {});
+    }
+    if (parsed && parsed.timer && typeof parsed.timer === 'object') {
+      Object.assign(state.timer, parsed.timer);
+    }
+    if (parsed && parsed.activityLog && typeof parsed.activityLog === 'object') {
+      state.activityLog = parsed.activityLog;
+    }
+  } catch (e) { console.error('Load failed:', e); }
+}
+
+function saveState() {
+  try {
+    const toSave = {
+      books: state.books,
+      settings: state.settings,
+      activityLog: state.activityLog,
+      timer: {
+        bookId: state.timer.bookId,
+        mode: state.timer.mode,
+        running: state.timer.running,
+        remainingSeconds: state.timer.remainingSeconds,
+        endTimestamp: state.timer.endTimestamp,
+        sessionsCompleted: state.timer.sessionsCompleted
+      }
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+  } catch (e) {
+    console.error('Save failed:', e);
+    showToast('Could not save — storage may be full', 'error');
+  }
+}
+
+/* ==================================================
+   Book CRUD
+   ================================================== */
+function getPhaseBooks(phaseId) {
+  const out = [];
+  for (const b of state.books) if (b.phase === phaseId) out.push(b);
+  return out;
+}
+function getBook(id) {
+  for (const b of state.books) if (b.id === id) return b;
+  return null;
+}
+function insertBook(book) {
+  let idx = state.books.length;
+  for (let i = 0; i < state.books.length; i++) {
+    if (state.books[i].phase > book.phase) { idx = i; break; }
+  }
+  state.books.splice(idx, 0, book);
+}
+function updateBookRecord(id, updates) {
+  const idx = state.books.findIndex(b => b.id === id);
+  if (idx === -1) return null;
+  const old = state.books[idx];
+  const merged = Object.assign({}, old, updates);
+  if (updates.phase !== undefined && updates.phase !== old.phase) {
+    state.books.splice(idx, 1);
+    insertBook(merged);
+  } else {
+    state.books[idx] = merged;
+  }
+  return merged;
+}
+function removeBookRecord(id) {
+  const idx = state.books.findIndex(b => b.id === id);
+  if (idx !== -1) state.books.splice(idx, 1);
+  refs.bookElMap.delete(id);
+}
+
+/* ==================================================
+   Phases
+   ================================================== */
+function getPhaseName(i) {
+  return PHASE_NAME_PRESETS[i] || ('Phase ' + (i + 1));
+}
+function getPhaseColor(i) {
+  if (i < PHASE_COLOR_PRESETS.length) return PHASE_COLOR_PRESETS[i];
+  return 'hsl(' + ((i * 137.5) % 360).toFixed(0) + ', 65%, 55%)';
+}
+function getPhases() {
+  const count = state.settings.phaseCount;
+  const out = [];
+  for (let i = 0; i < count; i++) {
+    out.push({ id: i + 1, name: getPhaseName(i), color: getPhaseColor(i) });
+  }
+  return out;
+}
+function getTotalBooks() {
+  return state.settings.phaseCount * state.settings.booksPerPhase;
+}
+
+/* ==================================================
+   Image observer
+   ================================================== */
+function initImageObserver() {
+  refs.imageObserver = new IntersectionObserver((entries) => {
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      if (!entry.isIntersecting) continue;
+      const img = entry.target;
+      const src = img.dataset.src;
+      if (src) {
+        img.onload = function () { this.classList.add('loaded'); this.onload = null; };
+        img.onerror = function () {
+          this.onerror = null; this.onload = null;
+          this.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>'
+          );
+          this.classList.add('loaded');
+        };
+        img.src = src;
+      }
+      refs.imageObserver.unobserve(img);
+    }
+  }, { rootMargin: '400px 0px' });
+}
+
+function resolveCoverUrl(book) {
+  if (book.coverUrl) return book.coverUrl;
+  if (book.isbn) return 'https://covers.openlibrary.org/b/isbn/' + book.isbn + '-M.jpg';
+  return '';
+}
+
+/* ==================================================
+   Templates
+   ================================================== */
+const tplPhase = document.getElementById('tpl-phase');
+const tplBook  = document.getElementById('tpl-book');
+const tplEmpty = document.getElementById('tpl-empty');
+
+/* ==================================================
+   Phase sections
+   ================================================== */
+function rebuildPhaseSections() {
+  refs.phaseMap.clear();
+  const phases = getPhases();
+  const frag = document.createDocumentFragment();
+
+  phases.forEach((phase) => {
+    const section = tplPhase.content.firstElementChild.cloneNode(true);
+    section.style.setProperty('--phase-color', phase.color);
+    section.querySelector('.phase-badge').textContent = 'Phase ' + phase.id;
+    section.querySelector('h2').textContent = phase.name;
+    const gridEl = section.querySelector('.books-grid');
+    const statsEl = section.querySelector('.phase-stats');
+    const pctEl = section.querySelector('.phase-pct');
+    const countEl = section.querySelector('.phase-count');
+    const deadlineEl = section.querySelector('.phase-deadline-chip');
+    const progressFill = section.querySelector('.phase-progress-fill');
+    frag.appendChild(section);
+    refs.phaseMap.set(phase.id, {
+      sectionEl: section,
+      gridEl,
+      statsEl,
+      pctEl,
+      countEl,
+      deadlineEl,
+      progressFill
+    });
+  });
+  refs.container.replaceChildren(frag);
+
+  if (emptyBannerEl && state.books.length === 0) {
+    refs.container.insertBefore(emptyBannerEl, refs.container.firstChild);
+  }
+}
+
+function updatePhaseDeadlineChips() {
+  const phases = getPhases();
+  phases.forEach((phase, i) => {
+    const p = refs.phaseMap.get(phase.id);
+    if (!p || !p.deadlineEl) return;
+    const deadline = getPhaseDeadline(i);
+    if (!deadline) {
+      p.deadlineEl.style.display = 'none';
+      return;
+    }
+    const st = getDeadlineState(deadline);
+    const cd = getDeadlineCountdown(deadline);
+    p.deadlineEl.style.display = '';
+    p.deadlineEl.className = 'phase-deadline-chip' +
+      (st === 'overdue' ? ' overdue' : st === 'soon' ? ' soon' : '');
+    p.deadlineEl.innerHTML =
+      '<span>📅 ' + escapeHtml(formatShortDate(deadline)) + '</span>' +
+      '<span aria-hidden="true">·</span>' +
+      '<span class="chip-countdown">' + escapeHtml(cd ? cd.text : '') + '</span>';
+  });
+}
+
+/* ==================================================
+   Card creation
+   ================================================== */
+function createBookCard(book) {
+  const card = tplBook.content.firstElementChild.cloneNode(true);
+  card.dataset.bookId = book.id;
+  card.dataset.phase = String(book.phase);
+  card.querySelector('.title').textContent = book.title || 'Untitled';
+  card.querySelector('.author').textContent = book.author || 'Unknown author';
+
+  const coverUrl = resolveCoverUrl(book);
+  if (coverUrl) {
+    const img = card.querySelector('.cover-img');
+    img.dataset.src = coverUrl;
+    img.alt = book.title || '';
+    refs.imageObserver.observe(img);
+  }
+
+  applyCardStatus(card, book);
+  applyCardDeadline(card, book);
+  applyCardTime(card, book);
+  applyCardTimerActive(card, book);
+
+  refs.bookElMap.set(book.id, card);
+  return card;
+}
+
+function createEmptySlot(phaseId) {
+  const slot = tplEmpty.content.firstElementChild.cloneNode(true);
+  slot.dataset.phase = String(phaseId);
+  return slot;
+}
+
+function applyCardStatus(card, book) {
+  const status = book.status || 'unread';
+  card.classList.remove('status-reading', 'status-finished', 'status-dnf');
+  if (status !== 'unread') card.classList.add('status-' + status);
+  const iconEl = card.querySelector('.status-badge .icon');
+  if (iconEl) iconEl.textContent = STATUS_ICONS[status] || '';
+}
+
+function applyCardDeadline(card, book) {
+  const el = card.querySelector('.card-deadline');
+  if (!el) return;
+  if (!book.deadline || book.status === 'finished' || book.status === 'dnf') {
+    el.style.display = 'none';
+    return;
+  }
+  const st = getDeadlineState(book.deadline);
+  el.style.display = '';
+  el.className = 'card-deadline' + (st === 'overdue' ? ' overdue' : st === 'soon' ? ' soon' : '');
+  el.textContent = (st === 'overdue' ? '⚠ ' : '📅 ') + formatShortDate(book.deadline);
+}
+
+function applyCardTime(card, book) {
+  const el = card.querySelector('.card-time');
+  if (!el) return;
+  const t = formatDuration(book.timeSpent || 0);
+  if (!t) { el.style.display = 'none'; return; }
+  el.style.display = '';
+  el.textContent = '⏱ ' + t;
+}
+
+function applyCardTimerActive(card, book) {
+  const isActive = state.timer.bookId === book.id && (state.timer.running || state.timer.remainingSeconds > 0);
+  card.classList.toggle('timer-active', !!isActive);
+}
+
+function refreshCard(bookId) {
+  const book = getBook(bookId);
+  const card = refs.bookElMap.get(bookId);
+  if (!book || !card) return;
+  applyCardStatus(card, book);
+  applyCardDeadline(card, book);
+  applyCardTime(card, book);
+  applyCardTimerActive(card, book);
+}
+
+/* ==================================================
+   Phase grid rebuild
+   ================================================== */
+function rebuildPhaseGrid(phaseId) {
+  const phase = refs.phaseMap.get(phaseId);
+  if (!phase) return;
+
+  const books = getPhaseBooks(phaseId);
+  const perPhase = state.settings.booksPerPhase;
+  const slots = Math.max(perPhase, books.length);
+
+  phase.gridEl.querySelectorAll('.book-card').forEach(el => {
+    if (el.dataset.bookId) refs.bookElMap.delete(el.dataset.bookId);
+  });
+
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < slots; i++) {
+    frag.appendChild(i < books.length ? createBookCard(books[i]) : createEmptySlot(phaseId));
+  }
+  phase.gridEl.replaceChildren(frag);
+
+  let finished = 0;
+  for (const b of books) if (b.status === 'finished') finished++;
+
+  const pct = perPhase > 0 ? Math.round((finished / perPhase) * 100) : 0;
+
+  if (phase.pctEl) phase.pctEl.textContent = pct + '%';
+  if (phase.countEl) {
+    phase.countEl.textContent =
+      finished + ' / ' + perPhase + ' finished · ' + books.length + ' added';
+  }
+  if (phase.progressFill) {
+    phase.progressFill.style.width = Math.min(100, Math.max(0, pct)) + '%';
+  }
+}
+
+function rebuildAllPhases() {
+  for (const phase of getPhases()) rebuildPhaseGrid(phase.id);
+  updatePhaseDeadlineChips();
+  updateHeaderProgress();
+}
+
+/* ==================================================
+   Header
+   ================================================== */
+function updateHeaderProgress() {
+  let finished = 0;
+  for (const b of state.books) if (b.status === 'finished') finished++;
+  const total = getTotalBooks();
+  const pct = total > 0 ? Math.round((finished / total) * 100) : 0;
+  refs.progressText.textContent = finished + ' / ' + total + ' finished';
+  refs.progressPct.textContent = pct + '%';
+  refs.progressFill.style.width = pct + '%';
+  refs.headerTotal.textContent = total;
+}
+
+function updateHeaderDates() {
+  const el = refs.progressDates;
+  const s = state.settings;
+  if (!s.startDate && !s.endDate) {
+    el.innerHTML = '<span style="color:var(--text-mute)">No dates set — open ⚙ Settings to add them.</span>';
+    return;
+  }
+
+  const parts = [];
+  if (s.startDate) parts.push('<span>📅 ' + formatDateShort(s.startDate) + '</span>');
+  if (s.startDate && s.endDate) parts.push('<span style="color:var(--text-mute)">→</span>');
+  if (s.endDate) parts.push('<span>' + formatDateShort(s.endDate) + '</span>');
+
+  if (s.startDate && s.endDate) {
+    const dur = daysBetweenISO(s.startDate, s.endDate);
+    if (dur !== null && dur > 0) {
+      parts.push('<span style="color:var(--text-mute)">· ' + dur + ' days</span>');
+    }
+  }
+
+  if (s.endDate) {
+    const days = daysUntilDeadline(s.endDate);
+    if (days !== null && days > 0) {
+      parts.push('<span class="days-left">· ' + days + ' day' + (days !== 1 ? 's' : '') + ' left</span>');
+    } else if (days === 0) {
+      parts.push('<span class="days-left">· Last day</span>');
+    } else {
+      parts.push('<span class="ended">· Ended</span>');
+    }
+  }
+  el.innerHTML = parts.join(' ');
+}
+
+/* ==================================================
+   Empty banner
+   ================================================== */
+let emptyBannerEl = null;
+function updateEmptyBanner() {
+  const has = state.books.length > 0;
+  if (!has && !emptyBannerEl) {
+    emptyBannerEl = document.createElement('div');
+    emptyBannerEl.className = 'empty-banner';
+    emptyBannerEl.innerHTML =
+      '<div><strong>Welcome to your book challenge! 🎉</strong>' +
+      '<div style="font-size:13px;color:var(--text-sub);margin-top:4px">' +
+      'Get started by adding a book, bulk uploading, or ' +
+      '<span class="link" id="banner-sample">loading sample data</span>.</div></div>';
+    refs.container.insertBefore(emptyBannerEl, refs.container.firstChild);
+    document.getElementById('banner-sample').addEventListener('click', loadSampleData);
+  } else if (has && emptyBannerEl) {
+    emptyBannerEl.remove();
+    emptyBannerEl = null;
+  } else if (!has && emptyBannerEl && !emptyBannerEl.parentNode) {
+    refs.container.insertBefore(emptyBannerEl, refs.container.firstChild);
+  }
+}
+
+/* ==================================================
+   Modal control
+   ================================================== */
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+
+function closeAllModals() {
+  const reopenViewId = editReturnToView ? viewBookId : null;
+  document.querySelectorAll('.modal-backdrop.show').forEach(m => m.classList.remove('show'));
+  modalEditing = null;
+  modalIsNew = false;
+  editReturnToView = false;
+  if (reopenViewId && getBook(reopenViewId)) {
+    setTimeout(() => openViewModal(reopenViewId), 60);
+  } else {
+    viewBookId = null;
+  }
+}
+
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('modal-backdrop')) closeAllModals();
+  if (e.target.matches('[data-close]')) closeAllModals();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeAllModals();
+    document.getElementById('pomodoro-widget').classList.remove('open');
+  }
+});
+
+/* ==================================================
+   View modal
+   ================================================== */
+const viewEls = {
+  cover:    document.getElementById('view-cover'),
+  status:   document.getElementById('view-status'),
+  title:    document.getElementById('view-book-title'),
+  author:   document.getElementById('view-author'),
+  stars:    document.getElementById('view-stars'),
+  phase:    document.getElementById('view-phase'),
+  format:   document.getElementById('view-format'),
+  pages:    document.getElementById('view-pages'),
+  isbn:     document.getElementById('view-isbn'),
+  started:  document.getElementById('view-started'),
+  finished: document.getElementById('view-finished'),
+  deadline: document.getElementById('view-deadline'),
+  timeTotal: document.getElementById('view-time-total'),
+  sessions: document.getElementById('view-sessions'),
+  progress: document.getElementById('view-progress'),
+  notesSec: document.getElementById('view-notes-section'),
+  notes:    document.getElementById('view-notes'),
+  links:    document.getElementById('view-links'),
+  pomodoroBtn: document.getElementById('view-start-pomodoro'),
+  pomodoroLabel: document.getElementById('view-pomodoro-label')
+};
+
+function openViewModal(bookId) {
+  const book = getBook(bookId);
+  if (!book) return;
+  viewBookId = bookId;
+
+  const coverUrl = resolveCoverUrl(book);
+  if (coverUrl) {
+    viewEls.cover.innerHTML = '';
+    const img = document.createElement('img');
+    img.alt = book.title || '';
+    img.onerror = () => { viewEls.cover.textContent = '📕'; };
+    img.src = coverUrl;
+    viewEls.cover.appendChild(img);
+  } else {
+    viewEls.cover.textContent = '📕';
+  }
+
+  const status = book.status || 'unread';
+  viewEls.status.className = 'view-status ' + status;
+  viewEls.status.textContent = STATUS_LABELS[status] || 'Unread';
+
+  viewEls.title.textContent = book.title || 'Untitled';
+  viewEls.author.textContent = book.author ? 'by ' + book.author : 'Unknown author';
+
+  viewEls.stars.innerHTML = '';
+  const r = book.rating || 0;
+  for (let i = 1; i <= 5; i++) {
+    const s = document.createElement('span');
+    s.textContent = '★';
+    if (i <= r) s.classList.add('filled');
+    viewEls.stars.appendChild(s);
+  }
+
+  const phase = getPhases().find(p => p.id === book.phase);
+  const phaseIdx = book.phase - 1;
+  viewEls.phase.textContent = phase ? 'Phase ' + phase.id + ' — ' + phase.name : '—';
+  viewEls.format.textContent = book.format ? capitalize(book.format) : '—';
+  viewEls.pages.textContent = book.pages ? book.pages : '—';
+  viewEls.isbn.textContent = book.isbn || '—';
+  viewEls.started.textContent = formatDate(book.dateStarted);
+  viewEls.finished.textContent = formatDate(book.dateFinished);
+
+  if (book.deadline) {
+    const st = getDeadlineState(book.deadline);
+    const cd = getDeadlineCountdown(book.deadline);
+    viewEls.deadline.innerHTML = formatDate(book.deadline) +
+      (cd ? ' <span style="color:' +
+        (st === 'overdue' ? 'var(--deadline-overdue)' : st === 'soon' ? 'var(--deadline-soon)' : 'var(--text-sub)') +
+        ';font-weight:800">· ' + escapeHtml(cd.text) + '</span>' : '');
+  } else {
+    const pd = getPhaseDeadline(phaseIdx);
+    viewEls.deadline.textContent = pd ? '— (phase: ' + formatShortDate(pd) + ')' : '—';
+  }
+
+  viewEls.timeTotal.textContent = formatDuration(book.timeSpent || 0) || '0m';
+  viewEls.sessions.textContent = (book.sessionsCompleted || 0);
+
+  if (book.deadline) {
+    const st = getDeadlineState(book.deadline);
+    viewEls.progress.textContent = st === 'overdue' ? 'Overdue' : st === 'soon' ? 'Soon' : 'On track';
+    viewEls.progress.style.color =
+      st === 'overdue' ? 'var(--deadline-overdue)' :
+      st === 'soon'    ? 'var(--deadline-soon)' :
+                         'var(--status-finished)';
+  } else {
+    viewEls.progress.textContent = '—';
+    viewEls.progress.style.color = '';
+  }
+
+  const isCurrentBook = state.timer.bookId === book.id;
+  if (state.timer.running && isCurrentBook) {
+    viewEls.pomodoroLabel.textContent = 'View Active Session';
+    viewEls.pomodoroBtn.disabled = false;
+  } else if (isCurrentBook && state.timer.remainingSeconds > 0) {
+    viewEls.pomodoroLabel.textContent = 'Resume Session';
+    viewEls.pomodoroBtn.disabled = false;
+  } else {
+    viewEls.pomodoroLabel.textContent = 'Start Pomodoro Session';
+    viewEls.pomodoroBtn.disabled = false;
+  }
+
+  if (book.notes && book.notes.trim()) {
+    viewEls.notesSec.style.display = '';
+    viewEls.notes.textContent = book.notes;
+  } else {
+    viewEls.notesSec.style.display = 'none';
+  }
+
+  viewEls.links.innerHTML = '';
+  if (book.goodreads) {
+    const a = document.createElement('a');
+    a.href = book.goodreads; a.target = '_blank'; a.rel = 'noopener';
+    a.textContent = '📖 View on Goodreads';
+    viewEls.links.appendChild(a);
+  }
+  if (book.wiki) {
+    const a = document.createElement('a');
+    a.href = book.wiki; a.target = '_blank'; a.rel = 'noopener';
+    a.textContent = '🌐 Wikipedia';
+    viewEls.links.appendChild(a);
+  }
+  viewEls.links.style.display = viewEls.links.children.length ? '' : 'none';
+
+  openModal('modal-view');
+}
+
+document.getElementById('view-edit').addEventListener('click', () => {
+  if (!viewBookId) return;
+  const id = viewBookId;
+  editReturnToView = true;
+  document.getElementById('modal-view').classList.remove('show');
+  openBookModal(id);
+});
+
+document.getElementById('view-delete').addEventListener('click', () => {
+  if (!viewBookId) return;
+  const book = getBook(viewBookId);
+  if (!book) return;
+  if (!confirm('Delete "' + (book.title || 'this book') + '"? This cannot be undone.')) return;
+  if (state.timer.bookId === viewBookId) stopTimer(false);
+  const pid = book.phase;
+  removeBookRecord(viewBookId);
+  saveState();
+  rebuildPhaseGrid(pid);
+  updateHeaderProgress();
+  updateEmptyBanner();
+  editReturnToView = false;
+  viewBookId = null;
+  document.querySelectorAll('.modal-backdrop.show').forEach(m => m.classList.remove('show'));
+  showToast('Book deleted');
+});
+
+viewEls.pomodoroBtn.addEventListener('click', () => {
+  if (!viewBookId) return;
+  const book = getBook(viewBookId);
+  if (!book) return;
+  const isCurrent = state.timer.bookId === viewBookId;
+  if (!isCurrent) {
+    if (state.timer.running || state.timer.remainingSeconds > 0) {
+      if (!confirm('A session is already in progress. Stop it and start a new one for "' +
+        (book.title || 'this book') + '"?')) return;
+      stopTimer(false);
+    }
+    state.timer.bookId = viewBookId;
+  }
+  document.getElementById('modal-view').classList.remove('show');
+  viewBookId = null;
+  document.getElementById('pomodoro-widget').classList.add('open');
+  if (!state.timer.running && state.timer.remainingSeconds === 0) {
+    state.timer.mode = 'work';
+    state.timer.remainingSeconds = getModeDuration('work');
+  }
+  updateTimerWidget();
+  if (!state.timer.running) startTimer();
+  else pauseTimer();
+});
+
+/* ==================================================
+   Edit modal
+   ================================================== */
+const f = {
+  coverUrl:  document.getElementById('f-coverUrl'),
+  coverPrev: document.getElementById('f-cover-preview'),
+  title:     document.getElementById('f-title'),
+  author:    document.getElementById('f-author'),
+  isbn:      document.getElementById('f-isbn'),
+  phase:     document.getElementById('f-phase'),
+  format:    document.getElementById('f-format'),
+  dateStart: document.getElementById('f-dateStarted'),
+  dateEnd:   document.getElementById('f-dateFinished'),
+  deadline:  document.getElementById('f-deadline'),
+  deadlineHint: document.getElementById('f-deadline-hint'),
+  pages:     document.getElementById('f-pages'),
+  goodreads: document.getElementById('f-goodreads'),
+  notes:     document.getElementById('f-notes')
+};
+
+function refreshPhaseOptions() {
+  let html = '';
+  for (const p of getPhases()) {
+    html += '<option value="' + p.id + '">Phase ' + p.id + ' — ' + p.name + '</option>';
+  }
+  f.phase.innerHTML = html;
+  document.getElementById('bulk-phase').innerHTML = html;
+}
+refreshPhaseOptions();
+
+function setCoverPreview(url) {
+  if (url) {
+    f.coverPrev.innerHTML = '';
+    const img = document.createElement('img');
+    img.onerror = () => { f.coverPrev.textContent = '📕'; };
+    img.src = url;
+    f.coverPrev.appendChild(img);
+  } else {
+    f.coverPrev.textContent = '📕';
+  }
+}
+f.coverUrl.addEventListener('input', () => setCoverPreview(f.coverUrl.value.trim()));
+
+function setStatusPills(status) {
+  document.querySelectorAll('#status-pills .status-pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.status === status);
+  });
+}
+function setStars(rating) {
+  document.querySelectorAll('#star-rating .star').forEach(s => {
+    s.classList.toggle('filled', parseInt(s.dataset.value, 10) <= rating);
+  });
+}
+
+document.querySelectorAll('#status-pills .status-pill').forEach(p => {
+  p.addEventListener('click', () => {
+    if (!modalEditing) return;
+    modalEditing.status = p.dataset.status;
+    setStatusPills(p.dataset.status);
+  });
+});
+document.querySelectorAll('#star-rating .star').forEach(s => {
+  s.addEventListener('click', () => {
+    if (!modalEditing) return;
+    const r = parseInt(s.dataset.value, 10);
+    modalEditing.rating = r;
+    setStars(r);
+  });
+});
+
+f.phase.addEventListener('change', updateDeadlineHint);
+function updateDeadlineHint() {
+  const phaseId = parseInt(f.phase.value, 10);
+  const pd = getPhaseDeadline(phaseId - 1);
+  f.deadlineHint.textContent = pd ? '(phase ' + phaseId + ': ' + formatShortDate(pd) + ')' : '';
+}
+document.getElementById('f-deadline-auto').addEventListener('click', () => {
+  const phaseId = parseInt(f.phase.value, 10);
+  const pd = getPhaseDeadline(phaseId - 1);
+  if (!pd) { showToast('Set challenge dates in Settings first', 'error'); return; }
+  f.deadline.value = pd;
+});
+document.getElementById('f-deadline-clear').addEventListener('click', () => {
+  f.deadline.value = '';
+});
+
+function openBookModal(bookId, defaultPhase) {
+  const existing = bookId ? getBook(bookId) : null;
+  modalIsNew = !existing;
+
+  if (!defaultPhase) {
+    for (const p of getPhases()) {
+      if (getPhaseBooks(p.id).length < state.settings.booksPerPhase) { defaultPhase = p.id; break; }
+    }
+    if (!defaultPhase) defaultPhase = 1;
+  }
+
+  modalEditing = existing ? Object.assign({}, existing) : {
+    id: uid(),
+    phase: defaultPhase,
+    title: '', author: '', isbn: '', coverUrl: '',
+    status: 'unread', rating: 0, notes: '',
+    dateStarted: '', dateFinished: '', deadline: '', format: '',
+    pages: 0, goodreads: '', wiki: '', summary: '',
+    timeSpent: 0, sessionsCompleted: 0
+  };
+
+  document.getElementById('modal-book-title').textContent =
+    modalIsNew ? 'Add Book' : 'Edit Book';
+  f.title.value     = modalEditing.title || '';
+  f.author.value    = modalEditing.author || '';
+  f.isbn.value      = modalEditing.isbn || '';
+  f.coverUrl.value  = modalEditing.coverUrl || '';
+  f.phase.value     = modalEditing.phase;
+  f.format.value    = modalEditing.format || '';
+  f.dateStart.value = modalEditing.dateStarted || '';
+  f.dateEnd.value   = modalEditing.dateFinished || '';
+  f.deadline.value  = modalEditing.deadline || '';
+  f.pages.value     = modalEditing.pages || '';
+  f.goodreads.value = modalEditing.goodreads || '';
+  f.notes.value     = modalEditing.notes || '';
+
+  setCoverPreview(modalEditing.coverUrl);
+  setStatusPills(modalEditing.status);
+  setStars(modalEditing.rating || 0);
+  updateDeadlineHint();
+
+  document.getElementById('btn-save').textContent = modalIsNew ? 'Add Book' : 'Save Changes';
+
+  openModal('modal-book');
+  requestAnimationFrame(() => f.title.focus());
+}
+
+function saveBookFromModal() {
+  if (!modalEditing) return;
+  const title = f.title.value.trim();
+  if (!title) { showToast('Title is required', 'error'); f.title.focus(); return; }
+
+  const record = {
+    id: modalEditing.id,
+    phase: parseInt(f.phase.value, 10),
+    title,
+    author:    f.author.value.trim(),
+    isbn:      f.isbn.value.trim(),
+    coverUrl:  f.coverUrl.value.trim(),
+    status:    modalEditing.status || 'unread',
+    rating:    modalEditing.rating || 0,
+    dateStarted:  f.dateStart.value,
+    dateFinished: f.dateEnd.value,
+    deadline:  f.deadline.value || '',
+    format:    f.format.value,
+    pages:     parseInt(f.pages.value, 10) || 0,
+    goodreads: f.goodreads.value.trim(),
+    notes:     f.notes.value.trim(),
+    wiki:      modalEditing.wiki || '',
+    summary:   modalEditing.summary || '',
+    timeSpent: modalEditing.timeSpent || 0,
+    sessionsCompleted: modalEditing.sessionsCompleted || 0
+  };
+
+  const affectedPhases = new Set();
+
+  if (modalIsNew) {
+    insertBook(record);
+    affectedPhases.add(record.phase);
+    showToast('Book added ✓', 'success');
+  } else {
+    const old = getBook(record.id);
+    if (old) affectedPhases.add(old.phase);
+    updateBookRecord(record.id, record);
+    affectedPhases.add(record.phase);
+    showToast('Book updated ✓', 'success');
+  }
+
+  viewBookId = record.id;
+  saveState();
+  affectedPhases.forEach(pid => rebuildPhaseGrid(pid));
+  updateHeaderProgress();
+  updateEmptyBanner();
+  closeAllModals();
+}
+document.getElementById('btn-save').addEventListener('click', saveBookFromModal);
+
+/* ==================================================
+   Settings modal
+   ================================================== */
+const s = {
+  startDate:     document.getElementById('s-startDate'),
+  endDate:       document.getElementById('s-endDate'),
+  phaseCount:    document.getElementById('s-phaseCount'),
+  booksPerPhase: document.getElementById('s-booksPerPhase'),
+  pomoWork:      document.getElementById('s-pomoWork'),
+  pomoShortBreak: document.getElementById('s-pomoShortBreak'),
+  pomoLongBreak: document.getElementById('s-pomoLongBreak'),
+  pomoLongEvery: document.getElementById('s-pomoLongEvery'),
+  preview:       document.getElementById('s-preview'),
+  warning:       document.getElementById('s-warning'),
+  deadlineList:  document.getElementById('s-deadline-list')
+};
+
+function updateSettingsPreview() {
+  const phases = Math.max(1, Math.min(20, parseInt(s.phaseCount.value, 10) || 1));
+  const perPhase = Math.max(1, Math.min(50, parseInt(s.booksPerPhase.value, 10) || 1));
+  const total = phases * perPhase;
+
+  s.preview.innerHTML =
+    '<strong>' + total + ' books</strong>' +
+    '<span class="sub">' + phases + ' phase' + (phases !== 1 ? 's' : '') +
+    ' × ' + perPhase + ' book' + (perPhase !== 1 ? 's' : '') + '</span>';
+
+  const orphaned = state.books.filter(b => b.phase > phases);
+  if (orphaned.length > 0) {
+    const uniquePhases = [...new Set(orphaned.map(b => b.phase))].sort((a, b) => a - b);
+    s.warning.style.display = '';
+    s.warning.innerHTML =
+      '<strong>⚠️ Books will be reassigned</strong>' +
+      orphaned.length + ' book' + (orphaned.length !== 1 ? 's' : '') +
+      ' currently in phase' + (uniquePhases.length !== 1 ? 's' : '') + ' ' +
+      uniquePhases.join(', ') +
+      ' will be moved to the last phase (Phase ' + phases + ').';
+  } else {
+    s.warning.style.display = 'none';
+    s.warning.innerHTML = '';
+  }
+
+  updateSettingsDeadlineList(phases);
+}
+
+function updateSettingsDeadlineList(phaseCount) {
+  const startDate = s.startDate.value;
+  const endDate = s.endDate.value;
+  const list = s.deadlineList;
+
+  if (!startDate || !endDate) {
+    list.innerHTML = '<div style="color:var(--text-mute);text-align:center;padding:6px 0">Set both start and finish dates to see phase deadlines.</div>';
+    return;
+  }
+
+  const totalDays = daysBetweenISO(startDate, endDate);
+  if (totalDays === null || totalDays <= 0) {
+    list.innerHTML = '<div style="color:var(--deadline-overdue);text-align:center;padding:6px 0">Finish date must be after start date.</div>';
+    return;
+  }
+
+  let html = '';
+  for (let i = 0; i < phaseCount; i++) {
+    const dayOffset = Math.round(totalDays * (i + 1) / phaseCount);
+    const deadline = addDaysISO(startDate, dayOffset);
+    const st = getDeadlineState(deadline);
+    const cd = getDeadlineCountdown(deadline);
+    const stClass = st === 'overdue' ? ' overdue' : st === 'soon' ? ' soon' : '';
+    const name = getPhaseName(i);
+    html += '<div class="deadline-preview-row">' +
+      '<span class="phase-name">Phase ' + (i + 1) + ' — ' + name + '</span>' +
+      '<span class="phase-deadline' + stClass + '">' + formatDateShort(deadline) +
+      (cd ? ' · ' + escapeHtml(cd.text) : '') + '</span>' +
+      '</div>';
+  }
+  list.innerHTML = html;
+}
+
+[s.phaseCount, s.booksPerPhase].forEach(el => {
+  el.addEventListener('input', updateSettingsPreview);
+});
+[s.startDate, s.endDate].forEach(el => {
+  el.addEventListener('change', () => updateSettingsPreview());
+});
+
+const presetRow = document.getElementById('preset-row');
+const presetButtons = presetRow.querySelectorAll('.preset-btn');
+
+function setActivePreset(days) {
+  presetButtons.forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.dataset.days, 10) === days);
+  });
+}
+
+function detectActivePreset() {
+  const start = s.startDate.value;
+  const end = s.endDate.value;
+  if (!start || !end) { setActivePreset(null); return; }
+  const diff = daysBetweenISO(start, end);
+  const match = [90, 180, 365].find(d => d === diff);
+  setActivePreset(match || null);
+}
+
+presetButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const days = parseInt(btn.dataset.days, 10);
+    let start = s.startDate.value;
+    const today = todayISO();
+    if (!start || start < today) start = today;
+    s.startDate.value = start;
+    s.endDate.value = addDaysISO(start, days);
+    setActivePreset(days);
+    updateSettingsPreview();
+    showToast(days + '-day challenge set ✓', 'success');
+  });
+});
+
+s.startDate.addEventListener('change', detectActivePreset);
+s.endDate.addEventListener('change', detectActivePreset);
+
+function openSettingsModal() {
+  s.startDate.value = state.settings.startDate || '';
+  s.endDate.value = state.settings.endDate || '';
+  s.phaseCount.value = state.settings.phaseCount;
+  s.booksPerPhase.value = state.settings.booksPerPhase;
+  s.pomoWork.value = state.settings.pomodoro.workMinutes;
+  s.pomoShortBreak.value = state.settings.pomodoro.shortBreakMinutes;
+  s.pomoLongBreak.value = state.settings.pomodoro.longBreakMinutes;
+  s.pomoLongEvery.value = state.settings.pomodoro.longBreakEvery;
+  updateSettingsPreview();
+  detectActivePreset();
+  updateThemeButtons();
+  openModal('modal-settings');
+}
+
+function saveSettings() {
+  const newPhaseCount = Math.max(1, Math.min(20, parseInt(s.phaseCount.value, 10) || 5));
+  const newBooksPerPhase = Math.max(1, Math.min(50, parseInt(s.booksPerPhase.value, 10) || 20));
+  const startDate = s.startDate.value || '';
+  const endDate = s.endDate.value || '';
+
+  if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+    showToast('Finish date must be after start date', 'error');
+    return;
+  }
+
+  const newPomodoro = {
+    workMinutes: Math.max(1, Math.min(120, parseInt(s.pomoWork.value, 10) || 25)),
+    shortBreakMinutes: Math.max(1, Math.min(60, parseInt(s.pomoShortBreak.value, 10) || 5)),
+    longBreakMinutes: Math.max(1, Math.min(120, parseInt(s.pomoLongBreak.value, 10) || 15)),
+    longBreakEvery: Math.max(2, Math.min(10, parseInt(s.pomoLongEvery.value, 10) || 4))
+  };
+
+  const orphaned = state.books.filter(b => b.phase > newPhaseCount);
+  if (orphaned.length > 0) {
+    const uniquePhases = [...new Set(orphaned.map(b => b.phase))].sort((a, b) => a - b);
+    const ok = confirm(
+      orphaned.length + ' book' + (orphaned.length !== 1 ? 's' : '') +
+      ' in phase' + (uniquePhases.length !== 1 ? 's' : '') + ' ' + uniquePhases.join(', ') +
+      ' will be moved to Phase ' + newPhaseCount + '.\n\nContinue?'
+    );
+    if (!ok) return;
+    for (const b of orphaned) b.phase = newPhaseCount;
+    state.books.sort((a, b) => a.phase - b.phase);
+  }
+
+  const changedPhaseStructure =
+    newPhaseCount !== state.settings.phaseCount ||
+    newBooksPerPhase !== state.settings.booksPerPhase;
+
+  state.settings.startDate = startDate;
+  state.settings.endDate = endDate;
+  state.settings.phaseCount = newPhaseCount;
+  state.settings.booksPerPhase = newBooksPerPhase;
+  state.settings.pomodoro = newPomodoro;
+
+  if (!state.timer.running && !state.timer.bookId) {
+    state.timer.remainingSeconds = getModeDuration(state.timer.mode);
+  }
+
+  saveState();
+  refreshPhaseOptions();
+
+  if (changedPhaseStructure) {
+    rebuildPhaseSections();
+  }
+  rebuildAllPhases();
+
+  updateHeaderDates();
+  updateEmptyBanner();
+  updateTimerWidget();
+  closeAllModals();
+  showToast('Settings saved ✓', 'success');
+}
+
+document.getElementById('s-save').addEventListener('click', saveSettings);
+
+document.getElementById('s-reset').addEventListener('click', () => {
+  if (!confirm('Reset all settings to their defaults?\n(Date fields will be cleared. Phases will reset to 5 × 20. Theme will stay as-is.)')) return;
+  s.startDate.value = '';
+  s.endDate.value = '';
+  s.phaseCount.value = DEFAULT_SETTINGS.phaseCount;
+  s.booksPerPhase.value = DEFAULT_SETTINGS.booksPerPhase;
+  s.pomoWork.value = DEFAULT_SETTINGS.pomodoro.workMinutes;
+  s.pomoShortBreak.value = DEFAULT_SETTINGS.pomodoro.shortBreakMinutes;
+  s.pomoLongBreak.value = DEFAULT_SETTINGS.pomodoro.longBreakMinutes;
+  s.pomoLongEvery.value = DEFAULT_SETTINGS.pomodoro.longBreakEvery;
+  setActivePreset(null);
+  updateSettingsPreview();
+});
+
+/* ==================================================
+   Pomodoro
+   ================================================== */
+function getModeDuration(mode) {
+  const p = state.settings.pomodoro;
+  if (mode === 'shortBreak') return p.shortBreakMinutes * 60;
+  if (mode === 'longBreak')  return p.longBreakMinutes  * 60;
+  return p.workMinutes * 60;
+}
+
+function getModeColorClass(mode) {
+  if (mode === 'shortBreak') return 'break';
+  if (mode === 'longBreak')  return 'longbreak';
+  return 'work';
+}
+
+function startTimer() {
+  if (!state.timer.bookId) {
+    showToast('Select a book first', 'error');
+    return;
+  }
+  if (state.timer.running) return;
+  if (state.timer.remainingSeconds <= 0) {
+    state.timer.remainingSeconds = getModeDuration(state.timer.mode);
+  }
+  state.timer.running = true;
+  state.timer.endTimestamp = Date.now() + state.timer.remainingSeconds * 1000;
+  state.timer.lastTickTs = Date.now();
+  ensureTicking();
+  updateTimerWidget();
+  refreshCardTimerState();
+  saveState();
+}
+
+function pauseTimer() {
+  if (!state.timer.running) return;
+  const now = Date.now();
+  state.timer.remainingSeconds = Math.max(0, Math.round((state.timer.endTimestamp - now) / 1000));
+  state.timer.running = false;
+  state.timer.endTimestamp = null;
+  state.timer.lastTickTs = null;
+  updateTimerWidget();
+  refreshCardTimerState();
+  saveState();
+}
+
+function stopTimer(showConfirm) {
+  if (showConfirm !== false) {
+    if (!confirm('Stop the current session? Time spent so far will be saved.')) return;
+  }
+  if (state.timer.running) pauseTimer();
+  state.timer.running = false;
+  state.timer.endTimestamp = null;
+  state.timer.lastTickTs = null;
+  state.timer.mode = 'work';
+  state.timer.remainingSeconds = getModeDuration('work');
+  updateTimerWidget();
+  refreshCardTimerState();
+  saveState();
+}
+
+function completeSession() {
+  if (!state.timer.running) return;
+  const finishedMode = state.timer.mode;
+  const bookIdAtComplete = state.timer.bookId;
+
+  state.timer.running = false;
+  state.timer.endTimestamp = null;
+  state.timer.lastTickTs = null;
+
+  beep();
+
+  if (finishedMode === 'work') {
+    const book = getBook(bookIdAtComplete);
+    if (book) book.sessionsCompleted = (book.sessionsCompleted || 0) + 1;
+    state.timer.sessionsCompleted++;
+
+    const every = state.settings.pomodoro.longBreakEvery;
+    const isLongBreak = state.timer.sessionsCompleted > 0 &&
+                        state.timer.sessionsCompleted % every === 0;
+    state.timer.mode = isLongBreak ? 'longBreak' : 'shortBreak';
+    state.timer.remainingSeconds = getModeDuration(state.timer.mode);
+
+    showToast(
+      isLongBreak ? '🎉 Long break earned — great work!' : '☕ Break time — session complete!',
+      'success'
+    );
+  } else {
+    state.timer.mode = 'work';
+    state.timer.remainingSeconds = getModeDuration('work');
+    showToast('▶ Back to focus — start when ready', 'pomo');
+  }
+
+  if (bookIdAtComplete) refreshCard(bookIdAtComplete);
+  updateTimerWidget();
+  refreshCardTimerState();
+  saveState();
+}
+
+function tickTimer() {
+  if (!state.timer.running || !state.timer.endTimestamp) return;
+  const now = Date.now();
+  const remaining = Math.max(0, Math.ceil((state.timer.endTimestamp - now) / 1000));
+
+  if (state.timer.lastTickTs) {
+    const dt = (now - state.timer.lastTickTs) / 1000;
+    const capped = Math.min(dt, 3);
+    if (state.timer.mode === 'work' && state.timer.bookId) {
+      const book = getBook(state.timer.bookId);
+      if (book) book.timeSpent = (book.timeSpent || 0) + capped;
+
+      // Log daily activity
+      const today = todayISO();
+      if (!state.activityLog[today]) {
+        state.activityLog[today] = { seconds: 0, bookIds: [] };
+      }
+      state.activityLog[today].seconds += capped;
+      const bid = state.timer.bookId;
+      if (bid && state.activityLog[today].bookIds.indexOf(bid) === -1) {
+        state.activityLog[today].bookIds.push(bid);
+      }
+    }
+  }
+  state.timer.lastTickTs = now;
+
+  if (remaining !== state.timer.remainingSeconds) {
+    state.timer.remainingSeconds = remaining;
+    updateTimerWidget();
+
+    tickSaveCounter++;
+    if (tickSaveCounter >= 20) {
+      tickSaveCounter = 0;
+      saveState();
+      if (state.timer.bookId) {
+        const card = refs.bookElMap.get(state.timer.bookId);
+        const book = getBook(state.timer.bookId);
+        if (card && book) applyCardTime(card, book);
+      }
+    }
+  }
+
+  if (remaining <= 0) completeSession();
+}
+
+function ensureTicking() {
+  if (timerInterval) return;
+  timerInterval = setInterval(tickTimer, 250);
+}
+
+function refreshCardTimerState() {
+  for (const [bookId, card] of refs.bookElMap) {
+    const book = getBook(bookId);
+    if (!book) continue;
+    applyCardTimerActive(card, book);
+  }
+}
+
+/* ==================================================
+   Pomodoro widget UI
+   ================================================== */
+const pomoWidget = document.getElementById('pomodoro-widget');
+const pomoFab = document.getElementById('pomo-fab');
+const pomoFabIcon = document.getElementById('pomo-fab-icon');
+const pomoFabTime = document.getElementById('pomo-fab-time');
+const pomoClose = document.getElementById('pomo-close');
+const pomoIdle = document.getElementById('pomo-idle');
+const pomoActive = document.getElementById('pomo-active');
+const pomoBookSelect = document.getElementById('pomo-book-select');
+const pomoIdleTime = document.getElementById('pomo-idle-time');
+const pomoIdleLabel = document.getElementById('pomo-idle-label');
+const pomoStart = document.getElementById('pomo-start');
+const pomoBookCover = document.getElementById('pomo-book-cover');
+const pomoBookTitle = document.getElementById('pomo-book-title');
+const pomoBookAuthor = document.getElementById('pomo-book-author');
+const pomoTimeDisplay = document.getElementById('pomo-time-display');
+const pomoModeLabel = document.getElementById('pomo-mode-label');
+const pomoProgressFill = document.getElementById('pomo-progress-fill');
+const pomoToggle = document.getElementById('pomo-toggle');
+const pomoStop = document.getElementById('pomo-stop');
+const pomoSessionCounter = document.getElementById('pomo-session-counter');
+const pomoModeTabs = document.querySelectorAll('.pomo-mode-tab');
+
+pomoFab.addEventListener('click', () => {
+  pomoWidget.classList.toggle('open');
+  if (pomoWidget.classList.contains('open')) {
+    rebuildPomoBookSelect();
+    updateTimerWidget();
+  }
+});
+
+pomoClose.addEventListener('click', () => {
+  pomoWidget.classList.remove('open');
+});
+
+document.addEventListener('click', (e) => {
+  if (!pomoWidget.classList.contains('open')) return;
+  if (!pomoWidget.contains(e.target)) pomoWidget.classList.remove('open');
+});
+
+function rebuildPomoBookSelect() {
+  const prevVal = state.timer.bookId || pomoBookSelect.value;
+  let html = '<option value="">— Select a book —</option>';
+  const phases = getPhases();
+  phases.forEach(phase => {
+    const phaseBooks = getPhaseBooks(phase.id);
+    if (phaseBooks.length === 0) return;
+    html += '<optgroup label="Phase ' + phase.id + ' — ' + phase.name + '">';
+    phaseBooks.forEach(b => {
+      const statusIcon = b.status === 'finished' ? '✓ ' : b.status === 'reading' ? '📖 ' : '';
+      html += '<option value="' + b.id + '">' + escapeHtml(statusIcon + (b.title || 'Untitled')) + '</option>';
+    });
+    html += '</optgroup>';
+  });
+  pomoBookSelect.innerHTML = html;
+  if (prevVal && getBook(prevVal)) pomoBookSelect.value = prevVal;
+}
+
+pomoBookSelect.addEventListener('change', () => {
+  const id = pomoBookSelect.value;
+  if (!id) {
+    state.timer.bookId = null;
+    state.timer.remainingSeconds = getModeDuration(state.timer.mode);
+    updateTimerWidget();
+    saveState();
+    return;
+  }
+  if (state.timer.running || state.timer.remainingSeconds > 0 && state.timer.bookId) {
+    if (state.timer.bookId && state.timer.bookId !== id) {
+      if (!confirm('A session is already set up. Switch to a different book?')) {
+        pomoBookSelect.value = state.timer.bookId || '';
+        return;
+      }
+      if (state.timer.running) pauseTimer();
+    }
+  }
+  state.timer.bookId = id;
+  if (!state.timer.running && state.timer.remainingSeconds <= 0) {
+    state.timer.remainingSeconds = getModeDuration(state.timer.mode);
+  }
+  updateTimerWidget();
+  refreshCardTimerState();
+  saveState();
+});
+
+pomoModeTabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const mode = tab.dataset.mode;
+    if (state.timer.running) {
+      showToast('Pause the timer first', 'error');
+      return;
+    }
+    state.timer.mode = mode;
+    state.timer.remainingSeconds = getModeDuration(mode);
+    updateTimerWidget();
+    saveState();
+  });
+});
+
+pomoStart.addEventListener('click', () => {
+  if (!state.timer.bookId) {
+    const sel = pomoBookSelect.value;
+    if (sel) state.timer.bookId = sel;
+  }
+  if (!state.timer.bookId) {
+    showToast('Select a book first', 'error');
+    return;
+  }
+  if (state.timer.remainingSeconds <= 0) {
+    state.timer.remainingSeconds = getModeDuration(state.timer.mode);
+  }
+  startTimer();
+});
+
+pomoToggle.addEventListener('click', () => {
+  if (!state.timer.bookId) return;
+  if (state.timer.running) pauseTimer();
+  else {
+    if (state.timer.remainingSeconds <= 0) {
+      state.timer.remainingSeconds = getModeDuration(state.timer.mode);
+    }
+    startTimer();
+  }
+});
+
+pomoStop.addEventListener('click', () => stopTimer(true));
+
+function updateTimerWidget() {
+  const t = state.timer;
+  const hasBook = !!t.bookId;
+  const book = hasBook ? getBook(t.bookId) : null;
+
+  pomoFab.classList.toggle('running', t.running);
+  pomoFab.classList.remove('break', 'longbreak');
+  if (t.running) pomoFab.classList.add(getModeColorClass(t.mode));
+  if (t.running) {
+    pomoFabIcon.textContent = t.mode === 'work' ? '🍅' : '☕';
+    pomoFabTime.textContent = formatClock(t.remainingSeconds);
+  } else {
+    pomoFabIcon.textContent = '🍅';
+    pomoFabTime.textContent = '';
+  }
+
+  if (hasBook) {
+    pomoIdle.style.display = 'none';
+    pomoActive.style.display = '';
+
+    if (book) {
+      pomoBookTitle.textContent = book.title || 'Untitled';
+      pomoBookAuthor.textContent = book.author || 'Unknown author';
+      const coverUrl = resolveCoverUrl(book);
+      if (coverUrl) {
+        pomoBookCover.innerHTML = '<img src="' + escapeHtml(coverUrl) + '" alt="">';
+      } else {
+        pomoBookCover.textContent = '📕';
+      }
+    }
+
+    pomoTimeDisplay.textContent = formatClock(t.remainingSeconds);
+    pomoTimeDisplay.className = 'pomo-time-display ' + (t.mode !== 'work' ? getModeColorClass(t.mode) : '');
+    pomoModeLabel.textContent = MODE_LABELS[t.mode];
+    pomoModeLabel.className = 'pomo-mode-label ' + getModeColorClass(t.mode);
+
+    const total = getModeDuration(t.mode);
+    const elapsed = total - t.remainingSeconds;
+    const pct = total > 0 ? Math.min(100, Math.max(0, (elapsed / total) * 100)) : 0;
+    pomoProgressFill.style.width = pct + '%';
+    pomoProgressFill.className = 'pomo-progress-fill ' + (t.mode !== 'work' ? getModeColorClass(t.mode) : '');
+
+    if (t.running) {
+      pomoToggle.textContent = '❚❚ Pause';
+    } else {
+      pomoToggle.textContent = '▶ Resume';
+    }
+    pomoToggle.className = 'pomo-btn pomo-btn-primary ' + (t.mode !== 'work' ? getModeColorClass(t.mode) : '');
+
+    const every = state.settings.pomodoro.longBreakEvery;
+    const cyclePos = t.sessionsCompleted % every;
+    const inCycle = cyclePos === 0 && t.sessionsCompleted > 0 ? every : cyclePos;
+    let tomatoes = '';
+    for (let i = 0; i < every; i++) {
+      tomatoes += '<span class="tomato">' + (i < inCycle ? '🍅' : '⚪') + '</span>';
+    }
+    pomoSessionCounter.innerHTML = 'Cycle: ' + tomatoes + ' · ' + t.sessionsCompleted + ' total session' + (t.sessionsCompleted !== 1 ? 's' : '');
+  } else {
+    pomoIdle.style.display = '';
+    pomoActive.style.display = 'none';
+
+    if (!pomoBookSelect.options.length || (pomoBookSelect.options.length === 1 && pomoBookSelect.options[0].value === '')) {
+      rebuildPomoBookSelect();
+    }
+
+    if (t.remainingSeconds <= 0) t.remainingSeconds = getModeDuration(t.mode);
+    pomoIdleTime.textContent = formatClock(t.remainingSeconds);
+    pomoIdleLabel.textContent = MODE_LABELS[t.mode];
+    pomoIdleLabel.className = 'pomo-mode-label ' + (t.mode !== 'work' ? getModeColorClass(t.mode) : '');
+
+    pomoModeTabs.forEach(tab => {
+      tab.classList.toggle('active', tab.dataset.mode === t.mode);
+      tab.disabled = t.running;
+    });
+
+    pomoStart.className = 'pomo-btn pomo-btn-primary ' + (t.mode !== 'work' ? getModeColorClass(t.mode) : '');
+    pomoStart.disabled = t.running;
+  }
+}
+
+/* ==================================================
+   Delegated card clicks + drag & drop
+   ================================================== */
+refs.container = document.getElementById('phases-container');
+refs.progressText = document.getElementById('progress-text');
+refs.progressPct  = document.getElementById('progress-pct');
+refs.progressFill = document.getElementById('progress-fill');
+refs.progressDates = document.getElementById('progress-dates');
+refs.headerTotal = document.getElementById('header-total');
+
+refs.container.addEventListener('click', (e) => {
+  if (justDragged) return;
+  const card = e.target.closest('.book-card');
+  if (!card) return;
+  if (card.classList.contains('empty')) {
+    const pid = parseInt(card.dataset.phase, 10) || undefined;
+    editReturnToView = false;
+    openBookModal(null, pid);
+  } else if (card.dataset.bookId) {
+    openViewModal(card.dataset.bookId);
+  }
+});
+
+function clearDragIndicators() {
+  document.querySelectorAll('.drag-over-left, .drag-over-right').forEach(el => {
+    el.classList.remove('drag-over-left', 'drag-over-right');
+  });
+}
+
+refs.container.addEventListener('dragstart', (e) => {
+  const card = e.target.closest('.book-card');
+  if (!card || card.classList.contains('empty')) {
+    e.preventDefault();
+    return;
+  }
+  dragState.draggedId = card.dataset.bookId;
+  card.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  try { e.dataTransfer.setData('text/plain', dragState.draggedId); } catch (_) {}
+});
+
+refs.container.addEventListener('dragend', (e) => {
+  const card = e.target.closest('.book-card');
+  if (card) card.classList.remove('dragging');
+  clearDragIndicators();
+  dragState.draggedId = null;
+  // Suppress the click that may follow a drag
+  justDragged = true;
+  setTimeout(() => { justDragged = false; }, 80);
+});
+
+refs.container.addEventListener('dragover', (e) => {
+  if (!dragState.draggedId) return;
+  const card = e.target.closest('.book-card');
+  if (!card) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+
+  clearDragIndicators();
+
+  if (card.classList.contains('empty')) {
+    // Show a left-side indicator on the empty slot to say "insert here"
+    card.classList.add('drag-over-left');
+    return;
+  }
+
+  if (card.dataset.bookId === dragState.draggedId) return;
+
+  const rect = card.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  if (x < rect.width / 2) card.classList.add('drag-over-left');
+  else card.classList.add('drag-over-right');
+});
+
+refs.container.addEventListener('dragleave', (e) => {
+  const card = e.target.closest('.book-card');
+  if (card) card.classList.remove('drag-over-left', 'drag-over-right');
+});
+
+refs.container.addEventListener('drop', (e) => {
+  if (!dragState.draggedId) return;
+  const card = e.target.closest('.book-card');
+  if (!card) return;
+  e.preventDefault();
+
+  const draggedId = dragState.draggedId;
+  let targetId = null;
+  let targetPhase = null;
+  let position = 'after';
+
+  if (card.classList.contains('empty')) {
+    targetPhase = parseInt(card.dataset.phase, 10);
+    position = 'end';
+  } else if (card.dataset.bookId) {
+    targetId = card.dataset.bookId;
+    const targetBook = getBook(targetId);
+    if (!targetBook) return;
+    targetPhase = targetBook.phase;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    position = x < rect.width / 2 ? 'before' : 'after';
+  }
+
+  if (targetPhase === null || targetId === draggedId) {
+    clearDragIndicators();
+    return;
+  }
+
+  moveBook(draggedId, targetPhase, targetId, position);
+  clearDragIndicators();
+});
+
+function moveBook(draggedId, targetPhase, targetId, position) {
+  const draggedIdx = state.books.findIndex(b => b.id === draggedId);
+  if (draggedIdx === -1) return;
+  const dragged = state.books[draggedIdx];
+  const oldPhase = dragged.phase;
+
+  // Remove from current position
+  state.books.splice(draggedIdx, 1);
+
+  // Update phase
+  dragged.phase = targetPhase;
+
+  // Determine insertion index
+  let insertIdx;
+  if (targetId) {
+    const targetIdx = state.books.findIndex(b => b.id === targetId);
+    if (targetIdx === -1) {
+      insertIdx = state.books.length;
+    } else {
+      insertIdx = position === 'before' ? targetIdx : targetIdx + 1;
+    }
+  } else {
+    // Append to end of target phase
+    let lastIdx = -1;
+    for (let i = 0; i < state.books.length; i++) {
+      if (state.books[i].phase === targetPhase) lastIdx = i;
+    }
+    insertIdx = lastIdx === -1 ? state.books.length : lastIdx + 1;
+  }
+
+  state.books.splice(insertIdx, 0, dragged);
+
+  saveState();
+
+  // Rebuild affected phase grids
+  const affected = new Set([oldPhase, targetPhase]);
+  affected.forEach(pid => rebuildPhaseGrid(pid));
+  updateHeaderProgress();
+  updatePhaseDeadlineChips();
+
+  if (oldPhase !== targetPhase) {
+    showToast('Moved to Phase ' + targetPhase + ' ✓', 'success');
+  }
+}
+
+/* ==================================================
+   Header buttons
+   ================================================== */
+document.getElementById('btn-add').addEventListener('click', () => {
+  editReturnToView = false;
+  openBookModal(null);
+});
+document.getElementById('btn-bulk').addEventListener('click', () => openModal('modal-bulk'));
+document.getElementById('btn-ie').addEventListener('click', () => openModal('modal-ie'));
+document.getElementById('btn-settings').addEventListener('click', openSettingsModal);
+document.getElementById('btn-calendar').addEventListener('click', openCalendar);
+document.getElementById('btn-streak').addEventListener('click', openStreak);
+
+/* ==================================================
+   Bulk upload
+   ================================================== */
+document.getElementById('bulk-submit').addEventListener('click', () => {
+  const text = document.getElementById('bulk-input').value.trim();
+  const phase = parseInt(document.getElementById('bulk-phase').value, 10);
+  if (!text) { showToast('Nothing to add', 'error'); return; }
+
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  let added = 0;
+
+  for (const line of lines) {
+    const parts = line.split('|').map(s => s.trim());
+    const title = parts[0];
+    if (!title) continue;
+
+    insertBook({
+      id: uid(),
+      phase,
+      title,
+      author: parts[1] || '',
+      isbn: parts[2] || '',
+      coverUrl: parts[3] || '',
+      status: 'unread',
+      rating: 0, notes: '',
+      dateStarted: '', dateFinished: '', deadline: '',
+      format: '', pages: 0,
+      goodreads: '', wiki: '', summary: '',
+      timeSpent: 0, sessionsCompleted: 0
+    });
+    added++;
+  }
+
+  saveState();
+  rebuildPhaseGrid(phase);
+  updateHeaderProgress();
+  updateEmptyBanner();
+  closeAllModals();
+  document.getElementById('bulk-input').value = '';
+  showToast('Added ' + added + ' book' + (added !== 1 ? 's' : '') + ' ✓', 'success');
+});
+
+/* ==================================================
+   Import / Export
+   ================================================== */
+document.getElementById('ie-export').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify({
+    books: state.books,
+    settings: state.settings,
+    activityLog: state.activityLog,
+    exportedAt: new Date().toISOString()
+  }, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'reading-challenge-' + todayISO() + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Exported ✓', 'success');
+});
+
+document.getElementById('ie-import-file').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      if (!parsed || !Array.isArray(parsed.books)) throw new Error('bad format');
+      const cleaned = parsed.books.filter(b => b && typeof b === 'object' && b.title);
+      for (const b of cleaned) {
+        if (!b.id) b.id = uid();
+        if (typeof b.timeSpent !== 'number') b.timeSpent = 0;
+        if (typeof b.sessionsCompleted !== 'number') b.sessionsCompleted = 0;
+        if (typeof b.deadline !== 'string') b.deadline = '';
+      }
+
+      if (!confirm('Import ' + cleaned.length + ' book' + (cleaned.length !== 1 ? 's' : '') + '?\nThis will replace your current data and settings.')) return;
+
+      state.books = cleaned;
+      if (parsed.settings && typeof parsed.settings === 'object') {
+        state.settings = Object.assign({}, DEFAULT_SETTINGS, parsed.settings);
+        state.settings.pomodoro = Object.assign({}, DEFAULT_SETTINGS.pomodoro, parsed.settings.pomodoro || {});
+      }
+      if (parsed.activityLog && typeof parsed.activityLog === 'object') {
+        state.activityLog = parsed.activityLog;
+      } else {
+        state.activityLog = {};
+      }
+
+      applyTheme(state.settings.theme || 'light');
+      updateThemeButtons();
+
+      if (state.timer.running) stopTimer(false);
+
+      saveState();
+      refs.bookElMap.clear();
+      refreshPhaseOptions();
+      rebuildPhaseSections();
+      rebuildAllPhases();
+      updateHeaderDates();
+      updateEmptyBanner();
+      updateTimerWidget();
+      closeAllModals();
+      showToast('Imported ' + cleaned.length + ' books ✓', 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('Invalid file', 'error');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+document.getElementById('ie-clear').addEventListener('click', () => {
+  if (!confirm('Delete ALL books? This cannot be undone.')) return;
+  if (!confirm('Are you absolutely sure? Consider exporting first.')) return;
+  if (state.timer.running) stopTimer(false);
+  state.books = [];
+  state.activityLog = {};
+  state.timer.bookId = null;
+  saveState();
+  refs.bookElMap.clear();
+  rebuildAllPhases();
+  updateEmptyBanner();
+  updateTimerWidget();
+  closeAllModals();
+  showToast('All data cleared');
+});
+
+/* ==================================================
+   Sample data
+   ================================================== */
+function loadSampleData() {
+  const samples = [
+    { t: 'The Hobbit', a: 'J.R.R. Tolkien', isbn: '9780547928227' },
+    { t: 'The Fellowship of the Ring', a: 'J.R.R. Tolkien', isbn: '9780547928210' },
+    { t: 'The Two Towers', a: 'J.R.R. Tolkien', isbn: '9780547928203' },
+    { t: 'The Return of the King', a: 'J.R.R. Tolkien', isbn: '9780547928197' },
+    { t: 'The Lion, the Witch and the Wardrobe', a: 'C.S. Lewis', isbn: '9780064471046' },
+    { t: 'Prince Caspian', a: 'C.S. Lewis', isbn: '9780064471053' },
+    { t: 'The Voyage of the Dawn Treader', a: 'C.S. Lewis', isbn: '9780064471077' },
+    { t: 'The Silver Chair', a: 'C.S. Lewis', isbn: '9780064471091' },
+    { t: '1984', a: 'George Orwell', isbn: '9780451524935' },
+    { t: 'Animal Farm', a: 'George Orwell', isbn: '9780451526342' },
+    { t: 'Dune', a: 'Frank Herbert', isbn: '9780441013593' },
+    { t: 'Dune Messiah', a: 'Frank Herbert', isbn: '9780593098233' },
+    { t: "Harry Potter and the Philosopher's Stone", a: 'J.K. Rowling', isbn: '9780747532699' },
+    { t: 'Harry Potter and the Chamber of Secrets', a: 'J.K. Rowling', isbn: '9780747538493' },
+    { t: 'Fahrenheit 451', a: 'Ray Bradbury', isbn: '9781451673319' },
+    { t: 'Good Omens', a: 'Terry Pratchett & Neil Gaiman', isbn: '9780060853983' },
+    { t: "The Hitchhiker's Guide to the Galaxy", a: 'Douglas Adams', isbn: '9780345391803' },
+    { t: 'The Silmarillion', a: 'J.R.R. Tolkien', isbn: '9780345325815' },
+    { t: "The Magician's Nephew", a: 'C.S. Lewis', isbn: '9780064471107' },
+    { t: 'The Last Battle', a: 'C.S. Lewis', isbn: '9780064471084' }
+  ];
+
+  state.books = [];
+  const statuses = ['finished', 'reading', 'unread', 'unread'];
+  const phaseCount = state.settings.phaseCount;
+  const perPhase = state.settings.booksPerPhase;
+  const buckets = Array.from({ length: phaseCount }, () => 0);
+
+  const hasDates = state.settings.startDate && state.settings.endDate;
+
+  samples.forEach((sample, i) => {
+    let phase = (i % phaseCount) + 1;
+    if (buckets[phase - 1] >= perPhase) {
+      const free = buckets.findIndex(b => b < perPhase);
+      if (free === -1) return;
+      phase = free + 1;
+    }
+    buckets[phase - 1]++;
+
+    const status = statuses[i % 4];
+    const deadline = hasDates && status !== 'finished' ? getPhaseDeadline(phase - 1) : '';
+
+    state.books.push({
+      id: uid(),
+      phase,
+      title: sample.t,
+      author: sample.a,
+      isbn: sample.isbn,
+      coverUrl: 'https://covers.openlibrary.org/b/isbn/' + sample.isbn + '-M.jpg',
+      status,
+      rating: status === 'finished' ? (4 + (i % 2)) : 0,
+      notes: '', dateStarted: '', dateFinished: '',
+      deadline: deadline || '',
+      format: '', pages: 0, goodreads: '', wiki: '', summary: '',
+      timeSpent: status === 'finished' ? (60 * 60 * (3 + (i % 5))) : status === 'reading' ? (60 * 30 * (1 + (i % 3))) : 0,
+      sessionsCompleted: status === 'finished' ? (5 + (i % 4)) : status === 'reading' ? (2 + (i % 2)) : 0
+    });
+  });
+
+  state.books.sort((a, b) => a.phase - b.phase);
+
+  // Seed some activity log data so the heatmap isn't empty
+  state.activityLog = {};
+  for (let i = 0; i < 70; i++) {
+    if (Math.random() < 0.28) continue; // ~28% skipped days
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const iso = dateToISO(d);
+    const minutes = Math.floor(Math.random() * 95 + 15); // 15–110 min
+    state.activityLog[iso] = {
+      seconds: minutes * 60,
+      bookIds: []
+    };
+  }
+
+  saveState();
+  refs.bookElMap.clear();
+  rebuildAllPhases();
+  updateEmptyBanner();
+  closeAllModals();
+  showToast('Sample data loaded ✓', 'success');
+}
+document.getElementById('ie-sample').addEventListener('click', loadSampleData);
+
+/* ==================================================
+   CALENDAR VIEW
+   ================================================== */
+const calEls = {
+  title:   document.getElementById('cal-title'),
+  grid:    document.getElementById('cal-grid'),
+  detail:  document.getElementById('cal-day-detail'),
+  prev:    document.getElementById('cal-prev'),
+  next:    document.getElementById('cal-next'),
+  today:   document.getElementById('cal-today')
+};
+
+function openCalendar() {
+  const now = new Date();
+  calState.year = now.getFullYear();
+  calState.month = now.getMonth();
+  calState.selectedDate = todayISO();
+  renderCalendar();
+  openModal('modal-calendar');
+}
+
+function renderCalendar() {
+  const { year, month } = calState;
+  calEls.title.textContent = MONTH_NAMES_LONG[month] + ' ' + year;
+
+  // Build event map
+  const events = {}; // iso -> [{ type, book }]
+  for (const b of state.books) {
+    if (b.dateStarted)  addCalEvent(events, b.dateStarted, 'start', b);
+    if (b.dateFinished) addCalEvent(events, b.dateFinished, 'finish', b);
+    if (b.deadline && b.status !== 'finished' && b.status !== 'dnf') {
+      addCalEvent(events, b.deadline, 'deadline', b);
+    }
+  }
+
+  calEls.grid.innerHTML = '';
+
+  // Day-of-week headers
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'cal-dow';
+    el.textContent = d;
+    calEls.grid.appendChild(el);
+  });
+
+  // 6 rows × 7 days = 42 cells, starting from the Sunday on/before the 1st
+  const firstOfMonth = new Date(year, month, 1);
+  const startDow = firstOfMonth.getDay();
+  const startDate = new Date(year, month, 1 - startDow);
+  const todayIso = todayISO();
+
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(startDate);
+    d.setDate(d.getDate() + i);
+    const iso = dateToISO(d);
+    const inMonth = d.getMonth() === month;
+    const isToday = iso === todayIso;
+    const isSelected = iso === calState.selectedDate;
+
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell';
+    if (!inMonth) cell.classList.add('outside');
+    if (isToday) cell.classList.add('today');
+    if (isSelected) cell.classList.add('selected');
+    cell.dataset.date = iso;
+
+    const num = document.createElement('div');
+    num.className = 'cal-day-num';
+    num.textContent = d.getDate();
+    cell.appendChild(num);
+
+    const dayEvents = events[iso] || [];
+    if (dayEvents.length > 0) {
+      const evWrap = document.createElement('div');
+      evWrap.className = 'cal-events';
+      const MAX = 3;
+      const show = Math.min(MAX, dayEvents.length);
+      for (let j = 0; j < show; j++) {
+        const ev = dayEvents[j];
+        const evEl = document.createElement('div');
+        evEl.className = 'cal-event ' + ev.type;
+        const icon = ev.type === 'deadline' ? '⏰' : ev.type === 'start' ? '▶' : '✓';
+        evEl.textContent = icon + ' ' + (ev.book.title || 'Untitled');
+        evEl.title = (ev.type === 'deadline' ? 'Deadline: ' : ev.type === 'start' ? 'Started: ' : 'Finished: ') + (ev.book.title || 'Untitled');
+        evWrap.appendChild(evEl);
+      }
+      if (dayEvents.length > MAX) {
+        const more = document.createElement('div');
+        more.className = 'cal-event';
+        more.style.background = 'transparent';
+        more.style.color = 'var(--text-sub)';
+        more.textContent = '+' + (dayEvents.length - MAX) + ' more';
+        evWrap.appendChild(more);
+      }
+      cell.appendChild(evWrap);
+    }
+
+    cell.addEventListener('click', () => {
+      calState.selectedDate = iso;
+      renderCalendar();
+    });
+
+    calEls.grid.appendChild(cell);
+  }
+
+  renderCalendarDetail(events);
+}
+
+function renderCalendarDetail(events) {
+  const iso = calState.selectedDate;
+  if (!iso) {
+    calEls.detail.innerHTML =
+      '<h4>Select a day</h4>' +
+      '<div style="color:var(--text-mute);font-size:13px">Click any date to see its events.</div>';
+    return;
+  }
+
+  const dayEvents = events[iso] || [];
+  let html = '<h4>' + escapeHtml(formatDate(iso)) + '</h4>';
+
+  if (dayEvents.length === 0) {
+    html += '<div style="color:var(--text-mute);font-size:13px">No events on this day.</div>';
+    calEls.detail.innerHTML = html;
+    return;
+  }
+
+  // Group by type for ordering: deadline, start, finish
+  const order = { deadline: 0, start: 1, finish: 2 };
+  dayEvents.sort((a, b) => order[a.type] - order[b.type]);
+
+  dayEvents.forEach(ev => {
+    const label = ev.type === 'deadline' ? 'Deadline' : ev.type === 'start' ? 'Started' : 'Finished';
+    html += '<div class="cal-detail-row" data-book-id="' + escapeHtml(ev.book.id) + '">' +
+      '<span class="cal-detail-tag ' + ev.type + '">' + label + '</span>' +
+      '<span class="cal-detail-title">' + escapeHtml(ev.book.title || 'Untitled') + '</span>' +
+      '</div>';
+  });
+
+  calEls.detail.innerHTML = html;
+
+  // Make rows clickable to open the book
+  calEls.detail.querySelectorAll('.cal-detail-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const bid = row.dataset.bookId;
+      if (!bid || !getBook(bid)) return;
+      document.getElementById('modal-calendar').classList.remove('show');
+      setTimeout(() => openViewModal(bid), 80);
+    });
+  });
+}
+
+function addCalEvent(map, iso, type, book) {
+  if (!map[iso]) map[iso] = [];
+  map[iso].push({ type, book });
+}
+
+calEls.prev.addEventListener('click', () => {
+  calState.month--;
+  if (calState.month < 0) { calState.month = 11; calState.year--; }
+  renderCalendar();
+});
+calEls.next.addEventListener('click', () => {
+  calState.month++;
+  if (calState.month > 11) { calState.month = 0; calState.year++; }
+  renderCalendar();
+});
+calEls.today.addEventListener('click', () => {
+  const now = new Date();
+  calState.year = now.getFullYear();
+  calState.month = now.getMonth();
+  calState.selectedDate = todayISO();
+  renderCalendar();
+});
+
+/* ==================================================
+   STREAK / HEATMAP
+   ================================================== */
+const streakEls = {
+  current:  document.getElementById('streak-current'),
+  longest:  document.getElementById('streak-longest'),
+  total:    document.getElementById('streak-total'),
+  today:    document.getElementById('streak-today'),
+  months:   document.getElementById('heatmap-months'),
+  grid:     document.getElementById('heatmap-grid')
+};
+
+function openStreak() {
+  renderStreak();
+  openModal('modal-streak');
+}
+
+function renderStreak() {
+  const log = state.activityLog || {};
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayIso = dateToISO(today);
+
+  // ---- Current streak ----
+  // If today has no activity yet, the streak is still alive from yesterday.
+  let current = 0;
+  let check = new Date(today);
+  const todayEntry = log[todayIso];
+  if (!todayEntry || !(todayEntry.seconds > 0)) {
+    check.setDate(check.getDate() - 1);
+  }
+  while (true) {
+    const iso = dateToISO(check);
+    const entry = log[iso];
+    if (entry && entry.seconds > 0) {
+      current++;
+      check.setDate(check.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+
+  // ---- Longest streak & total active days ----
+  const activeDates = Object.keys(log)
+    .filter(k => log[k] && log[k].seconds > 0)
+    .sort();
+
+  let longest = 0;
+  let temp = 0;
+  let prevDate = null;
+  for (const iso of activeDates) {
+    const d = new Date(iso + 'T00:00:00');
+    if (prevDate) {
+      const diff = Math.round((d - prevDate) / 86400000);
+      if (diff === 1) temp++;
+      else temp = 1;
+    } else {
+      temp = 1;
+    }
+    if (temp > longest) longest = temp;
+    prevDate = d;
+  }
+
+  const totalActive = activeDates.length;
+  const todaySeconds = (log[todayIso] && log[todayIso].seconds) || 0;
+
+  streakEls.current.textContent = current;
+  streakEls.longest.textContent = longest;
+  streakEls.total.textContent = totalActive;
+  streakEls.today.textContent = formatDurationOrShort(todaySeconds);
+
+  // ---- Heatmap grid ----
+  // 53 columns × 7 rows, starting from the Sunday 52 weeks ago.
+  const startSunday = new Date(today);
+  startSunday.setDate(startSunday.getDate() - 52 * 7 - today.getDay());
+
+  // Determine scale (cap at 2 hours for level 4)
+  let maxSec = 0;
+  for (const iso in log) {
+    if (log[iso] && log[iso].seconds > maxSec) maxSec = log[iso].seconds;
+  }
+  const scaleMax = Math.max(1800, maxSec); // at least 30 min full-bright
+
+  streakEls.grid.innerHTML = '';
+  const frag = document.createDocumentFragment();
+
+  for (let w = 0; w < 53; w++) {
+    for (let d = 0; d < 7; d++) {
+      const date = new Date(startSunday);
+      date.setDate(date.getDate() + w * 7 + d);
+      const iso = dateToISO(date);
+
+      const cell = document.createElement('div');
+      cell.className = 'heatmap-cell';
+      cell.dataset.date = iso;
+
+      if (date > today) {
+        cell.classList.add('future');
+      } else {
+        const entry = log[iso];
+        const seconds = entry ? entry.seconds : 0;
+        if (seconds > 0) {
+          const ratio = Math.min(1, seconds / scaleMax);
+          let level;
+          if (ratio < 0.15) level = 1;
+          else if (ratio < 0.4) level = 2;
+          else if (ratio < 0.7) level = 3;
+          else level = 4;
+          cell.classList.add('lv' + level);
+        }
+        const label = seconds > 0 ? formatDurationOrShort(seconds) : 'No reading';
+        cell.title = formatDate(iso) + ' — ' + label;
+      }
+
+      frag.appendChild(cell);
+    }
+  }
+  streakEls.grid.appendChild(frag);
+
+  // ---- Month labels ----
+  streakEls.months.innerHTML = '';
+  let lastMonth = -1;
+  for (let w = 0; w < 53; w++) {
+    const d = new Date(startSunday);
+    d.setDate(d.getDate() + w * 7);
+    const m = d.getMonth();
+    if (m !== lastMonth) {
+      const label = document.createElement('div');
+      label.textContent = MONTH_NAMES_SHORT[m];
+      label.style.gridColumn = String(w + 1);
+      label.style.gridRow = '1';
+      streakEls.months.appendChild(label);
+      lastMonth = m;
+    }
+  }
+}
+
+/* ==================================================
+   Restore timer
+   ================================================== */
+function restoreTimer() {
+  const t = state.timer;
+  if (!t.bookId) {
+    t.mode = 'work';
+    t.remainingSeconds = getModeDuration('work');
+    updateTimerWidget();
+    return;
+  }
+  if (!getBook(t.bookId)) {
+    t.bookId = null;
+    t.running = false;
+    t.mode = 'work';
+    t.remainingSeconds = getModeDuration('work');
+    updateTimerWidget();
+    return;
+  }
+
+  if (t.running && t.endTimestamp) {
+    const now = Date.now();
+    const remaining = Math.max(0, Math.ceil((t.endTimestamp - now) / 1000));
+    if (remaining <= 0) {
+      if (t.mode === 'work') {
+        const book = getBook(t.bookId);
+        if (book) book.sessionsCompleted = (book.sessionsCompleted || 0) + 1;
+        t.sessionsCompleted++;
+      }
+      t.running = false;
+      t.endTimestamp = null;
+      t.mode = t.mode === 'work' ? 'shortBreak' : 'work';
+      t.remainingSeconds = getModeDuration(t.mode);
+    } else {
+      t.remainingSeconds = remaining;
+      t.lastTickTs = now;
+      ensureTicking();
+    }
+  } else if (t.remainingSeconds <= 0) {
+    t.remainingSeconds = getModeDuration(t.mode);
+  }
+  updateTimerWidget();
+  refreshCardTimerState();
+}
+
+/* ==================================================
+   Init
+   ================================================== */
+function init() {
+  initImageObserver();
+  loadState();
+
+  applyTheme(state.settings.theme || 'light');
+  updateThemeButtons();
+
+  refreshPhaseOptions();
+  rebuildPhaseSections();
+  rebuildAllPhases();
+  updateHeaderDates();
+  updateEmptyBanner();
+  restoreTimer();
+  ensureTicking();
+  rebuildPomoBookSelect();
+  updateTimerWidget();
+}
+
+init();
+
+window.addEventListener('beforeunload', () => {
+  if (state.timer.running) {
+    state.timer.remainingSeconds = Math.max(0, Math.round((state.timer.endTimestamp - Date.now()) / 1000));
+  }
+  saveState();
+});
+
+})();
+</script>
+</body>
+</html>
