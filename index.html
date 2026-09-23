@@ -98,6 +98,21 @@
   .progress-dates .days-left { color: var(--primary); font-weight: 700; }
   .progress-dates .ended { color: var(--status-dnf); font-weight: 700; }
 
+  .progress-goals {
+    font-size: 11px;
+    margin-top: 4px;
+    font-weight: 600;
+    color: var(--text-sub);
+    display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .progress-goals .goal-chip {
+    display: inline-flex; align-items: center; gap: 3px;
+    white-space: nowrap;
+  }
+  .progress-goals .goal-chip .gv { font-weight: 800; color: var(--text); }
+  .progress-goals .goal-chip.done,
+  .progress-goals .goal-chip.done .gv { color: var(--status-finished); }
+
   .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
   .btn {
@@ -732,6 +747,52 @@
   }
   .settings-warning strong { display: block; margin-bottom: 2px; }
 
+  /* Phase names & colors */
+  .phase-settings-list {
+    display: flex; flex-direction: column; gap: 6px;
+    max-height: 260px; overflow-y: auto;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface-2);
+  }
+  .phase-row {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .phase-row-label {
+    font-size: 10px; font-weight: 800; color: var(--text-sub);
+    min-width: 56px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    flex-shrink: 0;
+  }
+  .phase-name-input {
+    flex: 1;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: inherit; font-size: 13px;
+    background: var(--surface);
+    color: var(--text);
+    min-width: 0;
+  }
+  .phase-name-input:focus {
+    outline: none; border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(99,102,241,0.15);
+  }
+  .phase-color-input {
+    width: 34px; height: 34px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    padding: 2px;
+    flex-shrink: 0;
+  }
+  .phase-color-input::-webkit-color-swatch-wrapper { padding: 0; }
+  .phase-color-input::-webkit-color-swatch { border: none; border-radius: 5px; }
+  .phase-color-input::-moz-color-swatch { border: none; border-radius: 5px; }
+
   /* Theme toggle */
   .theme-toggle {
     display: flex;
@@ -1198,7 +1259,7 @@
   }
   .cal-cell {
     position: relative;
-    min-height: 64px;
+    min-height: 76px;
     border-radius: 8px;
     background: var(--surface-2);
     border: 1px solid var(--border);
@@ -1237,13 +1298,30 @@
   .cal-event {
     font-size: 9px;
     font-weight: 700;
-    padding: 2px 4px;
+    padding: 1px 3px;
     border-radius: 3px;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
     line-height: 1.2;
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    min-width: 0;
+  }
+  .cal-event-cover {
+    width: 12px;
+    height: 16px;
+    border-radius: 2px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: rgba(0,0,0,0.1);
+  }
+  .cal-event-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    flex: 1;
   }
   .cal-event.deadline { background: #fee2e2; color: #991b1b; }
   .cal-event.start    { background: #dbeafe; color: #1e40af; }
@@ -1276,6 +1354,15 @@
   }
   .cal-detail-row:hover { background: var(--surface-3); }
   .cal-detail-row:last-child { border-bottom: none; }
+  .cal-detail-cover {
+    width: 26px;
+    height: 36px;
+    border-radius: 3px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--surface-3);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
   .cal-detail-tag {
     font-size: 10px; font-weight: 700;
     padding: 2px 7px; border-radius: 4px;
@@ -1296,13 +1383,13 @@
   }
 
   /* ==================================================
-     STREAK / HEATMAP
+     STREAK / HEATMAP + GOALS
      ================================================== */
   .streak-stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 12px;
-    margin-bottom: 22px;
+    margin-bottom: 18px;
     padding: 16px;
     background: linear-gradient(135deg, #eef2ff, #e0e7ff);
     border: 1px solid #c7d2fe;
@@ -1333,6 +1420,89 @@
     letter-spacing: 0.4px;
     margin-top: 4px;
   }
+
+  /* Goals section in streak modal */
+  .goals-section {
+    margin-bottom: 22px;
+    padding: 16px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .goals-title {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-sub);
+    margin-bottom: 10px;
+  }
+  .goal-row {
+    display: grid;
+    grid-template-columns: 72px 1fr 110px;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 0;
+    font-size: 12px;
+  }
+  .goal-label {
+    font-weight: 800;
+    color: var(--text-sub);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    font-size: 10px;
+  }
+  .goal-track {
+    height: 8px;
+    background: var(--surface-3);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .goal-fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    will-change: width;
+  }
+  .goal-fill.done { background: var(--status-finished); }
+  .goal-value {
+    text-align: right;
+    font-weight: 700;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .goal-value .gv { font-weight: 800; }
+  .goal-value .goal-target { color: var(--text-mute); font-weight: 600; }
+  .goal-value .goal-target.done { color: var(--status-finished); }
+
+  .log-pages-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--border);
+    align-items: center;
+  }
+  .log-pages-row input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13px;
+    min-width: 0;
+  }
+  .log-pages-row input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+  }
+  .log-pages-row .btn { padding: 8px 14px; }
 
   .heatmap-wrap {
     overflow-x: auto;
@@ -1410,9 +1580,7 @@
     font-weight: 600;
     color: var(--text-sub);
   }
-  .heatmap-legend .heatmap-cell {
-    cursor: default;
-  }
+  .heatmap-legend .heatmap-cell { cursor: default; }
   .heatmap-legend .heatmap-cell:hover { outline: none; }
 </style>
 </head>
@@ -1445,6 +1613,7 @@
         <div class="progress-fill" id="progress-fill" style="width:0%"></div>
       </div>
       <div class="progress-dates" id="progress-dates"></div>
+      <div class="progress-goals" id="progress-goals"></div>
     </div>
     <div class="header-actions">
       <button class="btn btn-primary" id="btn-add">+ Add Book</button>
@@ -1687,6 +1856,7 @@
     </div>
     <div class="modal-body">
 
+      <!-- Appearance / Theme -->
       <div style="margin-bottom:22px">
         <div class="settings-section-title">🎨 Appearance</div>
         <div class="theme-toggle" id="theme-toggle">
@@ -1704,6 +1874,7 @@
         </div>
       </div>
 
+      <!-- Duration presets -->
       <div class="preset-section" style="margin-top:0;padding-top:0;border-top:none">
         <span class="preset-label">Quick Duration</span>
         <div class="preset-row" id="preset-row">
@@ -1744,12 +1915,56 @@
         </div>
       </div>
 
+      <!-- Phase names & colors -->
+      <div style="margin-top:20px">
+        <div class="settings-section-title">🎨 Phase Names &amp; Colors</div>
+        <div class="phase-settings-list" id="s-phase-list"></div>
+      </div>
+
       <div class="settings-preview" id="s-preview"></div>
       <div class="settings-warning" id="s-warning" style="display:none"></div>
 
       <div style="margin-top:20px">
         <div class="settings-section-title">📅 Phase Deadlines</div>
         <div class="deadline-preview-list" id="s-deadline-list"></div>
+      </div>
+
+      <!-- Goals -->
+      <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+        <div class="settings-section-title">🎯 Reading Goals</div>
+        <div style="font-size:11px;font-weight:800;color:var(--text-sub);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px">Daily</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Sessions</label>
+            <input type="number" id="s-goalDailySessions" min="0" max="99" value="1">
+          </div>
+          <div class="form-group">
+            <label>Pages</label>
+            <input type="number" id="s-goalDailyPages" min="0" max="9999" value="30">
+          </div>
+          <div class="form-group">
+            <label>Minutes</label>
+            <input type="number" id="s-goalDailyMinutes" min="0" max="9999" value="30">
+          </div>
+        </div>
+        <div style="font-size:11px;font-weight:800;color:var(--text-sub);text-transform:uppercase;letter-spacing:0.4px;margin:16px 0 8px">Weekly</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Sessions</label>
+            <input type="number" id="s-goalWeeklySessions" min="0" max="999" value="7">
+          </div>
+          <div class="form-group">
+            <label>Pages</label>
+            <input type="number" id="s-goalWeeklyPages" min="0" max="99999" value="210">
+          </div>
+          <div class="form-group">
+            <label>Minutes</label>
+            <input type="number" id="s-goalWeeklyMinutes" min="0" max="99999" value="210">
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-mute);margin-top:10px;text-align:center">
+          Set a goal to 0 to disable it
+        </div>
       </div>
 
       <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
@@ -1928,6 +2143,17 @@ Dune | Frank Herbert"></textarea>
         </div>
       </div>
 
+      <div class="goals-section">
+        <div class="goals-title">🎯 Today's Goals</div>
+        <div id="streak-daily-goals"></div>
+        <div class="goals-title" style="margin-top:18px">📅 This Week</div>
+        <div id="streak-weekly-goals"></div>
+        <div class="log-pages-row">
+          <input type="number" id="log-pages-input" min="1" max="9999" placeholder="Pages read today…">
+          <button class="btn btn-primary" id="log-pages-btn">Log Pages</button>
+        </div>
+      </div>
+
       <div class="heatmap-wrap">
         <div class="heatmap-inner">
           <div class="heatmap-months" id="heatmap-months"></div>
@@ -2033,7 +2259,10 @@ Dune | Frank Herbert"></textarea>
 const STORAGE_KEY = 'reading-challenge-v1';
 
 const PHASE_NAME_PRESETS = ['Initiate', 'Explore', 'Deepen', 'Master', 'Transcend'];
-const PHASE_COLOR_PRESETS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
+const PHASE_COLOR_PRESETS = [
+  '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981',
+  '#06b6d4', '#f43f5e', '#84cc16', '#a855f7', '#14b8a6'
+];
 
 const DEFAULT_SETTINGS = {
   theme: 'light',
@@ -2041,6 +2270,11 @@ const DEFAULT_SETTINGS = {
   endDate: '',
   phaseCount: 5,
   booksPerPhase: 20,
+  phases: [], // filled by syncPhasesArray()
+  goals: {
+    daily:  { sessions: 1, pages: 30, minutes: 30 },
+    weekly: { sessions: 7, pages: 210, minutes: 210 }
+  },
   pomodoro: {
     workMinutes: 25,
     shortBreakMinutes: 5,
@@ -2072,7 +2306,7 @@ const MONTH_NAMES_LONG  = ['January','February','March','April','May','June','Ju
 const state = {
   books: [],
   settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),
-  activityLog: {},   // 'YYYY-MM-DD' -> { seconds, bookIds: [] }
+  activityLog: {},   // 'YYYY-MM-DD' -> { seconds, bookIds, sessions, pages }
   timer: {
     bookId: null,
     mode: 'work',
@@ -2090,6 +2324,7 @@ const refs = {
   progressPct: null,
   progressFill: null,
   progressDates: null,
+  progressGoals: null,
   headerTotal: null,
   phaseMap: new Map(),
   bookElMap: new Map(),
@@ -2315,8 +2550,68 @@ function getDeadlineCountdown(deadlineIso) {
 }
 
 /* ==================================================
+   Activity log helpers
+   ================================================== */
+function ensureActivityEntry(iso) {
+  if (!state.activityLog[iso]) {
+    state.activityLog[iso] = { seconds: 0, bookIds: [], sessions: 0, pages: 0 };
+  }
+  const e = state.activityLog[iso];
+  if (typeof e.seconds !== 'number') e.seconds = 0;
+  if (!Array.isArray(e.bookIds)) e.bookIds = [];
+  if (typeof e.sessions !== 'number') e.sessions = 0;
+  if (typeof e.pages !== 'number') e.pages = 0;
+  return e;
+}
+
+function getPeriodTotals(startIso, endIso) {
+  let seconds = 0, sessions = 0, pages = 0;
+  const start = new Date(startIso + 'T00:00:00');
+  const end = new Date(endIso + 'T00:00:00');
+  const cur = new Date(start);
+  while (cur <= end) {
+    const iso = dateToISO(cur);
+    const e = state.activityLog[iso];
+    if (e) {
+      seconds += e.seconds || 0;
+      sessions += e.sessions || 0;
+      pages += e.pages || 0;
+    }
+    cur.setDate(cur.getDate() + 1);
+  }
+  return { seconds, sessions, pages };
+}
+
+function getWeekStart(date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - d.getDay()); // Sunday
+  return d;
+}
+
+/* ==================================================
    Storage
    ================================================== */
+function syncPhasesArray() {
+  const count = state.settings.phaseCount;
+  if (!Array.isArray(state.settings.phases)) state.settings.phases = [];
+  const arr = state.settings.phases;
+  while (arr.length < count) {
+    const i = arr.length;
+    arr.push({
+      name: PHASE_NAME_PRESETS[i] || ('Phase ' + (i + 1)),
+      color: PHASE_COLOR_PRESETS[i % PHASE_COLOR_PRESETS.length]
+    });
+  }
+  while (arr.length > count) arr.pop();
+  // Sanitize
+  for (let i = 0; i < arr.length; i++) {
+    if (!arr[i] || typeof arr[i] !== 'object') arr[i] = {};
+    if (!arr[i].name) arr[i].name = PHASE_NAME_PRESETS[i] || ('Phase ' + (i + 1));
+    if (!arr[i].color) arr[i].color = PHASE_COLOR_PRESETS[i % PHASE_COLOR_PRESETS.length];
+  }
+}
+
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -2325,6 +2620,15 @@ function loadState() {
     if (parsed && Array.isArray(parsed.books)) state.books = parsed.books;
     if (parsed && parsed.settings && typeof parsed.settings === 'object') {
       state.settings = Object.assign({}, DEFAULT_SETTINGS, parsed.settings);
+
+      // Goals (deep merge)
+      const g = parsed.settings.goals || {};
+      state.settings.goals = {
+        daily:  Object.assign({}, DEFAULT_SETTINGS.goals.daily,  g.daily  || {}),
+        weekly: Object.assign({}, DEFAULT_SETTINGS.goals.weekly, g.weekly || {})
+      };
+
+      // Pomodoro (deep merge)
       state.settings.pomodoro = Object.assign({}, DEFAULT_SETTINGS.pomodoro, parsed.settings.pomodoro || {});
     }
     if (parsed && parsed.timer && typeof parsed.timer === 'object') {
@@ -2332,6 +2636,15 @@ function loadState() {
     }
     if (parsed && parsed.activityLog && typeof parsed.activityLog === 'object') {
       state.activityLog = parsed.activityLog;
+      // Migrate / sanitize
+      for (const k in state.activityLog) {
+        const e = state.activityLog[k];
+        if (!e || typeof e !== 'object') { delete state.activityLog[k]; continue; }
+        if (typeof e.seconds !== 'number') e.seconds = 0;
+        if (!Array.isArray(e.bookIds)) e.bookIds = [];
+        if (typeof e.sessions !== 'number') e.sessions = 0;
+        if (typeof e.pages !== 'number') e.pages = 0;
+      }
     }
   } catch (e) { console.error('Load failed:', e); }
 }
@@ -2400,11 +2713,14 @@ function removeBookRecord(id) {
    Phases
    ================================================== */
 function getPhaseName(i) {
+  const custom = state.settings.phases && state.settings.phases[i];
+  if (custom && custom.name) return custom.name;
   return PHASE_NAME_PRESETS[i] || ('Phase ' + (i + 1));
 }
 function getPhaseColor(i) {
-  if (i < PHASE_COLOR_PRESETS.length) return PHASE_COLOR_PRESETS[i];
-  return 'hsl(' + ((i * 137.5) % 360).toFixed(0) + ', 65%, 55%)';
+  const custom = state.settings.phases && state.settings.phases[i];
+  if (custom && custom.color) return custom.color;
+  return PHASE_COLOR_PRESETS[i % PHASE_COLOR_PRESETS.length];
 }
 function getPhases() {
   const count = state.settings.phaseCount;
@@ -2683,6 +2999,33 @@ function updateHeaderDates() {
   el.innerHTML = parts.join(' ');
 }
 
+function updateHeaderGoals() {
+  const el = refs.progressGoals;
+  if (!el) return;
+  const g = state.settings.goals && state.settings.goals.daily;
+  if (!g) { el.innerHTML = ''; return; }
+
+  const today = todayISO();
+  const entry = state.activityLog[today] || { seconds: 0, sessions: 0, pages: 0 };
+  const mins = Math.round((entry.seconds || 0) / 60);
+
+  function chip(icon, value, target, unit) {
+    if (!target || target <= 0) return '';
+    const done = value >= target;
+    return '<span class="goal-chip' + (done ? ' done' : '') + '">' +
+      icon + ' <span class="gv">' + value + '</span>/' + target + (unit || '') +
+      '</span>';
+  }
+
+  const parts = [];
+  parts.push(chip('⏱', mins, g.minutes, 'm'));
+  parts.push(chip('🍅', entry.sessions || 0, g.sessions, ''));
+  parts.push(chip('📖', entry.pages || 0, g.pages, 'p'));
+
+  const joined = parts.filter(Boolean).join('');
+  el.innerHTML = joined ? '🎯 ' + joined : '';
+}
+
 /* ==================================================
    Empty banner
    ================================================== */
@@ -2942,7 +3285,7 @@ const f = {
 function refreshPhaseOptions() {
   let html = '';
   for (const p of getPhases()) {
-    html += '<option value="' + p.id + '">Phase ' + p.id + ' — ' + p.name + '</option>';
+    html += '<option value="' + p.id + '">Phase ' + p.id + ' — ' + escapeHtml(p.name) + '</option>';
   }
   f.phase.innerHTML = html;
   document.getElementById('bulk-phase').innerHTML = html;
@@ -3110,6 +3453,13 @@ const s = {
   endDate:       document.getElementById('s-endDate'),
   phaseCount:    document.getElementById('s-phaseCount'),
   booksPerPhase: document.getElementById('s-booksPerPhase'),
+  phaseList:     document.getElementById('s-phase-list'),
+  goalDailySessions:  document.getElementById('s-goalDailySessions'),
+  goalDailyPages:     document.getElementById('s-goalDailyPages'),
+  goalDailyMinutes:   document.getElementById('s-goalDailyMinutes'),
+  goalWeeklySessions: document.getElementById('s-goalWeeklySessions'),
+  goalWeeklyPages:    document.getElementById('s-goalWeeklyPages'),
+  goalWeeklyMinutes:  document.getElementById('s-goalWeeklyMinutes'),
   pomoWork:      document.getElementById('s-pomoWork'),
   pomoShortBreak: document.getElementById('s-pomoShortBreak'),
   pomoLongBreak: document.getElementById('s-pomoLongBreak'),
@@ -3118,6 +3468,43 @@ const s = {
   warning:       document.getElementById('s-warning'),
   deadlineList:  document.getElementById('s-deadline-list')
 };
+
+function defaultPhaseEntry(i) {
+  return {
+    name: PHASE_NAME_PRESETS[i] || ('Phase ' + (i + 1)),
+    color: PHASE_COLOR_PRESETS[i % PHASE_COLOR_PRESETS.length]
+  };
+}
+
+function renderPhaseSettings(phasesArr) {
+  const count = Math.max(1, Math.min(20, parseInt(s.phaseCount.value, 10) || 1));
+  const arr = phasesArr || state.settings.phases || [];
+  let html = '';
+  for (let i = 0; i < count; i++) {
+    const p = arr[i] || defaultPhaseEntry(i);
+    const name = p.name || defaultPhaseEntry(i).name;
+    const color = p.color || defaultPhaseEntry(i).color;
+    html += '<div class="phase-row" data-index="' + i + '">' +
+      '<span class="phase-row-label">Phase ' + (i + 1) + '</span>' +
+      '<input type="text" class="phase-name-input" value="' + escapeHtml(name) + '" maxlength="30" placeholder="Phase name">' +
+      '<input type="color" class="phase-color-input" value="' + escapeHtml(color) + '">' +
+      '</div>';
+  }
+  s.phaseList.innerHTML = html;
+}
+
+function collectPhaseInputs() {
+  const rows = s.phaseList.querySelectorAll('.phase-row');
+  const out = [];
+  rows.forEach((row, i) => {
+    const nameEl = row.querySelector('.phase-name-input');
+    const colorEl = row.querySelector('.phase-color-input');
+    const name = (nameEl.value || '').trim() || defaultPhaseEntry(i).name;
+    const color = colorEl.value || defaultPhaseEntry(i).color;
+    out.push({ name, color });
+  });
+  return out;
+}
 
 function updateSettingsPreview() {
   const phases = Math.max(1, Math.min(20, parseInt(s.phaseCount.value, 10) || 1));
@@ -3144,10 +3531,10 @@ function updateSettingsPreview() {
     s.warning.innerHTML = '';
   }
 
-  updateSettingsDeadlineList(phases);
+  updateSettingsDeadlineList(phases, collectPhaseInputs());
 }
 
-function updateSettingsDeadlineList(phaseCount) {
+function updateSettingsDeadlineList(phaseCount, phasesArr) {
   const startDate = s.startDate.value;
   const endDate = s.endDate.value;
   const list = s.deadlineList;
@@ -3170,9 +3557,9 @@ function updateSettingsDeadlineList(phaseCount) {
     const st = getDeadlineState(deadline);
     const cd = getDeadlineCountdown(deadline);
     const stClass = st === 'overdue' ? ' overdue' : st === 'soon' ? ' soon' : '';
-    const name = getPhaseName(i);
+    const name = (phasesArr && phasesArr[i] && phasesArr[i].name) || getPhaseName(i);
     html += '<div class="deadline-preview-row">' +
-      '<span class="phase-name">Phase ' + (i + 1) + ' — ' + name + '</span>' +
+      '<span class="phase-name">Phase ' + (i + 1) + ' — ' + escapeHtml(name) + '</span>' +
       '<span class="phase-deadline' + stClass + '">' + formatDateShort(deadline) +
       (cd ? ' · ' + escapeHtml(cd.text) : '') + '</span>' +
       '</div>';
@@ -3180,8 +3567,14 @@ function updateSettingsDeadlineList(phaseCount) {
   list.innerHTML = html;
 }
 
-[s.phaseCount, s.booksPerPhase].forEach(el => {
-  el.addEventListener('input', updateSettingsPreview);
+s.booksPerPhase.addEventListener('input', updateSettingsPreview);
+s.phaseCount.addEventListener('input', () => {
+  const current = collectPhaseInputs();
+  const newCount = Math.max(1, Math.min(20, parseInt(s.phaseCount.value, 10) || 1));
+  while (current.length < newCount) current.push(defaultPhaseEntry(current.length));
+  while (current.length > newCount) current.pop();
+  renderPhaseSettings(current);
+  updateSettingsPreview();
 });
 [s.startDate, s.endDate].forEach(el => {
   el.addEventListener('change', () => updateSettingsPreview());
@@ -3227,10 +3620,24 @@ function openSettingsModal() {
   s.endDate.value = state.settings.endDate || '';
   s.phaseCount.value = state.settings.phaseCount;
   s.booksPerPhase.value = state.settings.booksPerPhase;
+
+  syncPhasesArray();
+  renderPhaseSettings(state.settings.phases);
+
+  // Goals
+  const g = state.settings.goals;
+  s.goalDailySessions.value = g.daily.sessions;
+  s.goalDailyPages.value = g.daily.pages;
+  s.goalDailyMinutes.value = g.daily.minutes;
+  s.goalWeeklySessions.value = g.weekly.sessions;
+  s.goalWeeklyPages.value = g.weekly.pages;
+  s.goalWeeklyMinutes.value = g.weekly.minutes;
+
   s.pomoWork.value = state.settings.pomodoro.workMinutes;
   s.pomoShortBreak.value = state.settings.pomodoro.shortBreakMinutes;
   s.pomoLongBreak.value = state.settings.pomodoro.longBreakMinutes;
   s.pomoLongEvery.value = state.settings.pomodoro.longBreakEvery;
+
   updateSettingsPreview();
   detectActivePreset();
   updateThemeButtons();
@@ -3255,6 +3662,24 @@ function saveSettings() {
     longBreakEvery: Math.max(2, Math.min(10, parseInt(s.pomoLongEvery.value, 10) || 4))
   };
 
+  const newGoals = {
+    daily: {
+      sessions: Math.max(0, Math.min(99, parseInt(s.goalDailySessions.value, 10) || 0)),
+      pages:    Math.max(0, Math.min(9999, parseInt(s.goalDailyPages.value, 10) || 0)),
+      minutes:  Math.max(0, Math.min(9999, parseInt(s.goalDailyMinutes.value, 10) || 0))
+    },
+    weekly: {
+      sessions: Math.max(0, Math.min(999, parseInt(s.goalWeeklySessions.value, 10) || 0)),
+      pages:    Math.max(0, Math.min(99999, parseInt(s.goalWeeklyPages.value, 10) || 0)),
+      minutes:  Math.max(0, Math.min(99999, parseInt(s.goalWeeklyMinutes.value, 10) || 0))
+    }
+  };
+
+  // Collect phase names/colors from form, pad/trim to newPhaseCount
+  let newPhases = collectPhaseInputs();
+  while (newPhases.length < newPhaseCount) newPhases.push(defaultPhaseEntry(newPhases.length));
+  while (newPhases.length > newPhaseCount) newPhases.pop();
+
   const orphaned = state.books.filter(b => b.phase > newPhaseCount);
   if (orphaned.length > 0) {
     const uniquePhases = [...new Set(orphaned.map(b => b.phase))].sort((a, b) => a - b);
@@ -3268,14 +3693,12 @@ function saveSettings() {
     state.books.sort((a, b) => a.phase - b.phase);
   }
 
-  const changedPhaseStructure =
-    newPhaseCount !== state.settings.phaseCount ||
-    newBooksPerPhase !== state.settings.booksPerPhase;
-
   state.settings.startDate = startDate;
   state.settings.endDate = endDate;
   state.settings.phaseCount = newPhaseCount;
   state.settings.booksPerPhase = newBooksPerPhase;
+  state.settings.phases = newPhases;
+  state.settings.goals = newGoals;
   state.settings.pomodoro = newPomodoro;
 
   if (!state.timer.running && !state.timer.bookId) {
@@ -3284,13 +3707,11 @@ function saveSettings() {
 
   saveState();
   refreshPhaseOptions();
-
-  if (changedPhaseStructure) {
-    rebuildPhaseSections();
-  }
+  rebuildPhaseSections();
   rebuildAllPhases();
 
   updateHeaderDates();
+  updateHeaderGoals();
   updateEmptyBanner();
   updateTimerWidget();
   closeAllModals();
@@ -3300,11 +3721,25 @@ function saveSettings() {
 document.getElementById('s-save').addEventListener('click', saveSettings);
 
 document.getElementById('s-reset').addEventListener('click', () => {
-  if (!confirm('Reset all settings to their defaults?\n(Date fields will be cleared. Phases will reset to 5 × 20. Theme will stay as-is.)')) return;
+  if (!confirm('Reset all settings to their defaults?\n(Date fields will be cleared. Phases will reset to 5 × 20. Phase names/colors and goals will reset. Theme will stay as-is.)')) return;
   s.startDate.value = '';
   s.endDate.value = '';
   s.phaseCount.value = DEFAULT_SETTINGS.phaseCount;
   s.booksPerPhase.value = DEFAULT_SETTINGS.booksPerPhase;
+
+  // Reset phase names/colors to defaults
+  const defaults = [];
+  for (let i = 0; i < DEFAULT_SETTINGS.phaseCount; i++) defaults.push(defaultPhaseEntry(i));
+  renderPhaseSettings(defaults);
+
+  // Reset goals
+  s.goalDailySessions.value = DEFAULT_SETTINGS.goals.daily.sessions;
+  s.goalDailyPages.value = DEFAULT_SETTINGS.goals.daily.pages;
+  s.goalDailyMinutes.value = DEFAULT_SETTINGS.goals.daily.minutes;
+  s.goalWeeklySessions.value = DEFAULT_SETTINGS.goals.weekly.sessions;
+  s.goalWeeklyPages.value = DEFAULT_SETTINGS.goals.weekly.pages;
+  s.goalWeeklyMinutes.value = DEFAULT_SETTINGS.goals.weekly.minutes;
+
   s.pomoWork.value = DEFAULT_SETTINGS.pomodoro.workMinutes;
   s.pomoShortBreak.value = DEFAULT_SETTINGS.pomodoro.shortBreakMinutes;
   s.pomoLongBreak.value = DEFAULT_SETTINGS.pomodoro.longBreakMinutes;
@@ -3390,6 +3825,10 @@ function completeSession() {
     if (book) book.sessionsCompleted = (book.sessionsCompleted || 0) + 1;
     state.timer.sessionsCompleted++;
 
+    // Log a completed session in today's activity
+    const today = todayISO();
+    ensureActivityEntry(today).sessions += 1;
+
     const every = state.settings.pomodoro.longBreakEvery;
     const isLongBreak = state.timer.sessionsCompleted > 0 &&
                         state.timer.sessionsCompleted % every === 0;
@@ -3409,6 +3848,7 @@ function completeSession() {
   if (bookIdAtComplete) refreshCard(bookIdAtComplete);
   updateTimerWidget();
   refreshCardTimerState();
+  updateHeaderGoals();
   saveState();
 }
 
@@ -3424,16 +3864,12 @@ function tickTimer() {
       const book = getBook(state.timer.bookId);
       if (book) book.timeSpent = (book.timeSpent || 0) + capped;
 
-      // Log daily activity
+      // Log activity
       const today = todayISO();
-      if (!state.activityLog[today]) {
-        state.activityLog[today] = { seconds: 0, bookIds: [] };
-      }
-      state.activityLog[today].seconds += capped;
+      const entry = ensureActivityEntry(today);
+      entry.seconds += capped;
       const bid = state.timer.bookId;
-      if (bid && state.activityLog[today].bookIds.indexOf(bid) === -1) {
-        state.activityLog[today].bookIds.push(bid);
-      }
+      if (bid && entry.bookIds.indexOf(bid) === -1) entry.bookIds.push(bid);
     }
   }
   state.timer.lastTickTs = now;
@@ -3451,6 +3887,7 @@ function tickTimer() {
         const book = getBook(state.timer.bookId);
         if (card && book) applyCardTime(card, book);
       }
+      updateHeaderGoals();
     }
   }
 
@@ -3519,7 +3956,7 @@ function rebuildPomoBookSelect() {
   phases.forEach(phase => {
     const phaseBooks = getPhaseBooks(phase.id);
     if (phaseBooks.length === 0) return;
-    html += '<optgroup label="Phase ' + phase.id + ' — ' + phase.name + '">';
+    html += '<optgroup label="Phase ' + phase.id + ' — ' + escapeHtml(phase.name) + '">';
     phaseBooks.forEach(b => {
       const statusIcon = b.status === 'finished' ? '✓ ' : b.status === 'reading' ? '📖 ' : '';
       html += '<option value="' + b.id + '">' + escapeHtml(statusIcon + (b.title || 'Untitled')) + '</option>';
@@ -3687,6 +4124,7 @@ refs.progressText = document.getElementById('progress-text');
 refs.progressPct  = document.getElementById('progress-pct');
 refs.progressFill = document.getElementById('progress-fill');
 refs.progressDates = document.getElementById('progress-dates');
+refs.progressGoals = document.getElementById('progress-goals');
 refs.headerTotal = document.getElementById('header-total');
 
 refs.container.addEventListener('click', (e) => {
@@ -3725,7 +4163,6 @@ refs.container.addEventListener('dragend', (e) => {
   if (card) card.classList.remove('dragging');
   clearDragIndicators();
   dragState.draggedId = null;
-  // Suppress the click that may follow a drag
   justDragged = true;
   setTimeout(() => { justDragged = false; }, 80);
 });
@@ -3740,7 +4177,6 @@ refs.container.addEventListener('dragover', (e) => {
   clearDragIndicators();
 
   if (card.classList.contains('empty')) {
-    // Show a left-side indicator on the empty slot to say "insert here"
     card.classList.add('drag-over-left');
     return;
   }
@@ -3797,13 +4233,9 @@ function moveBook(draggedId, targetPhase, targetId, position) {
   const dragged = state.books[draggedIdx];
   const oldPhase = dragged.phase;
 
-  // Remove from current position
   state.books.splice(draggedIdx, 1);
-
-  // Update phase
   dragged.phase = targetPhase;
 
-  // Determine insertion index
   let insertIdx;
   if (targetId) {
     const targetIdx = state.books.findIndex(b => b.id === targetId);
@@ -3813,7 +4245,6 @@ function moveBook(draggedId, targetPhase, targetId, position) {
       insertIdx = position === 'before' ? targetIdx : targetIdx + 1;
     }
   } else {
-    // Append to end of target phase
     let lastIdx = -1;
     for (let i = 0; i < state.books.length; i++) {
       if (state.books[i].phase === targetPhase) lastIdx = i;
@@ -3825,7 +4256,6 @@ function moveBook(draggedId, targetPhase, targetId, position) {
 
   saveState();
 
-  // Rebuild affected phase grids
   const affected = new Set([oldPhase, targetPhase]);
   affected.forEach(pid => rebuildPhaseGrid(pid));
   updateHeaderProgress();
@@ -3933,13 +4363,28 @@ document.getElementById('ie-import-file').addEventListener('change', (e) => {
       state.books = cleaned;
       if (parsed.settings && typeof parsed.settings === 'object') {
         state.settings = Object.assign({}, DEFAULT_SETTINGS, parsed.settings);
+        const g = parsed.settings.goals || {};
+        state.settings.goals = {
+          daily:  Object.assign({}, DEFAULT_SETTINGS.goals.daily,  g.daily  || {}),
+          weekly: Object.assign({}, DEFAULT_SETTINGS.goals.weekly, g.weekly || {})
+        };
         state.settings.pomodoro = Object.assign({}, DEFAULT_SETTINGS.pomodoro, parsed.settings.pomodoro || {});
       }
       if (parsed.activityLog && typeof parsed.activityLog === 'object') {
         state.activityLog = parsed.activityLog;
+        for (const k in state.activityLog) {
+          const entry = state.activityLog[k];
+          if (!entry || typeof entry !== 'object') { delete state.activityLog[k]; continue; }
+          if (typeof entry.seconds !== 'number') entry.seconds = 0;
+          if (!Array.isArray(entry.bookIds)) entry.bookIds = [];
+          if (typeof entry.sessions !== 'number') entry.sessions = 0;
+          if (typeof entry.pages !== 'number') entry.pages = 0;
+        }
       } else {
         state.activityLog = {};
       }
+
+      syncPhasesArray();
 
       applyTheme(state.settings.theme || 'light');
       updateThemeButtons();
@@ -3952,6 +4397,7 @@ document.getElementById('ie-import-file').addEventListener('change', (e) => {
       rebuildPhaseSections();
       rebuildAllPhases();
       updateHeaderDates();
+      updateHeaderGoals();
       updateEmptyBanner();
       updateTimerWidget();
       closeAllModals();
@@ -3975,6 +4421,7 @@ document.getElementById('ie-clear').addEventListener('click', () => {
   saveState();
   refs.bookElMap.clear();
   rebuildAllPhases();
+  updateHeaderGoals();
   updateEmptyBanner();
   updateTimerWidget();
   closeAllModals();
@@ -4015,6 +4462,7 @@ function loadSampleData() {
   const buckets = Array.from({ length: phaseCount }, () => 0);
 
   const hasDates = state.settings.startDate && state.settings.endDate;
+  const today = new Date();
 
   samples.forEach((sample, i) => {
     let phase = (i % phaseCount) + 1;
@@ -4028,6 +4476,20 @@ function loadSampleData() {
     const status = statuses[i % 4];
     const deadline = hasDates && status !== 'finished' ? getPhaseDeadline(phase - 1) : '';
 
+    // Spread start/finish dates across the last ~90 days
+    let dateStarted = '';
+    let dateFinished = '';
+    if (status === 'finished' || status === 'reading' || status === 'dnf') {
+      const sd = new Date(today);
+      sd.setDate(sd.getDate() - (85 - i * 4));
+      dateStarted = dateToISO(sd);
+    }
+    if (status === 'finished') {
+      const fd = new Date(today);
+      fd.setDate(fd.getDate() - (75 - i * 4));
+      dateFinished = dateToISO(fd);
+    }
+
     state.books.push({
       id: uid(),
       phase,
@@ -4037,7 +4499,7 @@ function loadSampleData() {
       coverUrl: 'https://covers.openlibrary.org/b/isbn/' + sample.isbn + '-M.jpg',
       status,
       rating: status === 'finished' ? (4 + (i % 2)) : 0,
-      notes: '', dateStarted: '', dateFinished: '',
+      notes: '', dateStarted, dateFinished,
       deadline: deadline || '',
       format: '', pages: 0, goodreads: '', wiki: '', summary: '',
       timeSpent: status === 'finished' ? (60 * 60 * (3 + (i % 5))) : status === 'reading' ? (60 * 30 * (1 + (i % 3))) : 0,
@@ -4047,16 +4509,20 @@ function loadSampleData() {
 
   state.books.sort((a, b) => a.phase - b.phase);
 
-  // Seed some activity log data so the heatmap isn't empty
+  // Seed activity log with plausible data
   state.activityLog = {};
-  for (let i = 0; i < 70; i++) {
-    if (Math.random() < 0.28) continue; // ~28% skipped days
+  for (let i = 0; i < 75; i++) {
+    if (Math.random() < 0.30) continue;
     const d = new Date();
     d.setDate(d.getDate() - i);
     const iso = dateToISO(d);
-    const minutes = Math.floor(Math.random() * 95 + 15); // 15–110 min
+    const minutes = Math.floor(Math.random() * 95 + 15);
+    const sessions = Math.max(1, Math.round(minutes / 25));
+    const pages = Math.floor(Math.random() * 45 + 5);
     state.activityLog[iso] = {
       seconds: minutes * 60,
+      sessions,
+      pages,
       bookIds: []
     };
   }
@@ -4064,6 +4530,7 @@ function loadSampleData() {
   saveState();
   refs.bookElMap.clear();
   rebuildAllPhases();
+  updateHeaderGoals();
   updateEmptyBanner();
   closeAllModals();
   showToast('Sample data loaded ✓', 'success');
@@ -4095,8 +4562,8 @@ function renderCalendar() {
   const { year, month } = calState;
   calEls.title.textContent = MONTH_NAMES_LONG[month] + ' ' + year;
 
-  // Build event map
-  const events = {}; // iso -> [{ type, book }]
+  // Build event map: iso -> [{ type, book }]
+  const events = {};
   for (const b of state.books) {
     if (b.dateStarted)  addCalEvent(events, b.dateStarted, 'start', b);
     if (b.dateFinished) addCalEvent(events, b.dateFinished, 'finish', b);
@@ -4107,7 +4574,6 @@ function renderCalendar() {
 
   calEls.grid.innerHTML = '';
 
-  // Day-of-week headers
   ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
     const el = document.createElement('div');
     el.className = 'cal-dow';
@@ -4115,7 +4581,6 @@ function renderCalendar() {
     calEls.grid.appendChild(el);
   });
 
-  // 6 rows × 7 days = 42 cells, starting from the Sunday on/before the 1st
   const firstOfMonth = new Date(year, month, 1);
   const startDow = firstOfMonth.getDay();
   const startDate = new Date(year, month, 1 - startDow);
@@ -4147,15 +4612,32 @@ function renderCalendar() {
       evWrap.className = 'cal-events';
       const MAX = 3;
       const show = Math.min(MAX, dayEvents.length);
+
       for (let j = 0; j < show; j++) {
         const ev = dayEvents[j];
         const evEl = document.createElement('div');
         evEl.className = 'cal-event ' + ev.type;
-        const icon = ev.type === 'deadline' ? '⏰' : ev.type === 'start' ? '▶' : '✓';
-        evEl.textContent = icon + ' ' + (ev.book.title || 'Untitled');
+
+        const coverUrl = resolveCoverUrl(ev.book);
+        if (coverUrl) {
+          const img = document.createElement('img');
+          img.className = 'cal-event-cover';
+          img.loading = 'lazy';
+          img.alt = '';
+          img.onerror = function() { this.style.visibility = 'hidden'; };
+          img.src = coverUrl;
+          evEl.appendChild(img);
+        }
+
+        const titleSpan = document.createElement('span');
+        titleSpan.className = 'cal-event-title';
+        titleSpan.textContent = ev.book.title || 'Untitled';
+        evEl.appendChild(titleSpan);
+
         evEl.title = (ev.type === 'deadline' ? 'Deadline: ' : ev.type === 'start' ? 'Started: ' : 'Finished: ') + (ev.book.title || 'Untitled');
         evWrap.appendChild(evEl);
       }
+
       if (dayEvents.length > MAX) {
         const more = document.createElement('div');
         more.className = 'cal-event';
@@ -4164,6 +4646,7 @@ function renderCalendar() {
         more.textContent = '+' + (dayEvents.length - MAX) + ' more';
         evWrap.appendChild(more);
       }
+
       cell.appendChild(evWrap);
     }
 
@@ -4196,21 +4679,23 @@ function renderCalendarDetail(events) {
     return;
   }
 
-  // Group by type for ordering: deadline, start, finish
   const order = { deadline: 0, start: 1, finish: 2 };
   dayEvents.sort((a, b) => order[a.type] - order[b.type]);
 
   dayEvents.forEach(ev => {
     const label = ev.type === 'deadline' ? 'Deadline' : ev.type === 'start' ? 'Started' : 'Finished';
-    html += '<div class="cal-detail-row" data-book-id="' + escapeHtml(ev.book.id) + '">' +
-      '<span class="cal-detail-tag ' + ev.type + '">' + label + '</span>' +
-      '<span class="cal-detail-title">' + escapeHtml(ev.book.title || 'Untitled') + '</span>' +
-      '</div>';
+    const coverUrl = resolveCoverUrl(ev.book);
+    html += '<div class="cal-detail-row" data-book-id="' + escapeHtml(ev.book.id) + '">';
+    if (coverUrl) {
+      html += '<img class="cal-detail-cover" loading="lazy" alt="" src="' + escapeHtml(coverUrl) + '" onerror="this.style.visibility=\'hidden\'">';
+    }
+    html += '<span class="cal-detail-tag ' + ev.type + '">' + label + '</span>';
+    html += '<span class="cal-detail-title">' + escapeHtml(ev.book.title || 'Untitled') + '</span>';
+    html += '</div>';
   });
 
   calEls.detail.innerHTML = html;
 
-  // Make rows clickable to open the book
   calEls.detail.querySelectorAll('.cal-detail-row').forEach(row => {
     row.addEventListener('click', () => {
       const bid = row.dataset.bookId;
@@ -4245,7 +4730,7 @@ calEls.today.addEventListener('click', () => {
 });
 
 /* ==================================================
-   STREAK / HEATMAP
+   STREAK / HEATMAP + GOALS
    ================================================== */
 const streakEls = {
   current:  document.getElementById('streak-current'),
@@ -4253,12 +4738,64 @@ const streakEls = {
   total:    document.getElementById('streak-total'),
   today:    document.getElementById('streak-today'),
   months:   document.getElementById('heatmap-months'),
-  grid:     document.getElementById('heatmap-grid')
+  grid:     document.getElementById('heatmap-grid'),
+  dailyGoals:  document.getElementById('streak-daily-goals'),
+  weeklyGoals: document.getElementById('streak-weekly-goals'),
+  logPagesInput: document.getElementById('log-pages-input'),
+  logPagesBtn:   document.getElementById('log-pages-btn')
 };
 
 function openStreak() {
   renderStreak();
   openModal('modal-streak');
+}
+
+function goalRowHTML(label, value, target, unit) {
+  if (!target || target <= 0) {
+    return '<div class="goal-row">' +
+      '<span class="goal-label">' + label + '</span>' +
+      '<div class="goal-track"></div>' +
+      '<span class="goal-value" style="color:var(--text-mute)">off</span>' +
+      '</div>';
+  }
+  const pct = Math.min(100, (value / target) * 100);
+  const done = value >= target;
+  return '<div class="goal-row">' +
+    '<span class="goal-label">' + label + '</span>' +
+    '<div class="goal-track"><div class="goal-fill' + (done ? ' done' : '') + '" style="width:' + pct.toFixed(1) + '%"></div></div>' +
+    '<span class="goal-value"><span class="gv">' + value + '</span><span class="goal-target' + (done ? ' done' : '') + '"> / ' + target + (unit ? ' ' + unit : '') + '</span></span>' +
+    '</div>';
+}
+
+function renderGoals() {
+  const g = state.settings.goals;
+  if (!g || !streakEls.dailyGoals) return;
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const todayIso = dateToISO(today);
+
+  const ws = getWeekStart(today);
+  const wsIso = dateToISO(ws);
+  const we = new Date(ws);
+  we.setDate(we.getDate() + 6);
+  const weIso = dateToISO(we);
+
+  const daily = getPeriodTotals(todayIso, todayIso);
+  const weekly = getPeriodTotals(wsIso, weIso);
+
+  const dMin = Math.round(daily.seconds / 60);
+  const wMin = Math.round(weekly.seconds / 60);
+
+  streakEls.dailyGoals.innerHTML =
+    goalRowHTML('Minutes', dMin, g.daily.minutes, 'min') +
+    goalRowHTML('Sessions', daily.sessions, g.daily.sessions, '') +
+    goalRowHTML('Pages', daily.pages, g.daily.pages, 'p');
+
+  streakEls.weeklyGoals.innerHTML =
+    goalRowHTML('Minutes', wMin, g.weekly.minutes, 'min') +
+    goalRowHTML('Sessions', weekly.sessions, g.weekly.sessions, '') +
+    goalRowHTML('Pages', weekly.pages, g.weekly.pages, 'p');
 }
 
 function renderStreak() {
@@ -4268,7 +4805,6 @@ function renderStreak() {
   const todayIso = dateToISO(today);
 
   // ---- Current streak ----
-  // If today has no activity yet, the streak is still alive from yesterday.
   let current = 0;
   let check = new Date(today);
   const todayEntry = log[todayIso];
@@ -4315,17 +4851,18 @@ function renderStreak() {
   streakEls.total.textContent = totalActive;
   streakEls.today.textContent = formatDurationOrShort(todaySeconds);
 
+  // ---- Goals ----
+  renderGoals();
+
   // ---- Heatmap grid ----
-  // 53 columns × 7 rows, starting from the Sunday 52 weeks ago.
   const startSunday = new Date(today);
   startSunday.setDate(startSunday.getDate() - 52 * 7 - today.getDay());
 
-  // Determine scale (cap at 2 hours for level 4)
   let maxSec = 0;
   for (const iso in log) {
     if (log[iso] && log[iso].seconds > maxSec) maxSec = log[iso].seconds;
   }
-  const scaleMax = Math.max(1800, maxSec); // at least 30 min full-bright
+  const scaleMax = Math.max(1800, maxSec);
 
   streakEls.grid.innerHTML = '';
   const frag = document.createDocumentFragment();
@@ -4381,6 +4918,26 @@ function renderStreak() {
   }
 }
 
+/* Log pages button */
+streakEls.logPagesBtn.addEventListener('click', () => {
+  const input = streakEls.logPagesInput;
+  const n = parseInt(input.value, 10);
+  if (!n || n <= 0) { showToast('Enter a page count', 'error'); input.focus(); return; }
+  const today = todayISO();
+  ensureActivityEntry(today).pages += n;
+  saveState();
+  input.value = '';
+  renderStreak();
+  updateHeaderGoals();
+  showToast('Logged ' + n + ' page' + (n !== 1 ? 's' : '') + ' ✓', 'success');
+});
+streakEls.logPagesInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    streakEls.logPagesBtn.click();
+  }
+});
+
 /* ==================================================
    Restore timer
    ================================================== */
@@ -4409,6 +4966,8 @@ function restoreTimer() {
         const book = getBook(t.bookId);
         if (book) book.sessionsCompleted = (book.sessionsCompleted || 0) + 1;
         t.sessionsCompleted++;
+        const today = todayISO();
+        ensureActivityEntry(today).sessions += 1;
       }
       t.running = false;
       t.endTimestamp = null;
@@ -4432,6 +4991,7 @@ function restoreTimer() {
 function init() {
   initImageObserver();
   loadState();
+  syncPhasesArray();
 
   applyTheme(state.settings.theme || 'light');
   updateThemeButtons();
@@ -4440,6 +5000,7 @@ function init() {
   rebuildPhaseSections();
   rebuildAllPhases();
   updateHeaderDates();
+  updateHeaderGoals();
   updateEmptyBanner();
   restoreTimer();
   ensureTicking();
