@@ -405,7 +405,7 @@
   }
   html[data-theme="dark"] .card-time { background: rgba(0, 0, 0, 0.55); }
 
-  /* ---------- Format badge (ebook=blue, audiobook=gold) ---------- */
+  /* ---------- Format badge ---------- */
   .card-format {
     position: absolute;
     bottom: 6px; left: 6px;
@@ -533,6 +533,25 @@
     font-size: 14px; color: var(--text-sub);
     font-style: italic; margin-bottom: 12px;
   }
+
+  /* Author link (clickable author names) */
+  .view-author .author-link {
+    color: var(--primary);
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--primary);
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    padding: 0 1px;
+  }
+  .view-author .author-link:hover {
+    color: var(--primary-dark);
+    border-bottom-style: solid;
+  }
+  html[data-theme="dark"] .view-author .author-link { color: var(--primary-light); }
+  html[data-theme="dark"] .view-author .author-link:hover { color: #fff; border-color: #fff; }
+
   .view-stars {
     font-size: 22px; color: #d1d5db;
     margin-bottom: 16px; letter-spacing: 2px;
@@ -552,7 +571,6 @@
     text-overflow: ellipsis; white-space: nowrap;
   }
 
-  /* Format pill in view modal */
   .format-pill {
     display: inline-flex; align-items: center; gap: 4px;
     padding: 2px 8px; border-radius: 10px;
@@ -650,6 +668,116 @@
   .view-links a:hover { background: var(--surface-2); }
   html[data-theme="dark"] .view-links a { color: var(--primary-light); }
   html[data-theme="dark"] .view-links a:hover { background: var(--surface-2); }
+
+  /* ---------- AUTHORS ---------- */
+  .authors-search-wrap { margin-bottom: 14px; }
+  .authors-search-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface-2);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .authors-search-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+  }
+  html[data-theme="dark"] .authors-search-input:focus {
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
+  }
+  .authors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 10px;
+  }
+  .author-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.15s, border-color 0.15s, box-shadow 0.15s;
+    text-align: left;
+    font-family: inherit;
+    color: inherit;
+  }
+  .author-item:hover {
+    background: var(--surface-3);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+  }
+  html[data-theme="dark"] .author-item:hover {
+    box-shadow: 0 6px 14px rgba(0,0,0,0.4);
+  }
+  .author-item-avatar {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    flex-shrink: 0;
+    letter-spacing: 0.3px;
+  }
+  .author-item-info { flex: 1; min-width: 0; }
+  .author-item-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+    overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .author-item-meta {
+    font-size: 11px;
+    color: var(--text-sub);
+    margin-top: 3px;
+    font-weight: 600;
+    overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .authors-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--text-mute);
+    padding: 40px 20px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .author-books-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .author-books-stats {
+    font-size: 12px;
+    color: var(--text-sub);
+    font-weight: 600;
+  }
+
+  /* Author-books grid: reuse book-card but make non-draggable */
+  #author-books-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 14px;
+  }
+  #author-books-grid .book-card {
+    height: 230px;
+    cursor: pointer;
+    cursor: pointer !important;
+  }
+  #author-books-grid .book-card:active { cursor: pointer !important; }
 
   /* ---------- Form ---------- */
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -763,7 +891,6 @@
   }
   .cover-preview img { width: 100%; height: 100%; object-fit: cover; }
 
-  /* ---------- Cover search (edit modal) ---------- */
   .cover-input-fields {
     flex: 1;
     min-width: 0;
@@ -778,7 +905,6 @@
   }
   .cover-input-actions .btn { padding: 7px 12px; font-size: 12px; }
 
-  /* ---------- Cover search modal ---------- */
   .cover-search-tools {
     display: flex;
     gap: 8px;
@@ -908,7 +1034,6 @@
   }
   .settings-warning strong { display: block; margin-bottom: 2px; }
 
-  /* Phase names & colors */
   .phase-settings-list {
     display: flex; flex-direction: column; gap: 6px;
     max-height: 260px; overflow-y: auto;
@@ -954,7 +1079,6 @@
   .phase-color-input::-webkit-color-swatch { border: none; border-radius: 5px; }
   .phase-color-input::-moz-color-swatch { border: none; border-radius: 5px; }
 
-  /* Theme toggle */
   .theme-toggle {
     display: flex;
     gap: 10px;
@@ -1582,7 +1706,6 @@
     margin-top: 4px;
   }
 
-  /* Goals section in streak modal */
   .goals-section {
     margin-bottom: 22px;
     padding: 16px;
@@ -1795,6 +1918,7 @@
       <button class="btn btn-primary" id="btn-add">+ Add Book</button>
       <button class="btn" id="btn-bulk">Bulk Upload</button>
       <button class="btn" id="btn-ie">Import / Export</button>
+      <button class="btn" id="btn-authors">✍ Authors</button>
       <button class="btn" id="btn-calendar">📅 Calendar</button>
       <button class="btn" id="btn-streak">🔥 Streak</button>
       <button class="btn" id="btn-settings">⚙ Settings</button>
@@ -1921,6 +2045,56 @@
 </div>
 
 <!-- ==================================================
+     AUTHORS LIST MODAL
+     ================================================== -->
+<div class="modal-backdrop" id="modal-authors">
+  <div class="modal" style="max-width:820px">
+    <div class="modal-header">
+      <h2>✍ Authors</h2>
+      <button class="modal-close" data-close>&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="authors-search-wrap">
+        <input type="text" id="author-search" class="authors-search-input"
+               placeholder="Search authors…" autocomplete="off">
+      </div>
+      <div id="authors-list" class="authors-grid"></div>
+    </div>
+    <div class="modal-footer">
+      <div style="font-size:11px;color:var(--text-mute)" id="authors-footer-count"></div>
+      <div class="modal-footer-right">
+        <button class="btn" data-close>Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
+     AUTHOR BOOKS MODAL
+     ================================================== -->
+<div class="modal-backdrop" id="modal-author-books" style="z-index:1050">
+  <div class="modal" style="max-width:900px">
+    <div class="modal-header">
+      <h2 id="author-books-title">Books by…</h2>
+      <button class="modal-close" data-close>&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="author-books-header">
+        <button class="btn" id="author-books-back">← All Authors</button>
+        <span class="author-books-stats" id="author-books-stats"></span>
+      </div>
+      <div id="author-books-grid" class="books-grid"></div>
+    </div>
+    <div class="modal-footer">
+      <div></div>
+      <div class="modal-footer-right">
+        <button class="btn" data-close>Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
      EDIT MODAL
      ================================================== -->
 <div class="modal-backdrop" id="modal-book">
@@ -1950,7 +2124,8 @@
         </div>
         <div class="form-group">
           <label>Author</label>
-          <input type="text" id="f-author" placeholder="Author name">
+          <input type="text" id="f-author" placeholder="Author name" list="author-suggestions">
+          <datalist id="author-suggestions"></datalist>
         </div>
         <div class="form-group">
           <label>ISBN</label>
@@ -2073,7 +2248,6 @@
     </div>
     <div class="modal-body">
 
-      <!-- Appearance / Theme -->
       <div style="margin-bottom:22px">
         <div class="settings-section-title">🎨 Appearance</div>
         <div class="theme-toggle" id="theme-toggle">
@@ -2091,7 +2265,6 @@
         </div>
       </div>
 
-      <!-- Duration presets -->
       <div class="preset-section" style="margin-top:0;padding-top:0;border-top:none">
         <span class="preset-label">Quick Duration</span>
         <div class="preset-row" id="preset-row">
@@ -2132,7 +2305,6 @@
         </div>
       </div>
 
-      <!-- Phase names & colors -->
       <div style="margin-top:20px">
         <div class="settings-section-title">🎨 Phase Names &amp; Colors</div>
         <div class="phase-settings-list" id="s-phase-list"></div>
@@ -2146,7 +2318,6 @@
         <div class="deadline-preview-list" id="s-deadline-list"></div>
       </div>
 
-      <!-- Goals -->
       <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
         <div class="settings-section-title">🎯 Reading Goals</div>
         <div style="font-size:11px;font-weight:800;color:var(--text-sub);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px">Daily</div>
@@ -2206,7 +2377,6 @@
         </div>
       </div>
 
-      <!-- Reset challenge -->
       <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
         <div class="settings-section-title" style="color:var(--status-dnf)">🔄 Reset Challenge</div>
         <p class="reset-note">
@@ -2510,7 +2680,7 @@ const DEFAULT_SETTINGS = {
   endDate: '',
   phaseCount: 5,
   booksPerPhase: 20,
-  phases: [], // filled by syncPhasesArray()
+  phases: [],
   goals: {
     daily:  { sessions: 1, pages: 30, minutes: 30 },
     weekly: { sessions: 7, pages: 210, minutes: 210 }
@@ -2540,11 +2710,9 @@ const MODE_LABELS = {
 const MONTH_NAMES_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MONTH_NAMES_LONG  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-// Format metadata
 const FORMAT_ICONS = { ebook: '📱', audiobook: '🎧', physical: '📖' };
 const FORMAT_LABELS = { ebook: 'eBook', audiobook: 'Audio', physical: 'Print' };
 
-// Aliases recognized when parsing bulk upload / detecting format strings
 const FORMAT_ALIASES = {
   'ebook': 'ebook', 'e-book': 'ebook', 'e_book': 'ebook',
   'digital': 'ebook', 'kindle': 'ebook', 'epub': 'ebook', 'pdf': 'ebook',
@@ -2569,7 +2737,7 @@ function detectFormat(str) {
 const state = {
   books: [],
   settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),
-  activityLog: {},   // 'YYYY-MM-DD' -> { seconds, bookIds, sessions, pages }
+  activityLog: {},
   timer: {
     bookId: null,
     mode: 'work',
@@ -2602,15 +2770,18 @@ let editReturnToView = false;
 let timerInterval = null;
 let tickSaveCounter = 0;
 
-// Drag state
 const dragState = { draggedId: null };
 let justDragged = false;
 
-// Calendar state
 const calState = {
   year: new Date().getFullYear(),
   month: new Date().getMonth(),
   selectedDate: null
+};
+
+// Author view state
+const authorState = {
+  currentAuthor: null
 };
 
 /* ==================================================
@@ -2653,11 +2824,6 @@ function formatDateShort(iso) {
   const d = new Date(iso + 'T00:00:00');
   if (isNaN(d.getTime())) return iso;
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-}
-
-function capitalize(s) {
-  if (!s) return '';
-  return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 function todayISO() {
@@ -2716,6 +2882,14 @@ function formatClock(seconds) {
   const pad = (n) => String(n).padStart(2, '0');
   if (h > 0) return h + ':' + pad(m) + ':' + pad(sec);
   return pad(m) + ':' + pad(sec);
+}
+
+function getInitials(name) {
+  if (!name) return '?';
+  const parts = String(name).trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
 function beep() {
@@ -2848,7 +3022,7 @@ function getPeriodTotals(startIso, endIso) {
 function getWeekStart(date) {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
-  d.setDate(d.getDate() - d.getDay()); // Sunday
+  d.setDate(d.getDate() - d.getDay());
   return d;
 }
 
@@ -2867,7 +3041,6 @@ function syncPhasesArray() {
     });
   }
   while (arr.length > count) arr.pop();
-  // Sanitize
   for (let i = 0; i < arr.length; i++) {
     if (!arr[i] || typeof arr[i] !== 'object') arr[i] = {};
     if (!arr[i].name) arr[i].name = PHASE_NAME_PRESETS[i] || ('Phase ' + (i + 1));
@@ -2883,15 +3056,11 @@ function loadState() {
     if (parsed && Array.isArray(parsed.books)) state.books = parsed.books;
     if (parsed && parsed.settings && typeof parsed.settings === 'object') {
       state.settings = Object.assign({}, DEFAULT_SETTINGS, parsed.settings);
-
-      // Goals (deep merge)
       const g = parsed.settings.goals || {};
       state.settings.goals = {
         daily:  Object.assign({}, DEFAULT_SETTINGS.goals.daily,  g.daily  || {}),
         weekly: Object.assign({}, DEFAULT_SETTINGS.goals.weekly, g.weekly || {})
       };
-
-      // Pomodoro (deep merge)
       state.settings.pomodoro = Object.assign({}, DEFAULT_SETTINGS.pomodoro, parsed.settings.pomodoro || {});
     }
     if (parsed && parsed.timer && typeof parsed.timer === 'object') {
@@ -2899,7 +3068,6 @@ function loadState() {
     }
     if (parsed && parsed.activityLog && typeof parsed.activityLog === 'object') {
       state.activityLog = parsed.activityLog;
-      // Migrate / sanitize
       for (const k in state.activityLog) {
         const e = state.activityLog[k];
         if (!e || typeof e !== 'object') { delete state.activityLog[k]; continue; }
@@ -3349,7 +3517,6 @@ function closeAllModals() {
 
 document.addEventListener('click', (e) => {
   if (e.target.classList.contains('modal-backdrop')) {
-    // Cover search modal handles its own backdrop so the edit modal stays open
     if (e.target.id === 'modal-cover') {
       e.target.classList.remove('show');
       return;
@@ -3360,7 +3527,6 @@ document.addEventListener('click', (e) => {
 });
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
-    // Cover search modal closes independently so the edit modal stays open
     const coverModal = document.getElementById('modal-cover');
     if (coverModal && coverModal.classList.contains('show')) {
       coverModal.classList.remove('show');
@@ -3419,7 +3585,24 @@ function openViewModal(bookId) {
   viewEls.status.textContent = STATUS_LABELS[status] || 'Unread';
 
   viewEls.title.textContent = book.title || 'Untitled';
-  viewEls.author.textContent = book.author ? 'by ' + book.author : 'Unknown author';
+
+  // ---- Clickable author link ----
+  viewEls.author.innerHTML = '';
+  if (book.author && book.author.trim()) {
+    viewEls.author.appendChild(document.createTextNode('by '));
+    const link = document.createElement('a');
+    link.href = '#';
+    link.className = 'author-link';
+    link.textContent = book.author;
+    link.title = 'View all books by ' + book.author;
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      openAuthorBooks(book.author);
+    });
+    viewEls.author.appendChild(link);
+  } else {
+    viewEls.author.textContent = 'Unknown author';
+  }
 
   viewEls.stars.innerHTML = '';
   const r = book.rating || 0;
@@ -3434,7 +3617,6 @@ function openViewModal(bookId) {
   const phaseIdx = book.phase - 1;
   viewEls.phase.textContent = phase ? 'Phase ' + phase.id + ' — ' + phase.name : '—';
 
-  // Format — show as colored pill
   viewEls.format.innerHTML = '';
   if (book.format && FORMAT_LABELS[book.format]) {
     const span = document.createElement('span');
@@ -3566,6 +3748,192 @@ viewEls.pomodoroBtn.addEventListener('click', () => {
 });
 
 /* ==================================================
+   AUTHORS — list & author book grid
+   ================================================== */
+function getAllAuthors() {
+  const map = new Map();
+  for (const b of state.books) {
+    const author = (b.author || '').trim();
+    if (!author) continue;
+    if (!map.has(author)) map.set(author, []);
+    map.get(author).push(b);
+  }
+  return [...map.entries()]
+    .map(([name, books]) => ({ name, books }))
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+}
+
+function closeAllAndOpen(id) {
+  document.querySelectorAll('.modal-backdrop.show').forEach(m => m.classList.remove('show'));
+  modalEditing = null;
+  modalIsNew = false;
+  editReturnToView = false;
+  viewBookId = null;
+  openModal(id);
+}
+
+function openAuthorsList() {
+  closeAllAndOpen('modal-authors');
+  const searchEl = document.getElementById('author-search');
+  searchEl.value = '';
+  renderAuthorsList('');
+  requestAnimationFrame(() => searchEl.focus());
+}
+
+function renderAuthorsList(filter) {
+  const all = getAllAuthors();
+  const container = document.getElementById('authors-list');
+  const footer = document.getElementById('authors-footer-count');
+  const q = (filter || '').trim().toLowerCase();
+  const filtered = q ? all.filter(a => a.name.toLowerCase().includes(q)) : all;
+
+  const totalBooks = all.reduce((sum, a) => sum + a.books.length, 0);
+  footer.textContent = all.length + ' author' + (all.length !== 1 ? 's' : '') +
+    ' · ' + totalBooks + ' book' + (totalBooks !== 1 ? 's' : '');
+
+  if (all.length === 0) {
+    container.innerHTML = '<div class="authors-empty">No authors yet.<br>Add some books with authors to see them here.</div>';
+    return;
+  }
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="authors-empty">No authors match "<strong>' + escapeHtml(filter) + '</strong>".</div>';
+    return;
+  }
+
+  const frag = document.createDocumentFragment();
+  for (const a of filtered) {
+    const finished = a.books.filter(b => b.status === 'finished').length;
+    const reading  = a.books.filter(b => b.status === 'reading').length;
+    const unread   = a.books.filter(b => !b.status || b.status === 'unread').length;
+    const dnf      = a.books.filter(b => b.status === 'dnf').length;
+
+    let meta = a.books.length + ' book' + (a.books.length !== 1 ? 's' : '');
+    if (finished > 0) meta += ' · ' + finished + ' finished';
+    if (reading  > 0) meta += ' · ' + reading  + ' reading';
+    if (dnf      > 0) meta += ' · ' + dnf      + ' DNF';
+
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'author-item';
+    item.dataset.author = a.name;
+    item.title = 'View books by ' + a.name;
+
+    const avatar = document.createElement('div');
+    avatar.className = 'author-item-avatar';
+    avatar.textContent = getInitials(a.name);
+
+    const info = document.createElement('div');
+    info.className = 'author-item-info';
+    const nameEl = document.createElement('div');
+    nameEl.className = 'author-item-name';
+    nameEl.textContent = a.name;
+    const metaEl = document.createElement('div');
+    metaEl.className = 'author-item-meta';
+    metaEl.textContent = meta;
+    info.appendChild(nameEl);
+    info.appendChild(metaEl);
+
+    item.appendChild(avatar);
+    item.appendChild(info);
+
+    item.addEventListener('click', () => openAuthorBooks(a.name));
+    frag.appendChild(item);
+  }
+  container.replaceChildren(frag);
+}
+
+document.getElementById('author-search').addEventListener('input', (e) => {
+  renderAuthorsList(e.target.value);
+});
+
+function openAuthorBooks(authorName) {
+  if (!authorName) return;
+  authorState.currentAuthor = authorName;
+
+  const books = state.books.filter(b => (b.author || '').trim() === authorName);
+
+  // Set title
+  document.getElementById('author-books-title').textContent = '✍ ' + authorName;
+
+  // Build grid
+  const grid = document.getElementById('author-books-grid');
+  const frag = document.createDocumentFragment();
+
+  // Sort: finished first, then reading, then unread, then dnf, then by title
+  const statusOrder = { finished: 0, reading: 1, unread: 2, dnf: 3 };
+  const sorted = [...books].sort((a, b) => {
+    const sa = statusOrder[a.status || 'unread'] ?? 2;
+    const sb = statusOrder[b.status || 'unread'] ?? 2;
+    if (sa !== sb) return sa - sb;
+    return (a.title || '').localeCompare(b.title || '', undefined, { sensitivity: 'base' });
+  });
+
+  for (const book of sorted) {
+    frag.appendChild(createAuthorBookCard(book));
+  }
+  grid.replaceChildren(frag);
+
+  // Stats
+  const finished = books.filter(b => b.status === 'finished').length;
+  const reading  = books.filter(b => b.status === 'reading').length;
+  const unread   = books.filter(b => !b.status || b.status === 'unread').length;
+  const dnf      = books.filter(b => b.status === 'dnf').length;
+  const totalSec = books.reduce((sum, b) => sum + (b.timeSpent || 0), 0);
+
+  const parts = [books.length + ' book' + (books.length !== 1 ? 's' : '')];
+  if (finished) parts.push(finished + ' finished');
+  if (reading)  parts.push(reading  + ' reading');
+  if (unread)   parts.push(unread   + ' unread');
+  if (dnf)      parts.push(dnf      + ' DNF');
+  if (totalSec > 0) parts.push(formatDuration(totalSec) + ' read');
+  document.getElementById('author-books-stats').textContent = parts.join(' · ');
+
+  // Open
+  closeAllAndOpen('modal-author-books');
+}
+
+function createAuthorBookCard(book) {
+  const card = tplBook.content.firstElementChild.cloneNode(true);
+  card.dataset.bookId = book.id;
+  card.dataset.phase = String(book.phase);
+  card.draggable = false;
+
+  card.querySelector('.title').textContent = book.title || 'Untitled';
+  card.querySelector('.author').textContent = book.author || 'Unknown author';
+
+  const coverUrl = resolveCoverUrl(book);
+  if (coverUrl) {
+    const img = card.querySelector('.cover-img');
+    img.alt = book.title || '';
+    img.onload = function () { this.classList.add('loaded'); this.onload = null; };
+    img.onerror = function () {
+      this.onerror = null; this.onload = null;
+      this.classList.add('loaded');
+    };
+    img.src = coverUrl;
+  }
+
+  applyCardStatus(card, book);
+  applyCardDeadline(card, book);
+  applyCardFormat(card, book);
+  applyCardTime(card, book);
+  applyCardTimerActive(card, book);
+
+  card.addEventListener('click', () => {
+    closeAllAndOpen('modal-view');
+    setTimeout(() => openViewModal(book.id), 20);
+  });
+
+  return card;
+}
+
+document.getElementById('author-books-back').addEventListener('click', () => {
+  openAuthorsList();
+});
+
+document.getElementById('btn-authors').addEventListener('click', openAuthorsList);
+
+/* ==================================================
    Edit modal
    ================================================== */
 const f = {
@@ -3594,6 +3962,13 @@ function refreshPhaseOptions() {
   document.getElementById('bulk-phase').innerHTML = html;
 }
 refreshPhaseOptions();
+
+function refreshAuthorSuggestions() {
+  const dl = document.getElementById('author-suggestions');
+  if (!dl) return;
+  const authors = getAllAuthors().map(a => a.name);
+  dl.innerHTML = authors.map(n => '<option value="' + escapeHtml(n) + '">').join('');
+}
 
 function setCoverPreview(url) {
   if (url) {
@@ -3691,6 +4066,7 @@ function openBookModal(bookId, defaultPhase) {
   setStatusPills(modalEditing.status);
   setStars(modalEditing.rating || 0);
   updateDeadlineHint();
+  refreshAuthorSuggestions();
 
   document.getElementById('btn-save').textContent = modalIsNew ? 'Add Book' : 'Save Changes';
 
@@ -3877,7 +4253,6 @@ async function searchGoogleBooks(q) {
 }
 
 async function searchOpenLibrary(q) {
-  // Direct ISBN cover shortcut
   const digits = q.replace(/[^0-9Xx]/g, '');
   if (/^\d{9}[\dXx]$/.test(digits) || /^\d{13}$/.test(digits)) {
     return [{
@@ -3955,7 +4330,6 @@ function renderCoverResults(results) {
   coverEls.results.appendChild(frag);
 }
 
-// Wire up edit-modal cover action buttons
 document.getElementById('f-cover-search').addEventListener('click', openCoverSearch);
 document.getElementById('f-cover-auto').addEventListener('click', () => {
   const isbn = f.isbn.value.trim();
@@ -4145,7 +4519,6 @@ function openSettingsModal() {
   syncPhasesArray();
   renderPhaseSettings(state.settings.phases);
 
-  // Goals
   const g = state.settings.goals;
   s.goalDailySessions.value = g.daily.sessions;
   s.goalDailyPages.value = g.daily.pages;
@@ -4196,7 +4569,6 @@ function saveSettings() {
     }
   };
 
-  // Collect phase names/colors from form, pad/trim to newPhaseCount
   let newPhases = collectPhaseInputs();
   while (newPhases.length < newPhaseCount) newPhases.push(defaultPhaseEntry(newPhases.length));
   while (newPhases.length > newPhaseCount) newPhases.pop();
@@ -4248,12 +4620,10 @@ document.getElementById('s-reset').addEventListener('click', () => {
   s.phaseCount.value = DEFAULT_SETTINGS.phaseCount;
   s.booksPerPhase.value = DEFAULT_SETTINGS.booksPerPhase;
 
-  // Reset phase names/colors to defaults
   const defaults = [];
   for (let i = 0; i < DEFAULT_SETTINGS.phaseCount; i++) defaults.push(defaultPhaseEntry(i));
   renderPhaseSettings(defaults);
 
-  // Reset goals
   s.goalDailySessions.value = DEFAULT_SETTINGS.goals.daily.sessions;
   s.goalDailyPages.value = DEFAULT_SETTINGS.goals.daily.pages;
   s.goalDailyMinutes.value = DEFAULT_SETTINGS.goals.daily.minutes;
@@ -4286,12 +4656,10 @@ document.getElementById('s-reset-challenge').addEventListener('click', () => {
   if (!confirm(msg1)) return;
   if (!confirm('Are you absolutely sure? Consider exporting your data first.')) return;
 
-  // Preserve the current challenge duration so we can restart the timeline.
   const durationDays = (state.settings.startDate && state.settings.endDate)
     ? daysBetweenISO(state.settings.startDate, state.settings.endDate)
     : null;
 
-  // Stop any running timer and clear its state.
   state.timer.running = false;
   state.timer.bookId = null;
   state.timer.endTimestamp = null;
@@ -4300,12 +4668,10 @@ document.getElementById('s-reset-challenge').addEventListener('click', () => {
   state.timer.sessionsCompleted = 0;
   state.timer.remainingSeconds = getModeDuration('work');
 
-  // Wipe books + activity.
   state.books = [];
   state.activityLog = {};
   refs.bookElMap.clear();
 
-  // Restart the timeline from today (keep same duration if it was set).
   if (durationDays && durationDays > 0) {
     const today = todayISO();
     state.settings.startDate = today;
@@ -4314,7 +4680,6 @@ document.getElementById('s-reset-challenge').addEventListener('click', () => {
 
   saveState();
 
-  // Refresh UI.
   rebuildAllPhases();
   updateHeaderDates();
   updateHeaderGoals();
@@ -4404,7 +4769,6 @@ function completeSession() {
     if (book) book.sessionsCompleted = (book.sessionsCompleted || 0) + 1;
     state.timer.sessionsCompleted++;
 
-    // Log a completed session in today's activity
     const today = todayISO();
     ensureActivityEntry(today).sessions += 1;
 
@@ -4443,7 +4807,6 @@ function tickTimer() {
       const book = getBook(state.timer.bookId);
       if (book) book.timeSpent = (book.timeSpent || 0) + capped;
 
-      // Log activity
       const today = todayISO();
       const entry = ensureActivityEntry(today);
       entry.seconds += capped;
@@ -4880,8 +5243,6 @@ document.getElementById('bulk-submit').addEventListener('click', () => {
     let coverUrl = '';
     let format = '';
 
-    // Smart-detect fields 3+: URLs → coverUrl, format keywords → format,
-    // anything else (first non-format) → ISBN
     for (let i = 2; i < parts.length; i++) {
       const val = parts[i];
       if (!val) continue;
@@ -4962,7 +5323,6 @@ document.getElementById('ie-import-file').addEventListener('change', (e) => {
         if (typeof b.timeSpent !== 'number') b.timeSpent = 0;
         if (typeof b.sessionsCompleted !== 'number') b.sessionsCompleted = 0;
         if (typeof b.deadline !== 'string') b.deadline = '';
-        // Normalize format
         if (b.format && !FORMAT_LABELS[b.format]) {
           const detected = detectFormat(b.format);
           b.format = detected || '';
@@ -5087,7 +5447,6 @@ function loadSampleData() {
     const status = statuses[i % 4];
     const deadline = hasDates && status !== 'finished' ? getPhaseDeadline(phase - 1) : '';
 
-    // Spread start/finish dates across the last ~90 days
     let dateStarted = '';
     let dateFinished = '';
     if (status === 'finished' || status === 'reading' || status === 'dnf') {
@@ -5121,7 +5480,6 @@ function loadSampleData() {
 
   state.books.sort((a, b) => a.phase - b.phase);
 
-  // Seed activity log with plausible data
   state.activityLog = {};
   for (let i = 0; i < 75; i++) {
     if (Math.random() < 0.30) continue;
@@ -5174,7 +5532,6 @@ function renderCalendar() {
   const { year, month } = calState;
   calEls.title.textContent = MONTH_NAMES_LONG[month] + ' ' + year;
 
-  // Build event map: iso -> [{ type, book }]
   const events = {};
   for (const b of state.books) {
     if (b.dateStarted)  addCalEvent(events, b.dateStarted, 'start', b);
@@ -5416,7 +5773,6 @@ function renderStreak() {
   today.setHours(0, 0, 0, 0);
   const todayIso = dateToISO(today);
 
-  // ---- Current streak ----
   let current = 0;
   let check = new Date(today);
   const todayEntry = log[todayIso];
@@ -5434,7 +5790,6 @@ function renderStreak() {
     }
   }
 
-  // ---- Longest streak & total active days ----
   const activeDates = Object.keys(log)
     .filter(k => log[k] && log[k].seconds > 0)
     .sort();
@@ -5463,10 +5818,8 @@ function renderStreak() {
   streakEls.total.textContent = totalActive;
   streakEls.today.textContent = formatDurationOrShort(todaySeconds);
 
-  // ---- Goals ----
   renderGoals();
 
-  // ---- Heatmap grid ----
   const startSunday = new Date(today);
   startSunday.setDate(startSunday.getDate() - 52 * 7 - today.getDay());
 
@@ -5512,7 +5865,6 @@ function renderStreak() {
   }
   streakEls.grid.appendChild(frag);
 
-  // ---- Month labels ----
   streakEls.months.innerHTML = '';
   let lastMonth = -1;
   for (let w = 0; w < 53; w++) {
@@ -5530,7 +5882,6 @@ function renderStreak() {
   }
 }
 
-/* Log pages button */
 streakEls.logPagesBtn.addEventListener('click', () => {
   const input = streakEls.logPagesInput;
   const n = parseInt(input.value, 10);
