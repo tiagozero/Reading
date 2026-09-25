@@ -363,6 +363,7 @@
   .card-deadline {
     position: absolute;
     top: 6px; left: 6px;
+    max-width: calc(100% - 12px);
     font-size: 9px;
     font-weight: 700;
     padding: 3px 7px;
@@ -373,6 +374,8 @@
     z-index: 3;
     display: flex; align-items: center; gap: 3px;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .card-deadline.soon { background: #fef3c7; color: var(--deadline-soon); }
   .card-deadline.overdue { background: #fee2e2; color: var(--deadline-overdue); }
@@ -2316,6 +2319,10 @@
       <div style="margin-top:20px">
         <div class="settings-section-title">📅 Phase Deadlines</div>
         <div class="deadline-preview-list" id="s-deadline-list"></div>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;font-weight:600;color:var(--text-sub);cursor:pointer">
+          <input type="checkbox" id="s-showDeadlineTime" style="width:16px;height:16px;cursor:pointer">
+          Show hours &amp; minutes remaining on book cover deadline badges
+        </label>
       </div>
 
       <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
@@ -2681,6 +2688,7 @@ const DEFAULT_SETTINGS = {
   phaseCount: 5,
   booksPerPhase: 20,
   phases: [],
+  showDeadlineTime: false,
   goals: {
     daily:  { sessions: 1, pages: 30, minutes: 30 },
     weekly: { sessions: 7, pages: 210, minutes: 210 }
@@ -2984,6 +2992,27 @@ function getDeadlineCountdown(deadlineIso) {
   if (days === 0) return { text: 'Due today', state: 'soon' };
   if (days === 1) return { text: '1 day left', state: 'soon' };
   return { text: days + ' days left', state: days <= 3 ? 'soon' : 'ok' };
+}
+
+/* Precise hours/minutes countdown, measured to the end of the deadline day. */
+function getDeadlineCountdownPrecise(deadlineIso) {
+  if (!deadlineIso) return null;
+  const target = new Date(deadlineIso + 'T23:59:59');
+  if (isNaN(target.getTime())) return null;
+  const now = new Date();
+  const diffMs = target.getTime() - now.getTime();
+  const overdue = diffMs < 0;
+  const totalMinutes = Math.floor(Math.abs(diffMs) / 60000);
+  const days = Math.floor(totalMinutes / 1440);
+  const hours = Math.floor((totalMinutes % 1440) / 60);
+  const minutes = totalMinutes % 60;
+
+  let text = '';
+  if (days > 0) text += days + 'd ';
+  text += hours + 'h ' + minutes + 'm';
+  text += overdue ? ' overdue' : ' left';
+
+  return { text, state: overdue ? 'overdue' : (totalMinutes <= 3 * 1440 ? 'soon' : 'ok') };
 }
 
 /* ==================================================
@@ -3315,7 +3344,23 @@ function applyCardDeadline(card, book) {
   const st = getDeadlineState(book.deadline);
   el.style.display = '';
   el.className = 'card-deadline' + (st === 'overdue' ? ' overdue' : st === 'soon' ? ' soon' : '');
-  el.textContent = (st === 'overdue' ? '⚠ ' : '📅 ') + formatShortDate(book.deadline);
+  const icon = st === 'overdue' ? '⚠ ' : '📅 ';
+  if (state.settings.showDeadlineTime) {
+    const cd = getDeadlineCountdownPrecise(book.deadline);
+    el.textContent = icon + (cd ? cd.text : formatShortDate(book.deadline));
+    el.title = formatShortDate(book.deadline);
+  } else {
+    el.textContent = icon + formatShortDate(book.deadline);
+    el.removeAttribute('title');
+  }
+}
+
+function refreshCardDeadlines() {
+  for (const [bookId, card] of refs.bookElMap) {
+    const book = getBook(bookId);
+    if (!book) continue;
+    applyCardDeadline(card, book);
+  }
 }
 
 function applyCardFormat(card, book) {
@@ -4361,7 +4406,8 @@ const s = {
   pomoLongEvery: document.getElementById('s-pomoLongEvery'),
   preview:       document.getElementById('s-preview'),
   warning:       document.getElementById('s-warning'),
-  deadlineList:  document.getElementById('s-deadline-list')
+  deadlineList:  document.getElementById('s-deadline-list'),
+  showDeadlineTime: document.getElementById('s-showDeadlineTime')
 };
 
 function defaultPhaseEntry(i) {
@@ -4532,6 +4578,8 @@ function openSettingsModal() {
   s.pomoLongBreak.value = state.settings.pomodoro.longBreakMinutes;
   s.pomoLongEvery.value = state.settings.pomodoro.longBreakEvery;
 
+  s.showDeadlineTime.checked = !!state.settings.showDeadlineTime;
+
   updateSettingsPreview();
   detectActivePreset();
   updateThemeButtons();
@@ -4593,6 +4641,7 @@ function saveSettings() {
   state.settings.phases = newPhases;
   state.settings.goals = newGoals;
   state.settings.pomodoro = newPomodoro;
+  state.settings.showDeadlineTime = s.showDeadlineTime.checked;
 
   if (!state.timer.running && !state.timer.bookId) {
     state.timer.remainingSeconds = getModeDuration(state.timer.mode);
@@ -4607,6 +4656,7 @@ function saveSettings() {
   updateHeaderGoals();
   updateEmptyBanner();
   updateTimerWidget();
+  refreshCardDeadlines();
   closeAllModals();
   showToast('Settings saved ✓', 'success');
 }
@@ -4635,6 +4685,7 @@ document.getElementById('s-reset').addEventListener('click', () => {
   s.pomoShortBreak.value = DEFAULT_SETTINGS.pomodoro.shortBreakMinutes;
   s.pomoLongBreak.value = DEFAULT_SETTINGS.pomodoro.longBreakMinutes;
   s.pomoLongEvery.value = DEFAULT_SETTINGS.pomodoro.longBreakEvery;
+  s.showDeadlineTime.checked = DEFAULT_SETTINGS.showDeadlineTime;
   setActivePreset(null);
   updateSettingsPreview();
 });
@@ -4840,6 +4891,11 @@ function ensureTicking() {
   if (timerInterval) return;
   timerInterval = setInterval(tickTimer, 250);
 }
+
+/* Keep hours/minutes deadline badges live even when the pomodoro timer isn't running. */
+setInterval(() => {
+  if (state.settings.showDeadlineTime) refreshCardDeadlines();
+}, 30000);
 
 function refreshCardTimerState() {
   for (const [bookId, card] of refs.bookElMap) {
@@ -5962,6 +6018,7 @@ function init() {
   refreshPhaseOptions();
   rebuildPhaseSections();
   rebuildAllPhases();
+  refreshCardDeadlines();
   updateHeaderDates();
   updateHeaderGoals();
   updateEmptyBanner();
