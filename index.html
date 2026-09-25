@@ -1884,6 +1884,198 @@
     margin-bottom: 12px;
   }
   .reset-note strong { color: var(--text); }
+
+  /* ==================================================
+     DAILY PLAN + CHALLENGES
+     ================================================== */
+  .plan-date-nav {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+  }
+  .plan-date-display { flex: 1; text-align: center; min-width: 0; }
+  .plan-date-main { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; }
+  .plan-date-sub { font-size: 11px; font-weight: 700; color: var(--text-sub); margin-top: 2px; }
+
+  .plan-summary {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    padding: 14px; margin-bottom: 20px;
+    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+    border: 1px solid #c7d2fe; border-radius: 12px; text-align: center;
+  }
+  html[data-theme="dark"] .plan-summary {
+    background: linear-gradient(135deg, #1e2438, #1c2233);
+    border-color: #2c3a54;
+  }
+  .plan-summary .ps-value {
+    font-size: 20px; font-weight: 800; color: var(--primary-dark);
+    line-height: 1.1; font-variant-numeric: tabular-nums;
+  }
+  html[data-theme="dark"] .plan-summary .ps-value { color: var(--primary-light); }
+  .plan-summary .ps-label {
+    font-size: 10px; font-weight: 700; color: var(--text-sub);
+    text-transform: uppercase; letter-spacing: 0.4px; margin-top: 3px;
+  }
+
+  .plan-section { margin-bottom: 24px; }
+  .plan-section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; margin-bottom: 10px;
+  }
+  .plan-section-head h3 {
+    font-size: 13px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--text-sub);
+  }
+  .plan-count { font-size: 11px; font-weight: 700; color: var(--text-mute); }
+  .plan-subhead {
+    font-size: 11px; font-weight: 800; color: var(--text-sub);
+    text-transform: uppercase; letter-spacing: 0.4px; margin: 18px 0 8px;
+  }
+
+  .plan-empty {
+    text-align: center; color: var(--text-mute); font-size: 12px;
+    padding: 16px; border: 1px dashed var(--border); border-radius: 10px;
+  }
+
+  .plan-task-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+  .plan-task {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 10px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    transition: background 0.12s, border-color 0.12s, opacity 0.12s;
+  }
+  .plan-task:hover { border-color: var(--border-strong); }
+  .plan-task.done { opacity: 0.62; }
+  .plan-task.done .plan-task-text { text-decoration: line-through; color: var(--text-sub); }
+  .plan-check {
+    width: 20px; height: 20px; flex-shrink: 0;
+    border-radius: 6px; border: 2px solid var(--border-strong);
+    background: var(--surface); color: transparent;
+    font-size: 12px; font-weight: 900; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-family: inherit; padding: 0;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+  }
+  .plan-check:hover { border-color: var(--primary); }
+  .plan-task.done .plan-check,
+  .challenge-task.done .plan-check {
+    background: var(--status-finished);
+    border-color: var(--status-finished);
+    color: #fff;
+  }
+  .plan-task-text {
+    flex: 1; min-width: 0; font-size: 13px; font-weight: 600;
+    color: var(--text); word-break: break-word;
+  }
+  .plan-task-del {
+    background: none; border: none; color: var(--text-mute);
+    font-size: 18px; cursor: pointer; line-height: 1; padding: 0 4px;
+    border-radius: 6px; font-family: inherit;
+  }
+  .plan-task-del:hover { color: var(--status-dnf); background: var(--surface-3); }
+
+  .plan-add-row { display: flex; gap: 8px; }
+  .plan-add-row input {
+    flex: 1; padding: 9px 12px; border: 1px solid var(--border);
+    border-radius: 8px; background: var(--surface-2); color: var(--text);
+    font-family: inherit; font-size: 13px; min-width: 0;
+  }
+  .plan-add-row input:focus {
+    outline: none; border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+  }
+
+  .plan-quick-add { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .quick-chip {
+    padding: 5px 10px; border-radius: 14px;
+    border: 1px dashed var(--border-strong);
+    background: var(--surface-2); color: var(--text-sub);
+    font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit;
+    transition: all 0.12s;
+  }
+  .quick-chip:hover {
+    border-style: solid; border-color: var(--primary);
+    color: var(--primary); background: var(--surface-3);
+  }
+
+  .challenge-card {
+    border: 1px solid var(--border); border-radius: 12px;
+    background: var(--surface-2); padding: 12px 14px; margin-bottom: 10px;
+  }
+  .challenge-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .challenge-icon { font-size: 20px; flex-shrink: 0; }
+  .challenge-info { flex: 1; min-width: 0; }
+  .challenge-title { font-size: 14px; font-weight: 800; color: var(--text); }
+  .challenge-meta { font-size: 11px; font-weight: 600; color: var(--text-sub); margin-top: 2px; }
+  .challenge-del {
+    background: none; border: none; color: var(--text-mute); font-size: 18px;
+    cursor: pointer; line-height: 1; padding: 0 4px; font-family: inherit;
+    border-radius: 6px;
+  }
+  .challenge-del:hover { color: var(--status-dnf); background: var(--surface-3); }
+  .challenge-desc {
+    font-size: 11px; color: var(--text-mute); line-height: 1.5;
+    margin-bottom: 10px;
+  }
+  .challenge-bar {
+    height: 5px; border-radius: 3px; background: var(--surface-3);
+    overflow: hidden; margin-bottom: 10px;
+  }
+  .challenge-bar-fill {
+    height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+    transition: width 0.3s ease;
+  }
+  .challenge-bar-fill.done { background: var(--status-finished); }
+  .challenge-tasks { display: flex; flex-direction: column; gap: 6px; }
+  .challenge-task {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600; color: var(--text);
+    cursor: pointer; padding: 2px 0; border-radius: 6px;
+  }
+  .challenge-task:hover { color: var(--primary); }
+  .challenge-task.done { color: var(--text-sub); text-decoration: line-through; }
+
+  .challenge-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px;
+  }
+  .challenge-preset {
+    border: 1px solid var(--border); border-radius: 12px; padding: 12px;
+    background: var(--surface-2); display: flex; flex-direction: column; gap: 6px;
+    transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+  }
+  .challenge-preset:hover {
+    transform: translateY(-2px); border-color: var(--primary);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  }
+  html[data-theme="dark"] .challenge-preset:hover {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.45);
+  }
+  .challenge-preset.active { border-color: var(--status-finished); background: var(--surface-3); }
+  .challenge-preset .cp-icon { font-size: 20px; line-height: 1; }
+  .challenge-preset .cp-title { font-size: 13px; font-weight: 800; color: var(--text); line-height: 1.25; }
+  .challenge-preset .cp-desc { font-size: 11px; color: var(--text-sub); line-height: 1.4; flex: 1; }
+  .challenge-preset .cp-foot {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; margin-top: 4px;
+  }
+  .cp-days {
+    font-size: 10px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.4px; color: var(--primary);
+    background: var(--surface-3); padding: 3px 8px; border-radius: 10px;
+  }
+  html[data-theme="dark"] .cp-days { color: var(--primary-light); }
+  .cp-btn {
+    padding: 6px 12px; border-radius: 8px; border: none;
+    background: var(--primary); color: #fff; font-size: 11px; font-weight: 800;
+    cursor: pointer; font-family: inherit; transition: background 0.12s;
+  }
+  .cp-btn:hover:not(:disabled) { background: var(--primary-dark); }
+  .cp-btn:disabled { background: var(--surface-3); color: var(--text-mute); cursor: default; }
+
+  .cal-plan-dot {
+    position: absolute; top: 5px; right: 5px;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--primary);
+  }
 </style>
 </head>
 <body>
@@ -1923,6 +2115,7 @@
       <button class="btn" id="btn-ie">Import / Export</button>
       <button class="btn" id="btn-authors">✍ Authors</button>
       <button class="btn" id="btn-calendar">📅 Calendar</button>
+      <button class="btn" id="btn-plan">📋 Daily Plan</button>
       <button class="btn" id="btn-streak">🔥 Streak</button>
       <button class="btn" id="btn-settings">⚙ Settings</button>
     </div>
@@ -2387,7 +2580,8 @@
       <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
         <div class="settings-section-title" style="color:var(--status-dnf)">🔄 Reset Challenge</div>
         <p class="reset-note">
-          Clears <strong>all books</strong> and <strong>reading activity</strong>, and restarts the
+          Clears <strong>all books</strong>, <strong>reading activity</strong>,
+          <strong>daily plan tasks</strong> and <strong>challenges</strong>, and restarts the
           challenge timeline from today (keeping the same duration). Phase names, colors,
           goals, and timer settings are kept.
         </p>
@@ -2609,6 +2803,109 @@ Project Hail Mary | Andy Weir | audiobook | https://covers.openlibrary.org/b/isb
 </div>
 
 <!-- ==================================================
+     DAILY PLAN MODAL
+     ================================================== -->
+<div class="modal-backdrop" id="modal-plan">
+  <div class="modal" style="max-width:800px">
+    <div class="modal-header">
+      <h2>📋 Daily Plan</h2>
+      <button class="modal-close" data-close>&times;</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="plan-date-nav">
+        <button class="cal-nav-btn" id="plan-prev" aria-label="Previous day">‹</button>
+        <div class="plan-date-display">
+          <div class="plan-date-main" id="plan-date-main">—</div>
+          <div class="plan-date-sub" id="plan-date-sub"></div>
+        </div>
+        <button class="cal-nav-btn" id="plan-next" aria-label="Next day">›</button>
+        <button class="cal-nav-btn" id="plan-today">Today</button>
+      </div>
+
+      <div class="plan-summary" id="plan-summary"></div>
+
+      <div class="plan-section">
+        <div class="plan-section-head">
+          <h3>✅ Checklist</h3>
+          <span class="plan-count" id="plan-task-count"></span>
+        </div>
+        <div class="plan-task-list" id="plan-task-list"></div>
+        <div class="plan-add-row">
+          <input type="text" id="plan-new-task" placeholder="Add a task…" maxlength="140" autocomplete="off">
+          <button class="btn btn-primary" id="plan-add-task">Add</button>
+        </div>
+        <div class="plan-quick-add" id="plan-quick-add"></div>
+      </div>
+
+      <div class="plan-section">
+        <div class="plan-section-head">
+          <h3>🔥 Challenges</h3>
+          <button class="btn" id="plan-new-challenge">+ Custom Challenge</button>
+        </div>
+        <div id="plan-active-challenges"></div>
+        <div class="plan-subhead">Pre-made challenges</div>
+        <div class="challenge-grid" id="plan-challenge-presets"></div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <div style="font-size:11px;color:var(--text-mute)" id="plan-footer"></div>
+      <div class="modal-footer-right">
+        <button class="btn" data-close>Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
+     CUSTOM CHALLENGE MODAL
+     ================================================== -->
+<div class="modal-backdrop" id="modal-challenge" style="z-index:1100">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <h2 id="challenge-modal-title">New Challenge</h2>
+      <button class="modal-close" data-close>&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Icon</label>
+          <input type="text" id="ch-icon" maxlength="4" value="🔥">
+        </div>
+        <div class="form-group">
+          <label>Title *</label>
+          <input type="text" id="ch-title" maxlength="60" placeholder="My reading challenge">
+        </div>
+        <div class="form-group form-full">
+          <label>Description</label>
+          <input type="text" id="ch-desc" maxlength="140" placeholder="What is this challenge about?">
+        </div>
+        <div class="form-group">
+          <label>Duration (days)</label>
+          <input type="number" id="ch-days" min="1" max="365" value="7">
+        </div>
+        <div class="form-group">
+          <label>Start Date</label>
+          <input type="date" id="ch-start">
+        </div>
+        <div class="form-group form-full">
+          <label>Daily Tasks (one per line)</label>
+          <textarea id="ch-tasks" class="bulk-textarea" style="min-height:130px"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div></div>
+      <div class="modal-footer-right">
+        <button class="btn" data-close>Cancel</button>
+        <button class="btn btn-primary" id="ch-save">Start Challenge</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
      POMODORO WIDGET
      ================================================== -->
 <div class="pomodoro-widget" id="pomodoro-widget">
@@ -2746,6 +3043,8 @@ const state = {
   books: [],
   settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),
   activityLog: {},
+  dailyPlans: {},     // "YYYY-MM-DD" -> { tasks: [{id, text, done}] }
+  challenges: [],     // [{ id, icon, title, desc, durationDays, startDate, tasks[], completions{}, presetId }]
   timer: {
     bookId: null,
     mode: 'work',
@@ -3106,6 +3405,29 @@ function loadState() {
         if (typeof e.pages !== 'number') e.pages = 0;
       }
     }
+    // ---- Daily plans ----
+    if (parsed && parsed.dailyPlans && typeof parsed.dailyPlans === 'object') {
+      state.dailyPlans = parsed.dailyPlans;
+      for (const k in state.dailyPlans) {
+        const p = state.dailyPlans[k];
+        if (!p || typeof p !== 'object' || !Array.isArray(p.tasks)) { delete state.dailyPlans[k]; continue; }
+        p.tasks = p.tasks.filter(t => t && typeof t === 'object' && typeof t.text === 'string');
+        p.tasks.forEach(t => { if (!t.id) t.id = uid(); t.done = !!t.done; });
+        if (p.tasks.length === 0) delete state.dailyPlans[k];
+      }
+    }
+    // ---- Challenges ----
+    if (parsed && Array.isArray(parsed.challenges)) {
+      state.challenges = parsed.challenges.filter(c => c && typeof c === 'object' && c.title);
+      state.challenges.forEach(c => {
+        if (!c.id) c.id = uid();
+        if (!Array.isArray(c.tasks) || c.tasks.length === 0) c.tasks = ['Read'];
+        if (!c.completions || typeof c.completions !== 'object') c.completions = {};
+        c.durationDays = Math.max(1, Math.min(365, parseInt(c.durationDays, 10) || 7));
+        if (!c.startDate) c.startDate = todayISO();
+        if (!c.icon) c.icon = '🔥';
+      });
+    }
   } catch (e) { console.error('Load failed:', e); }
 }
 
@@ -3115,6 +3437,8 @@ function saveState() {
       books: state.books,
       settings: state.settings,
       activityLog: state.activityLog,
+      dailyPlans: state.dailyPlans,
+      challenges: state.challenges,
       timer: {
         bookId: state.timer.bookId,
         mode: state.timer.mode,
@@ -3514,6 +3838,19 @@ function updateHeaderGoals() {
   parts.push(chip('🍅', entry.sessions || 0, g.sessions, ''));
   parts.push(chip('📖', entry.pages || 0, g.pages, 'p'));
 
+  // ---- Daily plan chip ----
+  const planTasks = getPlanTaskList(today);
+  if (planTasks.length > 0) {
+    const pDone = planTasks.filter(t => t.done).length;
+    parts.push('<span class="goal-chip' + (pDone === planTasks.length ? ' done' : '') + '">' +
+      '📋 <span class="gv">' + pDone + '</span>/' + planTasks.length + '</span>');
+  }
+  // ---- Active challenges chip ----
+  const activeCh = getActiveChallenges(today).length;
+  if (activeCh > 0) {
+    parts.push('<span class="goal-chip">🔥 <span class="gv">' + activeCh + '</span></span>');
+  }
+
   const joined = parts.filter(Boolean).join('');
   el.innerHTML = joined ? '🎯 ' + joined : '';
 }
@@ -3562,16 +3899,28 @@ function closeAllModals() {
 
 document.addEventListener('click', (e) => {
   if (e.target.classList.contains('modal-backdrop')) {
-    if (e.target.id === 'modal-cover') {
+    if (e.target.id === 'modal-cover' || e.target.id === 'modal-challenge') {
       e.target.classList.remove('show');
       return;
     }
     closeAllModals();
   }
-  if (e.target.matches('[data-close]')) closeAllModals();
+  if (e.target.matches('[data-close]')) {
+    const parentModal = e.target.closest('.modal-backdrop');
+    if (parentModal && parentModal.id === 'modal-challenge') {
+      parentModal.classList.remove('show');
+      return;
+    }
+    closeAllModals();
+  }
 });
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
+    const chModal = document.getElementById('modal-challenge');
+    if (chModal && chModal.classList.contains('show')) {
+      chModal.classList.remove('show');
+      return;
+    }
     const coverModal = document.getElementById('modal-cover');
     if (coverModal && coverModal.classList.contains('show')) {
       coverModal.classList.remove('show');
@@ -4696,11 +5045,13 @@ document.getElementById('s-reset').addEventListener('click', () => {
 document.getElementById('s-reset-challenge').addEventListener('click', () => {
   const bookCount = state.books.length;
   const activityDays = Object.keys(state.activityLog).length;
+  const challengeCount = (state.challenges || []).length;
 
   const msg1 =
     'Reset the challenge and books?\n\n' +
     '• ' + bookCount + ' book' + (bookCount !== 1 ? 's' : '') + ' will be permanently deleted\n' +
     '• ' + activityDays + ' day' + (activityDays !== 1 ? 's' : '') + ' of reading activity will be cleared\n' +
+    '• All daily plan tasks and ' + challengeCount + ' challenge' + (challengeCount !== 1 ? 's' : '') + ' will be cleared\n' +
     '• The challenge timeline will restart from today (same duration)\n\n' +
     'Phase names, colors, goals, and timer settings will be kept.\n\n' +
     'This cannot be undone.';
@@ -4721,6 +5072,8 @@ document.getElementById('s-reset-challenge').addEventListener('click', () => {
 
   state.books = [];
   state.activityLog = {};
+  state.dailyPlans = {};
+  state.challenges = [];
   refs.bookElMap.clear();
 
   if (durationDays && durationDays > 0) {
@@ -5352,6 +5705,8 @@ document.getElementById('ie-export').addEventListener('click', () => {
     books: state.books,
     settings: state.settings,
     activityLog: state.activityLog,
+    dailyPlans: state.dailyPlans,
+    challenges: state.challenges,
     exportedAt: new Date().toISOString()
   }, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -5411,6 +5766,35 @@ document.getElementById('ie-import-file').addEventListener('change', (e) => {
         state.activityLog = {};
       }
 
+      // ---- Daily plans ----
+      if (parsed.dailyPlans && typeof parsed.dailyPlans === 'object') {
+        state.dailyPlans = parsed.dailyPlans;
+        for (const k in state.dailyPlans) {
+          const p = state.dailyPlans[k];
+          if (!p || typeof p !== 'object' || !Array.isArray(p.tasks)) { delete state.dailyPlans[k]; continue; }
+          p.tasks = p.tasks.filter(t => t && typeof t === 'object' && typeof t.text === 'string');
+          p.tasks.forEach(t => { if (!t.id) t.id = uid(); t.done = !!t.done; });
+          if (p.tasks.length === 0) delete state.dailyPlans[k];
+        }
+      } else {
+        state.dailyPlans = {};
+      }
+
+      // ---- Challenges ----
+      if (Array.isArray(parsed.challenges)) {
+        state.challenges = parsed.challenges.filter(c => c && typeof c === 'object' && c.title);
+        state.challenges.forEach(c => {
+          if (!c.id) c.id = uid();
+          if (!Array.isArray(c.tasks) || c.tasks.length === 0) c.tasks = ['Read'];
+          if (!c.completions || typeof c.completions !== 'object') c.completions = {};
+          c.durationDays = Math.max(1, Math.min(365, parseInt(c.durationDays, 10) || 7));
+          if (!c.startDate) c.startDate = todayISO();
+          if (!c.icon) c.icon = '🔥';
+        });
+      } else {
+        state.challenges = [];
+      }
+
       syncPhasesArray();
 
       applyTheme(state.settings.theme || 'light');
@@ -5444,6 +5828,8 @@ document.getElementById('ie-clear').addEventListener('click', () => {
   if (state.timer.running) stopTimer(false);
   state.books = [];
   state.activityLog = {};
+  state.dailyPlans = {};
+  state.challenges = [];
   state.timer.bookId = null;
   saveState();
   refs.bookElMap.clear();
@@ -5630,6 +6016,14 @@ function renderCalendar() {
     num.className = 'cal-day-num';
     num.textContent = d.getDate();
     cell.appendChild(num);
+
+    // Daily plan indicator
+    if (hasPlanItems(iso)) {
+      const dot = document.createElement('span');
+      dot.className = 'cal-plan-dot';
+      dot.title = 'Has daily plan / challenge items';
+      cell.appendChild(dot);
+    }
 
     const dayEvents = events[iso] || [];
     if (dayEvents.length > 0) {
@@ -5956,6 +6350,492 @@ streakEls.logPagesInput.addEventListener('keydown', (e) => {
     streakEls.logPagesBtn.click();
   }
 });
+
+/* ==================================================
+   DAILY PLAN + CHALLENGES
+   ================================================== */
+
+/* --- Pre-created quick checklist items --- */
+const QUICK_TASKS = [
+  '📖 Read 30 minutes',
+  '📄 Read 20 pages',
+  '🎧 Listen to 20 minutes',
+  '📝 Log my progress',
+  '🧘 Read with no phone nearby',
+  '🛏️ Read before bed',
+  '⭐ Rate / review a book',
+  '🔖 Pick my next book'
+];
+
+/* --- Pre-created challenges --- */
+const CHALLENGE_PRESETS = [
+  { id: 'p-sprint',   icon: '⚡', title: '7-Day Reading Sprint',    desc: 'Read for at least 30 minutes every day for a week.',   days: 7,  tasks: ['Read 30 minutes', 'Log my progress'] },
+  { id: 'p-pages',    icon: '📄', title: '30-Day Page Turner',      desc: 'Read 20 pages a day for a whole month.',               days: 30, tasks: ['Read 20 pages', 'Log pages read'] },
+  { id: 'p-finish',   icon: '🏁', title: 'Finish a Book in a Week', desc: 'Pick one book and finish it within 7 days.',           days: 7,  tasks: ['Read 50 pages', 'Update my progress'] },
+  { id: 'p-pomodoro', icon: '🍅', title: '4 Pomodoros a Day',       desc: 'Four focused reading sessions a day for 5 days.',      days: 5,  tasks: ['Complete 4 pomodoro sessions'] },
+  { id: 'p-morning',  icon: '🌅', title: 'Early Bird Reader',       desc: 'Read before 9am for 10 days straight.',                days: 10, tasks: ['Read before 9am'] },
+  { id: 'p-audio',    icon: '🎧', title: 'Audiobook Commute',       desc: 'Listen on every commute for two weeks.',               days: 14, tasks: ['Listen during my commute', 'Note a favourite line'] },
+  { id: 'p-deep',     icon: '🧠', title: 'Deep Focus Week',         desc: 'One hour of uninterrupted reading a day.',             days: 7,  tasks: ['Read 60 minutes, no phone'] },
+  { id: 'p-diverse',  icon: '🌈', title: 'Diverse Reads',           desc: 'Read books by 3 authors new to you in 21 days.',       days: 21, tasks: ['Read a book by a new author', 'Note the author'] }
+];
+
+/* ---------- Data helpers ---------- */
+function ensureDailyPlan(iso) {
+  if (!state.dailyPlans || typeof state.dailyPlans !== 'object') state.dailyPlans = {};
+  if (!state.dailyPlans[iso]) state.dailyPlans[iso] = { tasks: [] };
+  if (!Array.isArray(state.dailyPlans[iso].tasks)) state.dailyPlans[iso].tasks = [];
+  return state.dailyPlans[iso];
+}
+
+function getPlanTaskList(iso) {
+  const p = state.dailyPlans && state.dailyPlans[iso];
+  return (p && Array.isArray(p.tasks)) ? p.tasks : [];
+}
+
+function challengeDayIndex(ch, iso) {
+  if (!ch || !ch.startDate || !ch.durationDays) return -1;
+  const diff = daysBetweenISO(ch.startDate, iso);
+  if (diff === null || diff < 0 || diff >= ch.durationDays) return -1;
+  return diff;
+}
+
+function getActiveChallenges(iso) {
+  return (state.challenges || []).filter(ch => challengeDayIndex(ch, iso) >= 0);
+}
+
+function getChallengeProgress(ch) {
+  const tasks = Array.isArray(ch.tasks) ? ch.tasks : [];
+  const total = ch.durationDays * Math.max(1, tasks.length);
+  let done = 0;
+  const completions = ch.completions || {};
+  for (const iso in completions) {
+    const arr = completions[iso] || [];
+    for (let i = 0; i < tasks.length; i++) if (arr[i]) done++;
+  }
+  return { done, total, pct: total > 0 ? Math.min(100, (done / total) * 100) : 0 };
+}
+
+function isChallengeTaskDone(ch, iso, idx) {
+  const c = ch.completions && ch.completions[iso];
+  return !!(c && c[idx]);
+}
+
+function toggleChallengeTask(ch, iso, idx) {
+  if (!ch.completions) ch.completions = {};
+  if (!ch.completions[iso]) ch.completions[iso] = [];
+  ch.completions[iso][idx] = !ch.completions[iso][idx];
+  saveState();
+}
+
+function hasPlanItems(iso) {
+  if (getPlanTaskList(iso).length > 0) return true;
+  return getActiveChallenges(iso).length > 0;
+}
+
+/* ---------- Element refs ---------- */
+const planState = { date: todayISO() };
+
+const planEls = {
+  dateMain:     document.getElementById('plan-date-main'),
+  dateSub:      document.getElementById('plan-date-sub'),
+  prev:         document.getElementById('plan-prev'),
+  next:         document.getElementById('plan-next'),
+  todayBtn:     document.getElementById('plan-today'),
+  summary:      document.getElementById('plan-summary'),
+  taskList:     document.getElementById('plan-task-list'),
+  taskCount:    document.getElementById('plan-task-count'),
+  newTask:      document.getElementById('plan-new-task'),
+  addTask:      document.getElementById('plan-add-task'),
+  quickAdd:     document.getElementById('plan-quick-add'),
+  activeWrap:   document.getElementById('plan-active-challenges'),
+  presetsWrap:  document.getElementById('plan-challenge-presets'),
+  newChallenge: document.getElementById('plan-new-challenge'),
+  footer:       document.getElementById('plan-footer')
+};
+
+/* ---------- Rendering ---------- */
+function renderDailyPlan() {
+  const iso = planState.date;
+  const d = new Date(iso + 'T00:00:00');
+
+  planEls.dateMain.textContent = d.toLocaleDateString(undefined, {
+    weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+  });
+
+  const diff = daysBetweenISO(todayISO(), iso);
+  planEls.dateSub.textContent =
+    diff === 0  ? 'Today' :
+    diff === 1  ? 'Tomorrow' :
+    diff === -1 ? 'Yesterday' :
+    diff > 1    ? 'In ' + diff + ' days' :
+                  Math.abs(diff) + ' days ago';
+
+  /* ---- Checklist ---- */
+  const tasks = getPlanTaskList(iso);
+  const doneCount = tasks.filter(t => t.done).length;
+  planEls.taskCount.textContent = tasks.length ? doneCount + ' / ' + tasks.length + ' done' : '';
+
+  planEls.taskList.innerHTML = '';
+  if (tasks.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'plan-empty';
+    empty.textContent = 'No tasks yet — add one below, or tap a quick task.';
+    planEls.taskList.appendChild(empty);
+  } else {
+    const frag = document.createDocumentFragment();
+    tasks.forEach(t => {
+      const row = document.createElement('div');
+      row.className = 'plan-task' + (t.done ? ' done' : '');
+      row.dataset.id = t.id;
+
+      const check = document.createElement('button');
+      check.type = 'button';
+      check.className = 'plan-check';
+      check.textContent = '✓';
+      check.setAttribute('aria-label', t.done ? 'Mark as not done' : 'Mark as done');
+
+      const text = document.createElement('span');
+      text.className = 'plan-task-text';
+      text.textContent = t.text;
+
+      const del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'plan-task-del';
+      del.textContent = '×';
+      del.title = 'Delete task';
+
+      row.appendChild(check);
+      row.appendChild(text);
+      row.appendChild(del);
+      frag.appendChild(row);
+    });
+    planEls.taskList.appendChild(frag);
+  }
+
+  /* ---- Quick task chips ---- */
+  planEls.quickAdd.innerHTML = '';
+  QUICK_TASKS.forEach(q => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'quick-chip';
+    chip.textContent = q;
+    chip.addEventListener('click', () => addPlanTask(q));
+    planEls.quickAdd.appendChild(chip);
+  });
+
+  /* ---- Active challenges ---- */
+  const active = getActiveChallenges(iso);
+  planEls.activeWrap.innerHTML = '';
+  if (active.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'plan-empty';
+    empty.textContent = 'No challenges running on this day. Start one below 👇';
+    planEls.activeWrap.appendChild(empty);
+  } else {
+    active.forEach(ch => planEls.activeWrap.appendChild(buildChallengeCard(ch, iso)));
+  }
+
+  /* ---- Pre-made challenges ---- */
+  renderChallengePresets();
+
+  /* ---- Summary ---- */
+  const entry = state.activityLog[iso] || { seconds: 0 };
+  const mins = Math.round((entry.seconds || 0) / 60);
+  planEls.summary.innerHTML =
+    '<div><div class="ps-value">' + doneCount + '/' + tasks.length + '</div><div class="ps-label">Tasks</div></div>' +
+    '<div><div class="ps-value">' + active.length + '</div><div class="ps-label">Challenges</div></div>' +
+    '<div><div class="ps-value">' + mins + 'm</div><div class="ps-label">Read</div></div>';
+
+  const totalCh = (state.challenges || []).length;
+  planEls.footer.textContent = totalCh + ' challenge' + (totalCh !== 1 ? 's' : '') + ' tracked';
+}
+
+function buildChallengeCard(ch, iso) {
+  const dayIdx = challengeDayIndex(ch, iso);
+  const prog = getChallengeProgress(ch);
+
+  const card = document.createElement('div');
+  card.className = 'challenge-card';
+
+  /* Header */
+  const head = document.createElement('div');
+  head.className = 'challenge-head';
+
+  const icon = document.createElement('div');
+  icon.className = 'challenge-icon';
+  icon.textContent = ch.icon || '🔥';
+
+  const info = document.createElement('div');
+  info.className = 'challenge-info';
+
+  const title = document.createElement('div');
+  title.className = 'challenge-title';
+  title.textContent = ch.title;
+
+  const meta = document.createElement('div');
+  meta.className = 'challenge-meta';
+  meta.textContent = 'Day ' + (dayIdx + 1) + ' of ' + ch.durationDays +
+                     ' · ' + Math.round(prog.pct) + '% complete';
+
+  info.appendChild(title);
+  info.appendChild(meta);
+
+  const del = document.createElement('button');
+  del.type = 'button';
+  del.className = 'challenge-del';
+  del.textContent = '×';
+  del.title = 'Remove challenge';
+  del.addEventListener('click', () => {
+    if (!confirm('Remove challenge "' + ch.title + '"?\nProgress will be lost.')) return;
+    state.challenges = (state.challenges || []).filter(c => c.id !== ch.id);
+    saveState();
+    renderDailyPlan();
+    updateHeaderGoals();
+    showToast('Challenge removed');
+  });
+
+  head.appendChild(icon);
+  head.appendChild(info);
+  head.appendChild(del);
+  card.appendChild(head);
+
+  /* Description */
+  if (ch.desc) {
+    const desc = document.createElement('div');
+    desc.className = 'challenge-desc';
+    desc.textContent = ch.desc;
+    card.appendChild(desc);
+  }
+
+  /* Progress bar */
+  const bar = document.createElement('div');
+  bar.className = 'challenge-bar';
+  const fill = document.createElement('div');
+  fill.className = 'challenge-bar-fill' + (prog.pct >= 100 ? ' done' : '');
+  fill.style.width = prog.pct.toFixed(1) + '%';
+  bar.appendChild(fill);
+  card.appendChild(bar);
+
+  /* Daily task checklist */
+  const list = document.createElement('div');
+  list.className = 'challenge-tasks';
+  const tasks = Array.isArray(ch.tasks) ? ch.tasks : [];
+
+  tasks.forEach((taskText, i) => {
+    const isDone = isChallengeTaskDone(ch, iso, i);
+    const row = document.createElement('div');
+    row.className = 'challenge-task' + (isDone ? ' done' : '');
+    row.setAttribute('role', 'button');
+    row.tabIndex = 0;
+
+    const box = document.createElement('span');
+    box.className = 'plan-check';
+    box.textContent = '✓';
+
+    const label = document.createElement('span');
+    label.textContent = taskText;
+
+    row.appendChild(box);
+    row.appendChild(label);
+
+    const toggle = () => {
+      toggleChallengeTask(ch, iso, i);
+      renderDailyPlan();
+      updateHeaderGoals();
+    };
+    row.addEventListener('click', toggle);
+    row.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
+
+    list.appendChild(row);
+  });
+
+  card.appendChild(list);
+  return card;
+}
+
+function renderChallengePresets() {
+  const wrap = planEls.presetsWrap;
+  wrap.innerHTML = '';
+  const activeIds = new Set((state.challenges || []).map(c => c.presetId).filter(Boolean));
+
+  CHALLENGE_PRESETS.forEach(p => {
+    const isActive = activeIds.has(p.id);
+
+    const el = document.createElement('div');
+    el.className = 'challenge-preset' + (isActive ? ' active' : '');
+
+    const icon = document.createElement('div');
+    icon.className = 'cp-icon';
+    icon.textContent = p.icon;
+
+    const title = document.createElement('div');
+    title.className = 'cp-title';
+    title.textContent = p.title;
+
+    const desc = document.createElement('div');
+    desc.className = 'cp-desc';
+    desc.textContent = p.desc;
+
+    const foot = document.createElement('div');
+    foot.className = 'cp-foot';
+
+    const days = document.createElement('span');
+    days.className = 'cp-days';
+    days.textContent = p.days + ' days';
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cp-btn';
+    btn.textContent = isActive ? '✓ Active' : 'Start';
+    btn.disabled = isActive;
+    btn.addEventListener('click', () => startChallengeFromPreset(p));
+
+    foot.appendChild(days);
+    foot.appendChild(btn);
+
+    el.appendChild(icon);
+    el.appendChild(title);
+    el.appendChild(desc);
+    el.appendChild(foot);
+    wrap.appendChild(el);
+  });
+}
+
+/* ---------- Actions ---------- */
+function addPlanTask(text) {
+  const t = String(text || '').trim();
+  if (!t) return;
+  const plan = ensureDailyPlan(planState.date);
+  plan.tasks.push({ id: uid(), text: t, done: false });
+  saveState();
+  renderDailyPlan();
+  updateHeaderGoals();
+  if (planEls.newTask) planEls.newTask.value = '';
+}
+
+function startChallengeFromPreset(preset) {
+  const today = todayISO();
+  const startIso = planState.date >= today ? planState.date : today;
+  const ch = {
+    id: uid(),
+    presetId: preset.id,
+    icon: preset.icon,
+    title: preset.title,
+    desc: preset.desc,
+    durationDays: preset.days,
+    tasks: preset.tasks.slice(),
+    startDate: startIso,
+    completions: {},
+    createdAt: new Date().toISOString()
+  };
+  state.challenges.push(ch);
+  saveState();
+  renderDailyPlan();
+  updateHeaderGoals();
+  showToast('Challenge started 🔥', 'success');
+}
+
+/* ---------- Event wiring ---------- */
+function openDailyPlan() {
+  planState.date = todayISO();
+  renderDailyPlan();
+  openModal('modal-plan');
+}
+
+planEls.prev.addEventListener('click', () => {
+  planState.date = addDaysISO(planState.date, -1);
+  renderDailyPlan();
+});
+planEls.next.addEventListener('click', () => {
+  planState.date = addDaysISO(planState.date, 1);
+  renderDailyPlan();
+});
+planEls.todayBtn.addEventListener('click', () => {
+  planState.date = todayISO();
+  renderDailyPlan();
+});
+
+planEls.addTask.addEventListener('click', () => addPlanTask(planEls.newTask.value));
+planEls.newTask.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); addPlanTask(planEls.newTask.value); }
+});
+
+planEls.taskList.addEventListener('click', (e) => {
+  const row = e.target.closest('.plan-task');
+  if (!row) return;
+  const id = row.dataset.id;
+  const plan = ensureDailyPlan(planState.date);
+  const idx = plan.tasks.findIndex(t => t.id === id);
+  if (idx === -1) return;
+
+  if (e.target.closest('.plan-task-del')) {
+    plan.tasks.splice(idx, 1);
+    if (plan.tasks.length === 0) delete state.dailyPlans[planState.date];
+  } else if (e.target.closest('.plan-check')) {
+    plan.tasks[idx].done = !plan.tasks[idx].done;
+  } else {
+    return;
+  }
+
+  saveState();
+  renderDailyPlan();
+  updateHeaderGoals();
+});
+
+/* ---------- Custom challenge modal ---------- */
+const chEls = {
+  modal: document.getElementById('modal-challenge'),
+  icon:  document.getElementById('ch-icon'),
+  title: document.getElementById('ch-title'),
+  desc:  document.getElementById('ch-desc'),
+  days:  document.getElementById('ch-days'),
+  start: document.getElementById('ch-start'),
+  tasks: document.getElementById('ch-tasks'),
+  save:  document.getElementById('ch-save')
+};
+
+function openChallengeModal() {
+  const today = todayISO();
+  chEls.icon.value = '🔥';
+  chEls.title.value = '';
+  chEls.desc.value = '';
+  chEls.days.value = 7;
+  chEls.start.value = planState.date >= today ? planState.date : today;
+  chEls.tasks.value = 'Read 30 minutes\nLog my progress';
+  chEls.modal.classList.add('show');
+  requestAnimationFrame(() => chEls.title.focus());
+}
+
+planEls.newChallenge.addEventListener('click', openChallengeModal);
+
+chEls.save.addEventListener('click', () => {
+  const title = chEls.title.value.trim();
+  if (!title) { showToast('Title is required', 'error'); chEls.title.focus(); return; }
+
+  const tasks = chEls.tasks.value.split('\n').map(s => s.trim()).filter(Boolean);
+
+  state.challenges.push({
+    id: uid(),
+    icon: chEls.icon.value.trim() || '🔥',
+    title,
+    desc: chEls.desc.value.trim(),
+    durationDays: Math.max(1, Math.min(365, parseInt(chEls.days.value, 10) || 7)),
+    startDate: chEls.start.value || todayISO(),
+    tasks: tasks.length ? tasks : ['Read'],
+    completions: {},
+    createdAt: new Date().toISOString()
+  });
+
+  saveState();
+  chEls.modal.classList.remove('show');
+  renderDailyPlan();
+  updateHeaderGoals();
+  showToast('Challenge started 🔥', 'success');
+});
+
+document.getElementById('btn-plan').addEventListener('click', openDailyPlan);
 
 /* ==================================================
    Restore timer
